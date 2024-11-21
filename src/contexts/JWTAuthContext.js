@@ -143,32 +143,11 @@ export const AuthProvider = (props) => {
                     },
                 );
                 if (status) {
-                    const { user, accessToken, refreshToken } = data;
-                    // if (user?.role && [USER_ROLES.ADMIN].includes(user.role)) {
-
-                    setSession(accessToken, refreshToken, user);
-
-                    dispatch({
-                        type: "LOGIN",
-                        payload: {
-                            user: user,
-                        },
-                    });
-
                     resolve({
                         status: true,
-                        data: {
-                            user: user,
-                        },
-                        message: "Login successful",
+                        data: data,
+                        message: message || "Otp Sent Successfully",
                     });
-                    // } else {
-                    //     resolve({
-                    //         status: false,
-                    //         data: null,
-                    //         message: "You are not authorized to login",
-                    //     });
-                    // }
                 } else {
                     resolve({
                         status: false,
@@ -187,40 +166,31 @@ export const AuthProvider = (props) => {
         });
     };
 
-    const verifyOtp = async (otp) => {
+    const verifyOtp = async (email, otp) => {
         return new Promise(async (resolve) => {
             try {
                 const { status, data, message } = await axiosPost(
-                    API_ROUTER.VERIFY_CODE,
-                    { otp },
+                    API_ROUTER.VERIFY_AND_LOGIN,
+                    { email, otp },
                 );
                 if (status) {
-                    // if (
-                    //     data?.permission &&
-                    //     [USER_ROLES.SUPER_USER, USER_ROLES.STAFF].includes(
-                    //         data?.permission,
-                    //     )
-                    // ) {
-                    //     let role = getRole({ role: data?.permission });
-                    //     let user = {
-                    //         ...data?.user,
-                    //         role,
-                    //     };
-                    //     setSession(data?.token, user);
-                    //     dispatch({
-                    //         type: "LOGIN",
-                    //         payload: {
-                    //             user: user,
-                    //         },
-                    //     });
-                    //     resolve({ status: true, data });
-                    // } else {
-                    //     resolve({
-                    //         status: false,
-                    //         data,
-                    //         message: "You are not authorized to login",
-                    //     });
-                    // }
+                    const { user, accessToken, refreshToken } = data;
+                    setSession(accessToken, refreshToken, user);
+
+                    dispatch({
+                        type: "LOGIN",
+                        payload: {
+                            user: user,
+                        },
+                    });
+
+                    resolve({
+                        status: true,
+                        data: {
+                            user: user,
+                        },
+                        message: "Login successful",
+                    });
                 } else {
                     resolve({
                         status: false,
@@ -239,10 +209,8 @@ export const AuthProvider = (props) => {
         return new Promise(async (resolve) => {
             try {
                 const { data, status } = await axiosPost(API_ROUTER.LOGOUT);
-                removeData(STORAGE_KEYS.AUTH_TOKEN);
-                removeData(STORAGE_KEYS.AUTH);
-                delete axiosInstance.defaults.headers.common.Authorization;
                 if (status) {
+                    delete axiosInstance.defaults.headers.common.Authorization;
                     resolve({ status: true, data });
                 } else {
                     resolve({
@@ -250,6 +218,9 @@ export const AuthProvider = (props) => {
                         data: "",
                     });
                 }
+                removeData(STORAGE_KEYS.AUTH_TOKEN);
+                removeData(STORAGE_KEYS.AUTH);
+                removeData(STORAGE_KEYS.REFRESH_TOKEN);
                 dispatch({ type: "LOGOUT" });
             } catch (error) {}
         });

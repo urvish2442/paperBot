@@ -21,7 +21,7 @@ import { TOAST_ALERTS, TOAST_TYPES } from "src/constants/keywords";
 import { useState } from "react";
 import { PATH_AUTH, PATH_DASHBOARD } from "src/routes/paths";
 
-export const LoginJWT = ({ ...rest }) => {
+export const LoginJWT = ({ setOtp,setEmail, ...rest }) => {
     const { t } = useTranslation();
     const { login } = useAuth();
     const isMountedRef = useRefMounted();
@@ -53,12 +53,9 @@ export const LoginJWT = ({ ...rest }) => {
             try {
                 const { status, data, message } = await login(email, password);
                 if (status) {
-                    toaster(TOAST_TYPES.SUCCESS, TOAST_ALERTS.LOGIN_SUCCESS);
-                    if (isMountedRef()) {
-                        const backTo =
-                            router.query.backTo || PATH_DASHBOARD.root;
-                        router.push(backTo);
-                    }
+                    toaster(TOAST_TYPES.SUCCESS, TOAST_ALERTS.OTP_SENT_SUCCESS);
+                    setEmail(email);
+                    setOtp(data?.otp);
                 } else {
                     toaster(
                         TOAST_TYPES.ERROR,

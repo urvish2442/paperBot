@@ -26,8 +26,12 @@ import {
 } from "@mui/material";
 import { DateTimePicker } from "@mui/lab";
 
-import { useDispatch } from "src/store";
-import { createEvent, updateEvent, deleteEvent } from "src/slices/calendar";
+import { useDispatch } from "src/redux/store";
+import {
+    createEvent,
+    updateEvent,
+    deleteEvent,
+} from "src/redux/slices/calendar";
 import { useTranslation } from "react-i18next";
 
 const IconButtonError = styled(IconButton)(

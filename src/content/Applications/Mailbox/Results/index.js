@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { Divider, Pagination, Box, Typography } from "@mui/material";
-import { useDispatch, useSelector } from "src/store";
-import { getMails } from "src/slices/mailbox";
+import { useDispatch, useSelector } from "src/redux/store";
+import { getMails } from "src/redux/slices/mailbox";
 import ResultsActionBar from "./ResultsActionBar";
 import { ResultsItem } from "./ResultsItem";
 import { useTranslation } from "react-i18next";

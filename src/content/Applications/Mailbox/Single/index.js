@@ -19,8 +19,8 @@ import {
 } from "@mui/material";
 import NextLink from "next/link";
 
-import { useDispatch, useSelector } from "src/store";
-import { getMail } from "src/slices/mailbox";
+import { useDispatch, useSelector } from "src/redux/store";
+import { getMail } from "src/redux/slices/mailbox";
 import { useAuth } from "src/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import ArrowBackTwoToneIcon from "@mui/icons-material/ArrowBackTwoTone";

@@ -12,7 +12,7 @@ import {
     Typography,
     styled,
 } from "@mui/material";
-import { useSelector } from "src/store";
+import { useSelector } from "src/redux/store";
 import LocalOfferTwoToneIcon from "@mui/icons-material/LocalOfferTwoTone";
 import ArchiveTwoToneIcon from "@mui/icons-material/ArchiveTwoTone";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";

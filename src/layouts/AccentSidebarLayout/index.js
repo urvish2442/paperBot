@@ -5,9 +5,16 @@ import ThemeSettings from "src/components/ThemeSettings";
 
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { getFiltersAction } from "src/redux/actions/action";
 
 const AccentSidebarLayout = ({ children }) => {
     const theme = useTheme();
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getFiltersAction());
+    }, []);
 
     return (
         <>

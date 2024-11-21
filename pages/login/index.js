@@ -82,6 +82,7 @@ function LoginBasic() {
     const router = useRouter();
     const { demo } = router.query;
     const [otp, setOtp] = useState("");
+    const [email, setEmail] = useState("");
 
     return (
         <>
@@ -127,10 +128,16 @@ function LoginBasic() {
                             {/* {method === "Auth0" && <LoginAuth0 />} */}
                             {/* {method === "FirebaseAuth" && <LoginFirebaseAuth />} */}
                             {/* {method === "Amplify" && <LoginAmplify />} */}
-                            <LoginJWT />
-                            {/* {otp && (
-                                <OTPVerification otp={otp} setOtp={setOtp} />
-                            )} */}
+                            {(!otp || !email) && (
+                                <LoginJWT setOtp={setOtp} setEmail={setEmail} />
+                            )}
+                            {otp && email && (
+                                <OTPVerification
+                                    otp={otp}
+                                    email={email}
+                                    setOtp={setOtp}
+                                />
+                            )}
                             <Box my={4}>
                                 <Typography
                                     component="span"

@@ -14,9 +14,9 @@ import {
     Typography,
     styled,
 } from "@mui/material";
-import { useDispatch, useSelector } from "src/store";
+import { useDispatch, useSelector } from "src/redux/store";
 
-import { updateList } from "src/slices/projects_board";
+import { updateList } from "src/redux/slices/projects_board";
 
 import Task from "./Task";
 import Label from "src/components/Label";

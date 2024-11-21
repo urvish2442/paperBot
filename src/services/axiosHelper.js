@@ -40,8 +40,9 @@ export const axiosGet = async (
             },
             params,
         });
-        response.data = result.data;
-        response.status = [200, 201].includes(result.status);
+        const { data, message, success, statusCode } = result.data;
+        response.data = data;
+        response.status = [200, 201].includes(statusCode) || success;
     } catch (e) {
         if (e.response?.status === 401) {
             removeData(STORAGE_KEYS.AUTH_TOKEN);

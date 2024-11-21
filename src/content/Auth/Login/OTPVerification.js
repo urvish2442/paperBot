@@ -20,7 +20,7 @@ import { useState, useEffect } from "react";
 import { PATH_DASHBOARD } from "src/routes/paths";
 import { saveData } from "src/utils/custom/storage";
 
-export const OTPVerification = ({ otp, setOtp = () => {} }) => {
+export const OTPVerification = ({ otp, email, setOtp = () => {} }) => {
     const { t } = useTranslation();
     const { verifyOtp } = useAuth();
     const isMountedRef = useRefMounted();
@@ -40,7 +40,7 @@ export const OTPVerification = ({ otp, setOtp = () => {} }) => {
         onSubmit: async (values, helpers) => {
             const { otp } = values;
             try {
-                const { status, data, message } = await verifyOtp(otp);
+                const { status, data, message } = await verifyOtp(email, otp);
 
                 if (status) {
                     toaster(TOAST_TYPES.SUCCESS, TOAST_ALERTS.LOGIN_SUCCESS);

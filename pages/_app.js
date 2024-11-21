@@ -9,7 +9,7 @@ import createEmotionCache from "src/createEmotionCache";
 import { appWithTranslation } from "next-i18next";
 import { SidebarProvider } from "src/contexts/SidebarContext";
 import { Provider as ReduxProvider } from "react-redux";
-import { store } from "src/store";
+import { store, persistor } from "src/redux/store";
 import Loader from "src/components/Loader";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
@@ -20,6 +20,7 @@ import { Guest } from "src/components/Guest";
 import BaseLayout from "src/layouts/BaseLayout";
 import { Authenticated } from "src/components/Authenticated";
 import AccentSidebarLayout from "src/layouts/AccentSidebarLayout";
+import { PersistGate } from "redux-persist/integration/react";
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -47,46 +48,48 @@ function TokyoApp(props) {
                 />
             </Head>
             <ReduxProvider store={store}>
-                <SidebarProvider>
-                    <ThemeProvider>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <AuthProvider>
-                                <SnackbarProvider
-                                    maxSnack={6}
-                                    anchorOrigin={{
-                                        vertical: "bottom",
-                                        horizontal: "right",
-                                    }}
-                                >
-                                    <CssBaseline />
-                                    <AuthConsumer>
-                                        {(auth) =>
-                                            !auth.isInitialized ? (
-                                                <Loader />
-                                            ) : Component.guestLayout ? (
-                                                <Guest redirect={redirect}>
-                                                    <BaseLayout>
-                                                        <Component
-                                                            {...pageProps}
-                                                        />
-                                                    </BaseLayout>
-                                                </Guest>
-                                            ) : (
-                                                <Authenticated>
-                                                    <AccentSidebarLayout>
-                                                        <Component
-                                                            {...pageProps}
-                                                        />
-                                                    </AccentSidebarLayout>
-                                                </Authenticated>
-                                            )
-                                        }
-                                    </AuthConsumer>
-                                </SnackbarProvider>
-                            </AuthProvider>
-                        </LocalizationProvider>
-                    </ThemeProvider>
-                </SidebarProvider>
+                <PersistGate loading={null} persistor={persistor}>
+                    <SidebarProvider>
+                        <ThemeProvider>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <AuthProvider>
+                                    <SnackbarProvider
+                                        maxSnack={6}
+                                        anchorOrigin={{
+                                            vertical: "bottom",
+                                            horizontal: "right",
+                                        }}
+                                    >
+                                        <CssBaseline />
+                                        <AuthConsumer>
+                                            {(auth) =>
+                                                !auth.isInitialized ? (
+                                                    <Loader />
+                                                ) : Component.guestLayout ? (
+                                                    <Guest redirect={redirect}>
+                                                        <BaseLayout>
+                                                            <Component
+                                                                {...pageProps}
+                                                            />
+                                                        </BaseLayout>
+                                                    </Guest>
+                                                ) : (
+                                                    <Authenticated>
+                                                        <AccentSidebarLayout>
+                                                            <Component
+                                                                {...pageProps}
+                                                            />
+                                                        </AccentSidebarLayout>
+                                                    </Authenticated>
+                                                )
+                                            }
+                                        </AuthConsumer>
+                                    </SnackbarProvider>
+                                </AuthProvider>
+                            </LocalizationProvider>
+                        </ThemeProvider>
+                    </SidebarProvider>
+                </PersistGate>
             </ReduxProvider>
         </CacheProvider>
     );
