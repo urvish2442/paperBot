@@ -263,29 +263,29 @@ const menuItems = [
             //     link: "/management/projects",
             //     icon: AccountTreeTwoToneIcon
             // },
-            // {
-            //     name: "Commerce",
-            //     icon: StorefrontTwoToneIcon,
-            //     link: "/management/commerce",
-            //     items: [
-            //         {
-            //             name: "Shop",
-            //             link: "/management/commerce/shop"
-            //         },
-            //         {
-            //             name: "List",
-            //             link: "/management/commerce/products"
-            //         },
-            //         {
-            //             name: "Details",
-            //             link: "/management/commerce/products/single/1"
-            //         },
-            //         {
-            //             name: "Create",
-            //             link: "/management/commerce/products/create"
-            //         }
-            //     ]
-            // },
+            {
+                name: "Subjects",
+                icon: StorefrontTwoToneIcon,
+                link: PATH_DASHBOARD.subjects.root,
+                items: [
+                    // {
+                    //     name: "Shop",
+                    //     link: "/management/commerce/shop"
+                    // },
+                    {
+                        name: "List",
+                        link: PATH_DASHBOARD.subjects.root,
+                    },
+                    // {
+                    //     name: "Details",
+                    //     link: "/management/commerce/products/single/1"
+                    // },
+                    {
+                        name: "Create",
+                        link: PATH_DASHBOARD.subjects.add,
+                    },
+                ],
+            },
             // {
             //     name: "Invoices",
             //     link: "/management/invoices",

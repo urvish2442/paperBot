@@ -29,7 +29,7 @@ import Label from "src/components/Label";
 import { useTranslation } from "react-i18next";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
-import BulkActions from "src/content/Management/Commerce/BulkActions";
+import BulkActions from "src/content/Management/Subjects/BulkActions";
 
 const getStatusLabel = (cryptoOrderStatus) => {
     const map = {

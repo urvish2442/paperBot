@@ -23,4 +23,8 @@ export const PATH_DASHBOARD = {
         root: path(ROOT, "users"),
         add: path(ROOT, "users/add"),
     },
+    subjects: {
+        root: path(ROOT, "subjects"),
+        add: path(ROOT, "subjects/add"),
+    },
 };

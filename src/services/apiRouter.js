@@ -1,6 +1,6 @@
-const getUserRoute = (path) => `users/${path}/`;
-const getSubjectsRoute = (path) => `subjects/${path}/`;
-const getQuestionsRoute = (path) => `questions/${path}/`;
+const getUserRoute = (path) => `users/${path}`;
+const getSubjectsRoute = (path) => `subjects/${path}`;
+const getQuestionsRoute = (path) => `questions/${path}`;
 
 export const API_ROUTER = {
     // AUTH
@@ -8,7 +8,7 @@ export const API_ROUTER = {
     VERIFY_AND_LOGIN: getUserRoute("verify-and-login"),
     REGISTER: getUserRoute("register"),
     REFRESH_TOKEN: getUserRoute("refresh-token"),
-    GET_VERIFY_TOKEN: (token) => getUserRoute(`verify-email/${token}`),
+    // GET_VERIFY_TOKEN: (token) => getUserRoute(`verify-email/${token}`),
     FORGOT_PASSWORD: getUserRoute("forgot-password"),
     RESET_PASSWORD: (resetToken) =>
         getUserRoute(`reset-password/${resetToken}`),
@@ -21,6 +21,12 @@ export const API_ROUTER = {
 
     //** Common */
     GET_FILTERS: getSubjectsRoute("filters"),
+
+    //** Subjects */
+    GET_SUBJECTS: getSubjectsRoute(""),
+    CREATE_SUBJECT: getSubjectsRoute(""),
+
+
 
 
     

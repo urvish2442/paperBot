@@ -41,7 +41,7 @@ function TokyoApp(props) {
     return (
         <CacheProvider value={emotionCache}>
             <Head>
-                <title>Exclusio - Admin Dashboard</title>
+                <title>Paper Bot</title>
                 <meta
                     name="viewport"
                     content="width=device-width, initial-scale=1, shrink-to-fit=no"

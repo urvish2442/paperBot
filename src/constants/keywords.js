@@ -11,6 +11,10 @@ export const TOAST_ALERTS = {
     USER_CREATE_SUCCESS: "User created successfully",
     USER_UPDATE_SUCCESS: "User updated successfully",
     USER_DELETE_SUCCESS: "User deleted successfully",
+
+    SUBJECT_CREATE_SUCCESS: "Subject created successfully",
+    SUBJECT_UPDATE_SUCCESS: "Subject updated successfully",
+    SUBJECT_DELETE_SUCCESS: "Subject deleted successfully",
 };
 
 export const TOAST_TYPES = {
@@ -39,3 +43,41 @@ export const USER_ROLES_LABEL = {
 };
 
 export const ALL_ROLES = [USER_ROLES.ADMIN, USER_ROLES.USER];
+
+export const LABEL_FOR_BOARDS = {
+    GSEB: "GSEB",
+    CBSE: "CBSE",
+    ICSE: "ICSE",
+};
+
+export const LABEL_FOR_SUBJECTS = {
+    GUJARATI: "Gujarati",
+    HINDI: "Hindi",
+    ENGLISH: "English",
+};
+
+export const LABEL_FOR_MEDIUM = {
+    HINDI_MED: "Hindi Medium",
+    ENG_MED: "English Medium",
+    GUJ_MED: "Gujarati Medium",
+};
+
+export const LABEL_FOR_STANDARDS = {
+    STD8: "Class 8",
+    STD9: "Class 9",
+    STD10: "Class 10",
+    STD11: "Class 11",
+    STD12: "Class 12",
+};
+
+export const LABEL_FOR_QUESTION_TYPES = {
+    MCQ: "MCQ",
+    SHORT_ANSWER: "Short Answer",
+    LONG_ANSWER: "Long Answer",
+    TRUE_FALSE: "True/False",
+    MATCH_THE_FOLLOWING: "Match the Following",
+    ORDER_THE_FOLLOWING: "Order the Following",
+    COMPLETE_THE_FOLLOWING: "Complete the Following",
+    COMPLETE_THE_SENTENCE: "Complete the Sentence",
+    FILL_IN_THE_BLANKS: "Fill in the Blanks",
+};
