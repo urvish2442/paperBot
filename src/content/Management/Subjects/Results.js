@@ -28,6 +28,10 @@ import {
     useTheme,
     Zoom,
     styled,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from "@mui/material";
 import Link from "src/components/Link";
 
@@ -42,6 +46,13 @@ import { useSnackbar } from "notistack";
 import Text from "src/components/Text";
 import LocalFireDepartmentTwoToneIcon from "@mui/icons-material/LocalFireDepartmentTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
+import { useCreators, useSubjects } from "src/hooks/useFetchHooks";
+import {
+    LABEL_FOR_BOARDS,
+    LABEL_FOR_MEDIUM,
+    LABEL_FOR_STANDARDS,
+    LABEL_FOR_SUBJECTS,
+} from "src/constants/keywords";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -86,82 +97,59 @@ const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const applyFilters = (products, query) => {
-    return products.filter((product) => {
-        let matches = true;
-
-        if (query) {
-            const properties = ["name"];
-            let containsQuery = false;
-
-            properties.forEach((property) => {
-                if (
-                    product[property]
-                        .toLowerCase()
-                        .includes(query.toLowerCase())
-                ) {
-                    containsQuery = true;
-                }
-            });
-
-            if (!containsQuery) {
-                matches = false;
-            }
-        }
-
-        return matches;
-    });
-};
-
 const applyPagination = (products, page, limit) => {
     return products.slice(page * limit, page * limit + limit);
 };
 
 const Results = ({ products }) => {
+    const SUBJECTS_TABLE_HEADERS = [
+        { value: "name", label: "Name", isSortable: true },
+        {
+            value: "standard",
+            label: "Standard",
+            isSortable: true,
+            align: "center",
+        },
+
+        { value: "code", label: "Code", isSortable: false, align: "center" },
+        { value: "board", label: "Board", isSortable: true, align: "center" },
+        {
+            value: "price",
+            label: "Price",
+            align: "center",
+            isSortable: false,
+        },
+        {
+            value: "medium",
+            label: "Medium",
+            isSortable: false,
+            align: "center",
+        },
+        {
+            value: "actions",
+            label: "Actions",
+            align: "center",
+            isSortable: false,
+        },
+    ];
+    const {
+        items: subjects,
+        loading: isLoading,
+        count,
+        hasMore,
+        page,
+        limit,
+        payload,
+        handleQueryChange,
+        handlePageChange,
+        handleLimitChange,
+        handleFilterChange,
+        handleSort,
+    } = useSubjects();
     const [selectedItems, setSelectedProducts] = useState([]);
     const { t } = useTranslation();
     const { enqueueSnackbar } = useSnackbar();
     const theme = useTheme();
-
-    const [page, setPage] = useState(0);
-    const [limit, setLimit] = useState(5);
-    const [query, setQuery] = useState("");
-
-    const handleQueryChange = (event) => {
-        event.persist();
-        setQuery(event.target.value);
-    };
-
-    const handleSelectAllProducts = (event) => {
-        setSelectedProducts(
-            event.target.checked ? products.map((product) => product.id) : [],
-        );
-    };
-
-    const handleSelectOneProduct = (_event, productId) => {
-        if (!selectedItems.includes(productId)) {
-            setSelectedProducts((prevSelected) => [...prevSelected, productId]);
-        } else {
-            setSelectedProducts((prevSelected) =>
-                prevSelected.filter((id) => id !== productId),
-            );
-        }
-    };
-
-    const handlePageChange = (_event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleLimitChange = (event) => {
-        setLimit(parseInt(event.target.value));
-    };
-
-    const filteredProducts = applyFilters(products, query);
-    const paginatedProducts = applyPagination(filteredProducts, page, limit);
-    const selectedBulkActions = selectedItems.length > 0;
-    const selectedSomeProducts =
-        selectedItems.length > 0 && selectedItems.length < products.length;
-    const selectedAllProducts = selectedItems.length === products.length;
     const mobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
@@ -191,54 +179,154 @@ const Results = ({ products }) => {
         <>
             <Card>
                 <Box display="flex" alignItems="center">
-                    {selectedBulkActions && (
+                    {/* {selectedBulkActions && (
                         <Box flex={1} p={2}>
                             <BulkActions />
                         </Box>
-                    )}
-                    {!selectedBulkActions && (
+                    )} */}
+                    <Box
+                        flex={1}
+                        p={2}
+                        display={{ xs: "block", md: "flex" }}
+                        alignItems="center"
+                        justifyContent="space-between"
+                    >
                         <Box
-                            flex={1}
-                            p={2}
-                            display={{ xs: "block", md: "flex" }}
-                            alignItems="center"
-                            justifyContent="space-between"
+                            sx={{
+                                mb: { xs: 2, md: 0 },
+                            }}
                         >
-                            <Box
-                                sx={{
-                                    mb: { xs: 2, md: 0 },
+                            <TextField
+                                size="small"
+                                fullWidth={mobile}
+                                onChange={handleQueryChange}
+                                value={payload?.search || ""}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchTwoToneIcon />
+                                        </InputAdornment>
+                                    ),
                                 }}
-                            >
-                                <TextField
-                                    size="small"
-                                    fullWidth={mobile}
-                                    onChange={handleQueryChange}
-                                    value={query}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchTwoToneIcon />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    placeholder={t("Search by product name...")}
-                                />
-                            </Box>
-                            <TablePagination
-                                component="div"
-                                count={filteredProducts.length}
-                                onPageChange={handlePageChange}
-                                onRowsPerPageChange={handleLimitChange}
-                                page={page}
-                                rowsPerPage={limit}
-                                rowsPerPageOptions={[5, 10, 15]}
+                                placeholder={t("Search by product name...")}
                             />
                         </Box>
-                    )}
+                        <Box
+                            py={2}
+                            display="flex"
+                            alignItems="center"
+                            flexDirection={{ xs: "row", sm: "row" }}
+                            justifyContent={{
+                                xs: "flex-start",
+                                sm: "flex-end",
+                            }}
+                            pb={3}
+                            gap={{ sm: 2, xs: 1 }}
+                        >
+                            {/* Subject */}
+                            <FormControl
+                                size="small"
+                                variant="outlined"
+                                sx={{ width: 90 }}
+                            >
+                                <InputLabel>Subject</InputLabel>
+                                <Select
+                                    value={
+                                        payload.name === null
+                                            ? "all"
+                                            : payload.name
+                                    }
+                                    onChange={(e) =>
+                                        handleFilterChange(
+                                            "name",
+                                            e.target.value,
+                                        )
+                                    }
+                                    label="Subject"
+                                    disabled={isLoading}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    {Object.entries(LABEL_FOR_SUBJECTS).map(
+                                        ([key, label]) => (
+                                            <MenuItem key={key} value={key}>
+                                                {label}
+                                            </MenuItem>
+                                        ),
+                                    )}
+                                </Select>
+                            </FormControl>
+                            {/* Standard */}
+                            <FormControl
+                                size="small"
+                                variant="outlined"
+                                sx={{ width: 90 }}
+                            >
+                                <InputLabel>Standard</InputLabel>
+                                <Select
+                                    value={
+                                        payload.standard === null
+                                            ? "all"
+                                            : payload.standard
+                                    }
+                                    onChange={(e) =>
+                                        handleFilterChange(
+                                            "standard",
+                                            e.target.value,
+                                        )
+                                    }
+                                    label="Standard"
+                                    disabled={isLoading}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    {Object.entries(LABEL_FOR_STANDARDS).map(
+                                        ([key, label]) => (
+                                            <MenuItem key={key} value={key}>
+                                                {" "}
+                                                {label}
+                                            </MenuItem>
+                                        ),
+                                    )}
+                                </Select>
+                            </FormControl>
+                            {/* Board */}
+                            <FormControl
+                                size="small"
+                                variant="outlined"
+                                sx={{ width: 90 }}
+                            >
+                                <InputLabel>Board</InputLabel>
+                                <Select
+                                    value={
+                                        payload.board === null
+                                            ? "all"
+                                            : payload.board
+                                    }
+                                    onChange={(e) =>
+                                        handleFilterChange(
+                                            "board",
+                                            e.target.value,
+                                        )
+                                    }
+                                    label="Board"
+                                    disabled={isLoading}
+                                >
+                                    <MenuItem value="all">All</MenuItem>
+                                    {Object.entries(LABEL_FOR_BOARDS).map(
+                                        ([key, label]) => (
+                                            <MenuItem key={key} value={key}>
+                                                {" "}
+                                                {label}
+                                            </MenuItem>
+                                        ),
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </Box>
                 </Box>
                 <Divider />
 
-                {paginatedProducts.length === 0 ? (
+                {subjects?.length === 0 ? (
                     <Typography
                         sx={{
                             py: 10,
@@ -258,7 +346,7 @@ const Results = ({ products }) => {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell padding="checkbox">
+                                        {/* <TableCell padding="checkbox">
                                             <Checkbox
                                                 checked={selectedAllProducts}
                                                 indeterminate={
@@ -268,37 +356,40 @@ const Results = ({ products }) => {
                                                     handleSelectAllProducts
                                                 }
                                             />
-                                        </TableCell>
-                                        <TableCell>
-                                            {t("Product name")}
-                                        </TableCell>
-                                        <TableCell>{t("Price")}</TableCell>
-                                        <TableCell align="center">
-                                            {t("Stock")}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {t("Rating")}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {t("Orders")}
-                                        </TableCell>
-                                        <TableCell>{t("Categories")}</TableCell>
-                                        <TableCell align="center">
-                                            {t("Actions")}
-                                        </TableCell>
+                                        </TableCell> */}
+                                        {SUBJECTS_TABLE_HEADERS.map((head) => (
+                                            <TableCell
+                                                key={head.value}
+                                                align={head.align || "left"}
+                                                onClick={() =>
+                                                    head.isSortable &&
+                                                    handleSort(head.value)
+                                                }
+                                                sx={{
+                                                    cursor: head.isSortable
+                                                        ? "pointer"
+                                                        : "default",
+                                                }}
+                                            >
+                                                {t(head.label)}
+                                            </TableCell>
+                                        ))}
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {paginatedProducts.map((product) => {
+                                    {subjects.map((subject, index) => {
                                         const isProductSelected =
-                                            selectedItems.includes(product.id);
+                                            selectedItems.includes(subject.id);
                                         return (
                                             <TableRow
                                                 hover
-                                                key={product.id}
-                                                selected={isProductSelected}
+                                                key={
+                                                    subject.id ||
+                                                    subject.model_name
+                                                }
+                                                selected={index % 2 !== 0}
                                             >
-                                                <TableCell padding="checkbox">
+                                                {/* <TableCell padding="checkbox">
                                                     <Checkbox
                                                         checked={
                                                             isProductSelected
@@ -306,84 +397,60 @@ const Results = ({ products }) => {
                                                         onChange={(event) =>
                                                             handleSelectOneProduct(
                                                                 event,
-                                                                product.id,
+                                                                subject.id,
                                                             )
                                                         }
                                                         value={
                                                             isProductSelected
                                                         }
                                                     />
-                                                </TableCell>
+                                                </TableCell> */}
                                                 <TableCell>
                                                     <Box
                                                         display="flex"
                                                         alignItems="center"
                                                     >
-                                                        <ImgWrapper
-                                                            src={
-                                                                product
-                                                                    .images[0]
-                                                            }
-                                                        />
                                                         <Box
-                                                            pl={1}
-                                                            sx={{
-                                                                width: 250,
-                                                            }}
+                                                            // pl={1}
+                                                            // sx={{
+                                                            //     width: 250,
+                                                            // }}
                                                         >
                                                             <Link
-                                                                href="/management/commerce/products/single/1"
+                                                                href="#"
                                                                 variant="h5"
                                                             >
-                                                                {product.name}
+                                                                {subject?.name ||
+                                                                    ""}
                                                             </Link>
                                                             <Typography
                                                                 variant="subtitle2"
                                                                 noWrap
                                                             >
-                                                                {
-                                                                    product.summary
-                                                                }
+                                                                {subject?.model_name ||
+                                                                    ""}
                                                             </Typography>
                                                         </Box>
                                                     </Box>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <Typography
-                                                        sx={{
-                                                            textDecorationLine:
-                                                                product.sale_price !==
-                                                                0
-                                                                    ? "line-through"
-                                                                    : "",
-                                                        }}
-                                                    >
-                                                        $
-                                                        {numeral(
-                                                            product.price,
-                                                        ).format(`0,0.00`)}
-                                                    </Typography>
-                                                    {product.sale_price !==
-                                                        0 && (
-                                                        <Typography>
-                                                            <Text color="error">
-                                                                $
-                                                                {numeral(
-                                                                    product.sale_price,
-                                                                ).format(
-                                                                    `0,0.00`,
-                                                                )}
-                                                            </Text>
-                                                        </Typography>
-                                                    )}
+                                                <TableCell align="center">
+                                                    {
+                                                        LABEL_FOR_STANDARDS[
+                                                            subject?.standard ||
+                                                                ""
+                                                        ]
+                                                    }
                                                 </TableCell>
                                                 <TableCell align="center">
                                                     <Label color="success">
-                                                        <b>{product.stock}</b>
+                                                        <b>
+                                                            {subject?.code ||
+                                                                ""}
+                                                        </b>
                                                     </Label>
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <Box
+                                                    {/* <Box
                                                         display="flex"
                                                         alignItems="center"
                                                     >
@@ -395,29 +462,46 @@ const Results = ({ products }) => {
                                                             sx={{
                                                                 pl: 0.5,
                                                             }}
-                                                        >
-                                                            {product.rating}
-                                                        </Typography>
-                                                    </Box>
+                                                        > */}
+                                                    {subject?.board || ""}
+                                                    {/* </Typography>
+                                                    </Box> */}
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    {product.orders}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {product.categories.map(
-                                                        (value) => {
-                                                            return (
-                                                                <span
-                                                                    key={value}
-                                                                >
-                                                                    <Link href="#">
-                                                                        {value}
-                                                                    </Link>
-                                                                    ,{" "}
-                                                                </span>
-                                                            );
-                                                        },
+                                                    {/* <Typography
+                                                        sx={{
+                                                            textDecorationLine:
+                                                                subject.sale_price !==
+                                                                0
+                                                                    ? "line-through"
+                                                                    : "",
+                                                        }}
+                                                    >
+                                                        ₹
+                                                        {numeral(
+                                                            subject.price,
+                                                        ).format(`0,0.00`)}
+                                                    </Typography> */}
+                                                    {subject?.price !== 0 && (
+                                                        <Typography>
+                                                            <Text color="error">
+                                                                ₹
+                                                                {numeral(
+                                                                    subject?.price,
+                                                                ).format(
+                                                                    `0,0.00`,
+                                                                )}
+                                                            </Text>
+                                                        </Typography>
                                                     )}
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    {
+                                                        LABEL_FOR_MEDIUM[
+                                                            subject?.medium ||
+                                                                ""
+                                                        ]
+                                                    }
                                                 </TableCell>
                                                 <TableCell align="center">
                                                     <Typography noWrap>
@@ -457,12 +541,13 @@ const Results = ({ products }) => {
                         <Box p={2}>
                             <TablePagination
                                 component="div"
-                                count={filteredProducts.length}
+                                count={count || 0}
                                 onPageChange={handlePageChange}
                                 onRowsPerPageChange={handleLimitChange}
-                                page={page}
+                                page={page - 1 >= 0 ? page - 1 : 0}
                                 rowsPerPage={limit}
                                 rowsPerPageOptions={[5, 10, 15]}
+                                disabled={isLoading}
                             />
                         </Box>
                     </>
@@ -495,7 +580,7 @@ const Results = ({ products }) => {
                         }}
                         variant="h3"
                     >
-                        {t("Do you really want to delete this product")}?
+                        {t("Do you really want to delete this subject")}?
                     </Typography>
 
                     <Typography

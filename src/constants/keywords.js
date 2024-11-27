@@ -63,11 +63,11 @@ export const LABEL_FOR_MEDIUM = {
 };
 
 export const LABEL_FOR_STANDARDS = {
-    STD8: "Class 8",
-    STD9: "Class 9",
-    STD10: "Class 10",
-    STD11: "Class 11",
-    STD12: "Class 12",
+    STD8: "Std 8",
+    STD9: "Std 9",
+    STD10: "Std 10",
+    STD11: "Std 11",
+    STD12: "Std 12",
 };
 
 export const LABEL_FOR_QUESTION_TYPES = {
