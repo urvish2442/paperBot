@@ -7,14 +7,21 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { getFiltersAction } from "src/redux/actions/action";
+import { getFiltersAction, getSubjectsAction } from "src/redux/actions/action";
+import { useSelector } from "react-redux";
+import { globalState } from "src/redux/slices/global";
 
 const AccentSidebarLayout = ({ children }) => {
     const theme = useTheme();
+    const { currentFilter } = useSelector(globalState);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getFiltersAction());
     }, []);
+
+    useEffect(() => {
+        dispatch(getSubjectsAction(currentFilter));
+    }, [currentFilter]);
 
     return (
         <>

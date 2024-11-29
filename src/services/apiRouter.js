@@ -25,11 +25,18 @@ export const API_ROUTER = {
     //** Subjects */
     GET_SUBJECTS: getSubjectsRoute(""),
     CREATE_SUBJECT: getSubjectsRoute(""),
+    UPDATE_SUBJECT_STATUS: (id) => getSubjectsRoute(`${id}/status`),
+    UPDATE_SUBJECT_UNITS: (id) => getSubjectsRoute(`${id}/units`),
 
-
-
-
-    
+    //** Questions */
+    GET_QUESTIONS_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
+    CREATE_QUESTION_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
+    GET_QUESTION_BY_ID: (model_name, id) =>
+        getQuestionsRoute(`${model_name}/${id}`),
+    UPDATE_QUESTION_BY_ID: (model_name, id) =>
+        getQuestionsRoute(`${model_name}/${id}`),
+    DELETE_QUESTION_BY_ID: (model_name, id) =>
+        getQuestionsRoute(`${model_name}/${id}`),
 
     //** Extra */
     VERIFY_CODE: getUserRoute("verify-login-code"),

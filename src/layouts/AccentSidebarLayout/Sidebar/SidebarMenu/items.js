@@ -286,6 +286,21 @@ const menuItems = [
                     },
                 ],
             },
+            {
+                name: "Questions",
+                icon: AssignmentIndTwoToneIcon,
+                link: PATH_DASHBOARD.questions.root,
+                items: [
+                    {
+                        name: "List",
+                        link: PATH_DASHBOARD.questions.root,
+                    },
+                    {
+                        name: "Add User",
+                        link: PATH_DASHBOARD.questions.add,
+                    },
+                ],
+            },
             // {
             //     name: "Invoices",
             //     link: "/management/invoices",

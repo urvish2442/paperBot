@@ -19,9 +19,10 @@ export const axiosPost = async (
         response.status = [200, 201].includes(statusCode) || success;
         response.message = message;
     } catch (e) {
-        console.log("🚀 ~axiosPost e:", e);
+        console.error("🚀 ~axiosPost e:", e);
         response.status = false;
-        response.message = "An unknown error occurred.";
+        response.message =
+            e?.response?.data?.message || "An unknown error occurred.";
         response.data = e;
     }
     return response;
@@ -49,8 +50,9 @@ export const axiosGet = async (
             removeData(STORAGE_KEYS.AUTH);
             window.location.href = "/";
         }
+        console.error("🚀 ~axiosGet e:", e);
         response.status = false;
-        response.message = "something went wrong";
+        response.message = e?.response?.data?.message || "something went wrong";
         response.data = e;
     }
     return response;
@@ -58,39 +60,47 @@ export const axiosGet = async (
 
 export const axiosPatch = async (
     url,
-    data,
+    payload,
     contentType = "application/json",
 ) => {
     let response = {};
     try {
-        const result = await axiosInstance.patch(url, data, {
+        const result = await axiosInstance.patch(url, payload, {
             headers: {
                 "Content-Type": contentType,
             },
         });
-        response.data = result.data;
-        response.status = [200, 201].includes(result.status);
+        const { data, message, success, statusCode } = result.data;
+        response.data = data;
+        response.status = success;
     } catch (e) {
+        console.error("🚀 ~axiosPatch e:", e);
         response.status = false;
-        response.message = e?.response?.data?.detail || "something went wrong";
+        response.message = e?.response?.data?.message || "something went wrong";
         response.data = e;
     }
     return response;
 };
 
-export const axiosPut = async (url, data, contentType = "application/json") => {
+export const axiosPut = async (
+    url,
+    payload,
+    contentType = "application/json",
+) => {
     let response = {};
     try {
-        const result = await axiosInstance.put(url, data, {
+        const result = await axiosInstance.put(url, payload, {
             headers: {
                 "Content-Type": contentType,
             },
         });
-        response.data = result.data;
-        response.status = [200, 201].includes(result.status);
+        const { data, message, success, statusCode } = result.data;
+        response.data = data;
+        response.status = success;
     } catch (e) {
+        console.error("🚀 ~axiosPut e:", e);
         response.status = false;
-        response.message = "something went wrong";
+        response.message = e?.response?.data?.message || "something went wrong";
         response.data = e;
     }
     return response;
@@ -98,7 +108,7 @@ export const axiosPut = async (url, data, contentType = "application/json") => {
 
 export const axiosDelete = async (
     url,
-    data,
+    payload,
     contentType = "application/json",
 ) => {
     let response = {};
@@ -108,11 +118,13 @@ export const axiosDelete = async (
                 "Content-Type": contentType,
             },
         });
-        response = result.data;
-        response.status = [200, 201].includes(result.status);
+        const { data, message, success, statusCode } = result.data;
+        response = data;
+        response.status = success;
     } catch (e) {
+        console.error("🚀 ~axiosDelete e:", e);
         response.status = false;
-        response.message = "something went wrong";
+        response.message = e?.response?.data?.message || "something went wrong";
         response.data = e;
     }
     return response;

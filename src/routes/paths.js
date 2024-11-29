@@ -27,4 +27,8 @@ export const PATH_DASHBOARD = {
         root: path(ROOT, "subjects"),
         add: path(ROOT, "subjects/add"),
     },
+    questions: {
+        root: path(ROOT, "questions"),
+        add: path(ROOT, "questions/create"),
+    },
 };

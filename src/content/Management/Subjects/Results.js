@@ -32,21 +32,24 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Switch,
+    DialogContent,
+    Grid,
+    DialogTitle,
+    Autocomplete,
+    DialogActions,
+    CircularProgress,
 } from "@mui/material";
 import Link from "src/components/Link";
 
-import CloseIcon from "@mui/icons-material/Close";
-
 import { useTranslation } from "react-i18next";
-import LaunchTwoToneIcon from "@mui/icons-material/LaunchTwoTone";
 import Label from "src/components/Label";
-import BulkActions from "./BulkActions";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
-import { useSnackbar } from "notistack";
 import Text from "src/components/Text";
-import LocalFireDepartmentTwoToneIcon from "@mui/icons-material/LocalFireDepartmentTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
-import { useCreators, useSubjects } from "src/hooks/useFetchHooks";
+import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
+
+import { useSubjects } from "src/hooks/useFetchHooks";
 import {
     LABEL_FOR_BOARDS,
     LABEL_FOR_MEDIUM,
@@ -101,7 +104,7 @@ const applyPagination = (products, page, limit) => {
     return products.slice(page * limit, page * limit + limit);
 };
 
-const Results = ({ products }) => {
+const Results = () => {
     const SUBJECTS_TABLE_HEADERS = [
         { value: "name", label: "Name", isSortable: true },
         {
@@ -143,37 +146,41 @@ const Results = ({ products }) => {
         handleQueryChange,
         handlePageChange,
         handleLimitChange,
-        handleFilterChange,
+        // handleFilterChange,
         handleSort,
+        toggleSubjectStatus,
+        currentItem,
+        handleOpenModal,
+        handleCloseModal,
+        formik,
     } = useSubjects();
-    const [selectedItems, setSelectedProducts] = useState([]);
+
+    // const [selectedItems, setSelectedProducts] = useState([]);
     const { t } = useTranslation();
-    const { enqueueSnackbar } = useSnackbar();
     const theme = useTheme();
     const mobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+    // const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+    // const handleConfirmDelete = () => {
+    //     setOpenConfirmDelete(true);
+    // };
 
-    const handleConfirmDelete = () => {
-        setOpenConfirmDelete(true);
-    };
+    // const closeConfirmDelete = () => {
+    //     setOpenConfirmDelete(false);
+    // };
 
-    const closeConfirmDelete = () => {
-        setOpenConfirmDelete(false);
-    };
+    // const handleDeleteCompleted = () => {
+    //     setOpenConfirmDelete(false);
 
-    const handleDeleteCompleted = () => {
-        setOpenConfirmDelete(false);
-
-        enqueueSnackbar(t("You successfully deleted the product"), {
-            variant: "success",
-            anchorOrigin: {
-                vertical: "top",
-                horizontal: "right",
-            },
-            TransitionComponent: Zoom,
-        });
-    };
+    //     enqueueSnackbar(t("You successfully deleted the product"), {
+    //         variant: "success",
+    //         anchorOrigin: {
+    //             vertical: "top",
+    //             horizontal: "right",
+    //         },
+    //         TransitionComponent: Zoom,
+    //     });
+    // };
 
     return (
         <>
@@ -211,7 +218,7 @@ const Results = ({ products }) => {
                                 placeholder={t("Search by product name...")}
                             />
                         </Box>
-                        <Box
+                        {/* <Box
                             py={2}
                             display="flex"
                             alignItems="center"
@@ -223,7 +230,6 @@ const Results = ({ products }) => {
                             pb={3}
                             gap={{ sm: 2, xs: 1 }}
                         >
-                            {/* Subject */}
                             <FormControl
                                 size="small"
                                 variant="outlined"
@@ -255,7 +261,6 @@ const Results = ({ products }) => {
                                     )}
                                 </Select>
                             </FormControl>
-                            {/* Standard */}
                             <FormControl
                                 size="small"
                                 variant="outlined"
@@ -288,7 +293,6 @@ const Results = ({ products }) => {
                                     )}
                                 </Select>
                             </FormControl>
-                            {/* Board */}
                             <FormControl
                                 size="small"
                                 variant="outlined"
@@ -321,7 +325,7 @@ const Results = ({ products }) => {
                                     )}
                                 </Select>
                             </FormControl>
-                        </Box>
+                        </Box> */}
                     </Box>
                 </Box>
                 <Divider />
@@ -378,8 +382,10 @@ const Results = ({ products }) => {
                                 </TableHead>
                                 <TableBody>
                                     {subjects.map((subject, index) => {
-                                        const isProductSelected =
-                                            selectedItems.includes(subject.id);
+                                        {
+                                            /* const isProductSelected =
+                                            selectedItems.includes(subject.id); */
+                                        }
                                         return (
                                             <TableRow
                                                 hover
@@ -411,10 +417,10 @@ const Results = ({ products }) => {
                                                         alignItems="center"
                                                     >
                                                         <Box
-                                                            // pl={1}
-                                                            // sx={{
-                                                            //     width: 250,
-                                                            // }}
+                                                        // pl={1}
+                                                        // sx={{
+                                                        //     width: 250,
+                                                        // }}
                                                         >
                                                             <Link
                                                                 href="#"
@@ -506,29 +512,40 @@ const Results = ({ products }) => {
                                                 <TableCell align="center">
                                                     <Typography noWrap>
                                                         <Tooltip
-                                                            title={t("View")}
+                                                            title={t(
+                                                                "Add Lessons",
+                                                            )}
                                                             arrow
                                                         >
                                                             <IconButton
-                                                                component={Link}
-                                                                href="/management/commerce/products/single/1"
-                                                                color="primary"
-                                                            >
-                                                                <LaunchTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip
-                                                            title={t("Delete")}
-                                                            arrow
-                                                        >
-                                                            <IconButton
-                                                                onClick={
-                                                                    handleConfirmDelete
+                                                                onClick={() =>
+                                                                    handleOpenModal(
+                                                                        subject,
+                                                                    )
                                                                 }
                                                                 color="primary"
                                                             >
-                                                                <DeleteTwoToneIcon fontSize="small" />
+                                                                <ListTwoToneIcon fontSize="small" />
                                                             </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                            title={t("Status")}
+                                                            arrow
+                                                        >
+                                                            <Switch
+                                                                checked={
+                                                                    subject?.isActive
+                                                                }
+                                                                onChange={(e) =>
+                                                                    toggleSubjectStatus(
+                                                                        subject?._id,
+                                                                        subject?.isActive,
+                                                                    )
+                                                                }
+                                                                name="is_approved"
+                                                                color="primary"
+                                                                sx={{ ml: 1 }}
+                                                            />
                                                         </Tooltip>
                                                     </Typography>
                                                 </TableCell>
@@ -553,7 +570,145 @@ const Results = ({ products }) => {
                     </>
                 )}
             </Card>
-            <DialogWrapper
+            <Dialog
+                fullWidth
+                maxWidth="md"
+                open={!!currentItem}
+                onClose={handleCloseModal}
+            >
+                <DialogTitle
+                    sx={{
+                        p: 3,
+                    }}
+                >
+                    <Typography variant="h4" gutterBottom>
+                        {t("Add Units in Subject : ") +
+                            currentItem?.model_name?.toUpperCase()}
+                    </Typography>
+                    <Typography variant="subtitle2">
+                        {t(
+                            "Fill in the fields below to update Units in Subject",
+                        )}
+                    </Typography>
+                </DialogTitle>
+                <form onSubmit={formik.handleSubmit}>
+                    <DialogContent dividers>
+                        <Typography variant="h6">Add Units</Typography>
+                        {formik.values.units.map((unit, index) => (
+                            <Grid
+                                container
+                                spacing={2}
+                                key={index}
+                                alignItems="center"
+                                sx={{ mt: 1 }}
+                            >
+                                <Grid item xs={4}>
+                                    <TextField
+                                        fullWidth
+                                        label="Unit Number"
+                                        name={`units[${index}].number`}
+                                        type="number"
+                                        value={
+                                            formik.values.units[index].number
+                                        }
+                                        onBlur={formik.handleBlur}
+                                        onChange={formik.handleChange}
+                                        error={
+                                            formik.touched.units?.[index]
+                                                ?.number &&
+                                            Boolean(
+                                                formik.errors.units?.[index]
+                                                    ?.number,
+                                            )
+                                        }
+                                        helperText={
+                                            formik.touched.units?.[index]
+                                                ?.number &&
+                                            formik.errors.units?.[index]?.number
+                                        }
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Unit Name"
+                                        name={`units[${index}].name`}
+                                        value={formik.values.units[index].name}
+                                        onBlur={formik.handleBlur}
+                                        onChange={formik.handleChange}
+                                        error={
+                                            formik.touched.units?.[index]
+                                                ?.name &&
+                                            Boolean(
+                                                formik.errors.units?.[index]
+                                                    ?.name,
+                                            )
+                                        }
+                                        helperText={
+                                            formik.touched.units?.[index]
+                                                ?.name &&
+                                            formik.errors.units?.[index]?.name
+                                        }
+                                        variant="outlined"
+                                    />
+                                </Grid>
+                                <Grid item xs={2}>
+                                    <IconButton
+                                        color="error"
+                                        onClick={() => {
+                                            const newUnits =
+                                                formik.values.units.filter(
+                                                    (_, i) => i !== index,
+                                                );
+                                            formik.setFieldValue(
+                                                "units",
+                                                newUnits,
+                                            );
+                                        }}
+                                        disabled={
+                                            formik.values.units.length === 1
+                                        } // Prevent removal of the last item
+                                    >
+                                        <DeleteTwoToneIcon />
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        ))}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            sx={{ mt: 2 }}
+                            onClick={() => {
+                                formik.setFieldValue("units", [
+                                    ...formik.values.units,
+                                    { number: "", name: "" },
+                                ]);
+                            }}
+                        >
+                            Add Unit
+                        </Button>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseModal} color="secondary">
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={formik.isSubmitting}
+                            startIcon={
+                                formik.isSubmitting ? (
+                                    <CircularProgress size="1rem" />
+                                ) : null
+                            }
+                            variant="contained"
+                        >
+                            Submit
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+            {/* <DialogWrapper
                 open={openConfirmDelete}
                 maxWidth="sm"
                 fullWidth
@@ -621,7 +776,7 @@ const Results = ({ products }) => {
                         </ButtonError>
                     </Box>
                 </Box>
-            </DialogWrapper>
+            </DialogWrapper> */}
         </>
     );
 };

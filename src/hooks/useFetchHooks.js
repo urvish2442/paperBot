@@ -1,6 +1,13 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { API_ROUTER } from "src/services/apiRouter";
-import { axiosGet } from "src/services/axiosHelper";
+import { axiosGet, axiosPatch, axiosPost } from "src/services/axiosHelper";
+import useToaster from "./useToaster";
+import { TOAST_ALERTS, TOAST_TYPES, USER_ROLES } from "src/constants/keywords";
+import { useAuth } from "./useAuth";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import { useSelector } from "src/redux/store";
+import { globalState } from "src/redux/slices/global";
 
 const STATE = {
     STARTLOADING: "STARTLOADING",
@@ -200,6 +207,10 @@ export const useCreators = () => {
 };
 
 export const useSubjects = () => {
+    const { toaster } = useToaster();
+    const { user } = useAuth();
+    const { currentFilter } = useSelector(globalState);
+
     const initialState = {
         loading: false,
         items: [],
@@ -214,7 +225,7 @@ export const useSubjects = () => {
             name: null,
             medium: null,
             standard: null,
-            isActive: true,
+            isActive: user?.role === USER_ROLES.ADMIN ? null : true,
             sortBy: null,
         },
     };
@@ -258,7 +269,7 @@ export const useSubjects = () => {
                     ...state,
                     payload: {
                         ...state.payload,
-                        [payload.key]: payload.value,
+                        ...payload,
                     },
                     page: 1,
                     state: STATE.FILTERCHANGE,
@@ -358,13 +369,14 @@ export const useSubjects = () => {
         });
     };
 
-    const handleFilterChange = (key, value) => {
-        const newValue = value === "all" ? null : value;
+    useEffect(() => {
         dispatch({
             type: STATE.FILTERCHANGE,
-            payload: { key, value: newValue },
+            payload: {
+                ...currentFilter,
+            },
         });
-    };
+    }, [currentFilter]);
 
     const handleSort = (column) => {
         dispatch({
@@ -374,13 +386,105 @@ export const useSubjects = () => {
             },
         });
     };
+    const [currentItem, setCurrentItem] = useState(null);
+    const handleOpenModal = (item) => {
+        if (!item) return;
+        setCurrentItem(item);
+    };
+
+    const handleCloseModal = () => {
+        setCurrentItem(null);
+    };
+    const formik = useFormik({
+        initialValues: {
+            units:
+                currentItem?.units?.length > 0
+                    ? currentItem.units
+                    : [{ number: 1, name: "" }], // Set existing units or default
+        },
+        enableReinitialize: true,
+        validationSchema: Yup.object().shape({
+            units: Yup.array().of(
+                Yup.object().shape({
+                    number: Yup.number()
+                        .required("Number is required")
+                        .positive("Number must be positive")
+                        .integer("Number must be an integer"),
+                    name: Yup.string()
+                        .max(255, "Name must be at most 255 characters")
+                        .required("Name is required"),
+                }),
+            ),
+        }),
+        onSubmit: async (values, { resetForm, setStatus, setSubmitting }) => {
+            try {
+                const { data, status, message } = await axiosPost(
+                    API_ROUTER.UPDATE_SUBJECT_UNITS(currentItem._id),
+                    values,
+                );
+                if (status) {
+                    resetForm();
+                    setCurrentItem(null);
+                    getData();
+                    setStatus({ success: true });
+                    setSubmitting(false);
+                    toaster(
+                        TOAST_TYPES.SUCCESS,
+                        TOAST_ALERTS.UNITS_UPDATE_SUCCESS,
+                    );
+                } else {
+                    setStatus({ success: false });
+                    setSubmitting(false);
+                    toaster(
+                        TOAST_TYPES.ERROR,
+                        message || TOAST_ALERTS.GENERAL_ERROR,
+                    );
+                }
+            } catch (error) {
+                console.error(error);
+                setStatus({ success: false });
+                setSubmitting(false);
+                toaster(
+                    TOAST_TYPES.ERROR,
+                    message || TOAST_ALERTS.GENERAL_ERROR,
+                );
+            }
+        },
+    });
+
+    const toggleSubjectStatus = async (id, isActive) => {
+        if (!id) return;
+        const payload = { isActive: !isActive };
+        try {
+            const { data, status, message } = await axiosPatch(
+                API_ROUTER.UPDATE_SUBJECT_STATUS(id),
+                payload,
+            );
+            if (status) {
+                getData();
+            }
+            toaster(
+                status ? TOAST_TYPES.SUCCESS : TOAST_TYPES.ERROR,
+                status
+                    ? TOAST_ALERTS.SUBJECT_UPDATE_SUCCESS
+                    : message || TOAST_ALERTS.GENERAL_ERROR,
+            );
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return {
         ...state,
+        currentItem,
+        formik,
         handleQueryChange,
         handlePageChange,
         handleLimitChange,
-        handleFilterChange,
+        // handleFilterChange,
         handleSort,
+        toggleSubjectStatus,
+        handleOpenModal,
+        handleCloseModal,
     };
 };

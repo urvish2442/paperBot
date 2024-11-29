@@ -133,7 +133,7 @@ function PageHeader() {
                         sx={{
                             mt: { xs: 2, sm: 0 },
                         }}
-                        onClick={() => push(PATH_DASHBOARD.users.add)}
+                        onClick={handleCreateUserOpen}
                         variant="contained"
                         startIcon={<AddTwoToneIcon fontSize="small" />}
                     >

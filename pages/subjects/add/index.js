@@ -32,12 +32,11 @@ import { PATH_DASHBOARD } from "src/routes/paths";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
 
-function AddUserPage() {
+function AddSubjectPage() {
     const { t } = useTranslation();
     const { push } = useRouter();
     const { toaster } = useToaster();
     const { filtersData } = useSelector(globalState);
-    console.log("🚀 ~ AddUserPage ~ filtersData:", filtersData);
 
     const formik = useFormik({
         initialValues: {
@@ -519,4 +518,4 @@ function AddUserPage() {
     );
 }
 
-export default AddUserPage;
+export default AddSubjectPage;

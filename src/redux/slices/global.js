@@ -1,9 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getFiltersAction } from "../actions/action";
+import { getFiltersAction, getSubjectsAction } from "../actions/action";
 
 const initialState = {
     isLoading: false,
     filtersData: {},
+    subjectFiltersData: {},
+    currentFilter: {
+        board: null,
+        standard: null,
+        name: null,
+        medium: null,
+    },
 };
 
 const slice = createSlice({
@@ -12,6 +19,9 @@ const slice = createSlice({
     reducers: {
         resetToInitialState(state) {
             return initialState;
+        },
+        setCurrentFilter(state, { payload }) {
+            state.currentFilter = { ...state.currentFilter, ...payload };
         },
     },
 
@@ -27,6 +37,19 @@ const slice = createSlice({
                 state.error = null;
             })
             .addCase(getFiltersAction.rejected, (state, { payload }) => {
+                state.isLoading = false;
+                state.error = payload;
+            })
+            .addCase(getSubjectsAction.pending, (state, { payload }) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getSubjectsAction.fulfilled, (state, { payload }) => {
+                state.isLoading = false;
+                state.subjectFiltersData = payload;
+                state.error = null;
+            })
+            .addCase(getSubjectsAction.rejected, (state, { payload }) => {
                 state.isLoading = false;
                 state.error = payload;
             });
@@ -108,4 +131,4 @@ const slice = createSlice({
 
 export const { reducer } = slice;
 export const globalState = (state) => state.global;
-export const { resetToInitialState } = slice.actions;
+export const { resetToInitialState, setCurrentFilter } = slice.actions;

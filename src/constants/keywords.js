@@ -15,6 +15,8 @@ export const TOAST_ALERTS = {
     SUBJECT_CREATE_SUCCESS: "Subject created successfully",
     SUBJECT_UPDATE_SUCCESS: "Subject updated successfully",
     SUBJECT_DELETE_SUCCESS: "Subject deleted successfully",
+
+    UNITS_UPDATE_SUCCESS: "Units updated successfully",
 };
 
 export const TOAST_TYPES = {

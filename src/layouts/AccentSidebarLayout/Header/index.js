@@ -1,6 +1,16 @@
 import { useContext } from "react";
 
-import { Box, alpha, IconButton, Tooltip, styled } from "@mui/material";
+import {
+    Box,
+    alpha,
+    IconButton,
+    Tooltip,
+    styled,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+} from "@mui/material";
 import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone";
 import { SidebarContext } from "src/contexts/SidebarContext";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
@@ -9,6 +19,8 @@ import Logo from "src/components/LogoSign";
 import HeaderButtons from "./Buttons";
 import HeaderUserbox from "./Userbox";
 import HeaderSearch from "./Search";
+import { LABEL_FOR_SUBJECTS } from "src/constants/keywords";
+import GlobalFilters from "./GlobalFilters";
 
 const HeaderWrapper = styled(Box)(
     ({ theme }) => `
@@ -45,7 +57,9 @@ function Header() {
                 >
                     <Logo />
                 </Box>
-                <HeaderSearch />
+
+                {/* <HeaderSearch /> */}
+                <GlobalFilters />
             </Box>
             <Box display="flex" alignItems="center">
                 {/* <HeaderButtons /> */}

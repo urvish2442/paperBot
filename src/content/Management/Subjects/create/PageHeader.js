@@ -2,6 +2,7 @@ import { Box, Grid, Typography, Button, styled } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import ArrowBackTwoToneIcon from "@mui/icons-material/ArrowBackTwoTone";
 import Link from "src/components/Link";
+import { PATH_DASHBOARD } from "src/routes/paths";
 
 const RootWrapper = styled(Box)(
     () => `
@@ -27,11 +28,11 @@ function PageHeader() {
                                 component="h3"
                                 gutterBottom
                             >
-                                {t("Add new product")}
+                                {t("Add new Question")}
                             </Typography>
                             <Typography variant="subtitle2">
                                 {t(
-                                    "Fill in the fields below to create a new product",
+                                    "Fill in the fields below to create a new Question",
                                 )}
                             </Typography>
                         </Box>
@@ -44,7 +45,7 @@ function PageHeader() {
                         }}
                         component={Link}
                         startIcon={<ArrowBackTwoToneIcon />}
-                        href="/management/commerce/products"
+                        href={PATH_DASHBOARD.questions.root}
                         variant="contained"
                     >
                         {t("Go back to all products")}

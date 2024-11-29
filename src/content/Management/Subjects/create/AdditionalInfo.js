@@ -47,7 +47,7 @@ function AdditionalInfo() {
 
     return (
         <Card>
-            <CardHeader title={t("Additional Informations")} />
+            <CardHeader title={t("Subject Information")} />
             <Divider />
             <TabsContainerWrapper>
                 <Tabs

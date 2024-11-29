@@ -13,26 +13,7 @@ import { productsApi } from "src/mocks/products";
 
 import Results from "src/content/Management/Subjects/Results";
 
-function ManagementProducts() {
-    const isMountedRef = useRefMounted();
-    const [products, setProducts] = useState([]);
-
-    const getProducts = useCallback(async () => {
-        try {
-            const response = await productsApi.getProducts();
-
-            if (isMountedRef()) {
-                setProducts(response);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }, [isMountedRef]);
-
-    useEffect(() => {
-        getProducts();
-    }, [getProducts]);
-
+function ManagementSubjects() {
     return (
         <>
             <Head>
@@ -51,7 +32,7 @@ function ManagementProducts() {
                 spacing={3}
             >
                 <Grid item xs={12}>
-                    <Results products={products} />
+                    <Results />
                 </Grid>
             </Grid>
             <Footer />
@@ -59,4 +40,4 @@ function ManagementProducts() {
     );
 }
 
-export default ManagementProducts;
+export default ManagementSubjects;

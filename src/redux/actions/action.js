@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { GetFiltersService } from "src/services/services";
+import { GetFiltersService, GetSubjectsService } from "src/services/services";
 
 export const getFiltersAction = createAsyncThunk(
     "globalSlice/getFiltersAction",
@@ -7,6 +7,21 @@ export const getFiltersAction = createAsyncThunk(
         try {
             const { data, status, message } = await GetFiltersService();
             return data || {};
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                return rejectWithValue(err?.response?.data?.message);
+            }
+            return rejectWithValue(err.message);
+        }
+    },
+);
+
+export const getSubjectsAction = createAsyncThunk(
+    "globalSlice/getSubjectsAction",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const { data, status, message } = await GetSubjectsService(payload);
+            return data?.data || [];
         } catch (err) {
             if (err instanceof AxiosError) {
                 return rejectWithValue(err?.response?.data?.message);
