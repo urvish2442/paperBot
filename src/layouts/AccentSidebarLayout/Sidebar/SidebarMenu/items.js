@@ -281,7 +281,7 @@ const menuItems = [
                     //     link: "/management/commerce/products/single/1"
                     // },
                     {
-                        name: "Create",
+                        name: "Create Subject",
                         link: PATH_DASHBOARD.subjects.add,
                     },
                 ],
@@ -296,7 +296,7 @@ const menuItems = [
                         link: PATH_DASHBOARD.questions.root,
                     },
                     {
-                        name: "Add User",
+                        name: "Create Question",
                         link: PATH_DASHBOARD.questions.add,
                     },
                 ],

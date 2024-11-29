@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { API_ROUTER } from "src/services/apiRouter";
 import { axiosGet, axiosPatch, axiosPost } from "src/services/axiosHelper";
 import useToaster from "./useToaster";
@@ -341,6 +341,23 @@ export const useSubjects = () => {
         getData();
     }, []);
 
+    const globalFilters = useMemo(() => {
+        return {
+            name: currentFilter?.name,
+            standard: currentFilter?.standard,
+            board: currentFilter?.board,
+        };
+    }, [currentFilter]);
+
+    useEffect(() => {
+        dispatch({
+            type: STATE.FILTERCHANGE,
+            payload: {
+                ...globalFilters,
+            },
+        });
+    }, [globalFilters]);
+
     //** Handlers */
 
     const handleQueryChange = (event) => {
@@ -368,15 +385,6 @@ export const useSubjects = () => {
             payload: { limit: newPageSize, page },
         });
     };
-
-    useEffect(() => {
-        dispatch({
-            type: STATE.FILTERCHANGE,
-            payload: {
-                ...currentFilter,
-            },
-        });
-    }, [currentFilter]);
 
     const handleSort = (column) => {
         dispatch({

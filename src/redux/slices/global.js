@@ -4,12 +4,15 @@ import { getFiltersAction, getSubjectsAction } from "../actions/action";
 const initialState = {
     isLoading: false,
     filtersData: {},
-    subjectFiltersData: {},
+    subjectFiltersData: [],
     currentFilter: {
         board: null,
         standard: null,
-        name: null,
+        name: null, // HINDI, GUJARATI, ENGLISH
         medium: null,
+        subject: null, //gseb_
+        type: null,
+        isFormatted: false,
     },
 };
 

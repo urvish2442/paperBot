@@ -13,11 +13,7 @@ const GlobalFilters = () => {
     const dispatch = useDispatch();
     const { currentFilter, filtersData, subjectFiltersData } =
         useSelector(globalState);
-    console.log("🚀 ~ GlobalFilters ~ currentFilter:", {
-        currentFilter,
-        filtersData,
-        subjectFiltersData,
-    });
+    console.log("🚀 ~ GlobalFilters ~ currentFilter:", currentFilter);
     const handleFilterChange = (key, value) => {
         const newValue = value === "all" ? null : value;
         dispatch(setCurrentFilter({ [key]: newValue }));
@@ -52,7 +48,7 @@ const GlobalFilters = () => {
                         // disabled={isLoading}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {filtersData.subjects.map((item) => (
+                        {filtersData?.subjects?.map((item) => (
                             <MenuItem key={item} value={item}>
                                 {LABEL_FOR_SUBJECTS[item] || item}
                             </MenuItem>
@@ -74,7 +70,7 @@ const GlobalFilters = () => {
                         // disabled={isLoading}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {filtersData.standards.map((item) => (
+                        {filtersData?.standards?.map((item) => (
                             <MenuItem key={item} value={item}>
                                 {LABEL_FOR_STANDARDS[item] || item}
                             </MenuItem>
@@ -96,7 +92,7 @@ const GlobalFilters = () => {
                         // disabled={isLoading}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {filtersData.boards.map((item) => (
+                        {filtersData?.boards?.map((item) => (
                             <MenuItem key={item} value={item}>
                                 {LABEL_FOR_BOARDS[item] || item}
                             </MenuItem>

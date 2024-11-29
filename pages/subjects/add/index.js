@@ -50,23 +50,33 @@ function AddSubjectPage() {
         validationSchema: Yup.object().shape({
             board: Yup.string()
                 .required(t("The board field is required"))
-                .oneOf(filtersData.boards, t("Invalid board selection")),
+                .oneOf(
+                    Object.keys(LABEL_FOR_BOARDS),
+                    t("Invalid board selection"),
+                ),
             standard: Yup.string()
                 .required(t("The standard field is required"))
-                .oneOf(filtersData.standards, t("Invalid standard selection")),
+                .oneOf(
+                    Object.keys(LABEL_FOR_STANDARDS),
+                    t("Invalid standard selection"),
+                ),
             name: Yup.string()
                 .required(t("The name field is required"))
-                .oneOf(filtersData.subjects, t("Invalid name selection")),
+                .oneOf(
+                    Object.keys(LABEL_FOR_SUBJECTS),
+                    t("Invalid name selection"),
+                ),
             medium: Yup.string()
                 .required(t("The medium field is required"))
-                .oneOf(filtersData.mediums, t("Invalid medium selection")),
+                .oneOf(
+                    Object.keys(LABEL_FOR_MEDIUM),
+                    t("Invalid medium selection"),
+                ),
             code: Yup.string()
                 .required(t("The code field is required"))
                 .matches(
                     /^[A-Z0-9]*$/,
-                    t(
-                        "Code can only contain capital letters and numbers",
-                    ),
+                    t("Code can only contain capital letters and numbers"),
                 )
                 .min(2, t("Code must be at least 3 characters long"))
                 .max(20, t("Code cannot exceed 20 characters")),

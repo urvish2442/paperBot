@@ -6,7 +6,7 @@ import ThemeSettings from "src/components/ThemeSettings";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getFiltersAction, getSubjectsAction } from "src/redux/actions/action";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
@@ -15,13 +15,30 @@ const AccentSidebarLayout = ({ children }) => {
     const theme = useTheme();
     const { currentFilter } = useSelector(globalState);
     const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(getFiltersAction());
-    }, []);
+
+    const [globalFilters, setGlobalFilters] = useState(() => ({
+        name: currentFilter?.name || null,
+        standard: currentFilter?.standard || null,
+        board: currentFilter?.board || null,
+    }));
 
     useEffect(() => {
-        dispatch(getSubjectsAction(currentFilter));
-    }, [currentFilter]);
+        dispatch(getFiltersAction());
+        dispatch(getSubjectsAction(globalFilters));
+    }, [dispatch]);
+
+    useEffect(() => {
+        const updatedFilters = {
+            name: currentFilter?.name || null,
+            standard: currentFilter?.standard || null,
+            board: currentFilter?.board || null,
+        };
+
+        if (JSON.stringify(globalFilters) !== JSON.stringify(updatedFilters)) {
+            setGlobalFilters(updatedFilters);
+            dispatch(getSubjectsAction(updatedFilters));
+        }
+    }, [currentFilter, globalFilters, dispatch]);
 
     return (
         <>
