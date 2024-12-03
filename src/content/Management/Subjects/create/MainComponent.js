@@ -1,5 +1,7 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import { useState } from "react";
+import ReactDOM from "react-dom";
 
 import {
     TextField,
@@ -34,21 +36,45 @@ import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
 import { LABEL_FOR_QUESTION_TYPES } from "src/constants/keywords";
 import { useDispatch } from "react-redux";
+import AbcTwoToneIcon from "@mui/icons-material/AbcTwoTone";
+import { useRefMounted } from "src/hooks/useRefMounted";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
 const fullToolbarOptions = [
     // [{ font: [] }], // Font styles
-    [{ header: [1, 2, 3, 4, 5,6, false] }], // Header styles
-    ["bold", "italic", "underline", "strike"], // Text styles
-    [{ color: [] }, { background: [] }], // Text and background colors
-    [{ script: "sub" }, { script: "super" }], // Subscript/Superscript
-    ["blockquote", "code-block"], // Blockquote and code block
-    [{ list: "ordered" }, { list: "bullet" }], // Lists
-    // [{ indent: "-1" }, { indent: "+1" }], // Indentation
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }, { background: [] }],
+    [{ script: "sub" }, { script: "super" }],
+    ["blockquote", "code-block"], 
+    [
+        // { list: "ordered" },
+        { list: "decimal" },
+        { list: "upper-alpha" },
+        { list: "lower-alpha" },
+        { list: "upper-roman" }, 
+        { list: "lower-roman" },
+        
+    ],
+    // [{ indent: "-1" }, { indent: "+1" }],
     // [{ direction: "rtl" }], // Text direction
     [{ align: [] }], // Alignment options
     // ["link", "image", "video"], // Links, images, and videos
     ["clean"], // Clear formatting
+];
+
+const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "color",
+    "background",
+    "script",
+    "align",
 ];
 
 const modules = {
@@ -89,6 +115,36 @@ const EditorWrapper = styled(Box)(
       overflow : auto;
     }
 
+    .ql-editor ol[data-list="upper-alpha"] > li {
+        list-style-type: upper-alpha;
+    }
+
+    .ql-editor ol[data-list="lower-alpha"] > li {
+        list-style-type: lower-alpha;
+    }
+
+    .ql-editor ol[data-list="upper-roman"] > li{
+        list-style-type: upper-roman;
+    }
+
+    .ql-editor ol[data-list="lower-roman"] > li {
+        list-style-type: lower-roman;
+    }
+
+    .ql-editor ol[data-list="decimal"] > li {
+        list-style-type: decimal;
+    }
+
+    .ql-editor ol li {
+        padding-left: 0px !important;
+        counter-reset: none !important;
+        counter-increment: none !important;
+    }
+
+    .ql-editor ol li:before {
+    content: none !important;
+}
+
     &:hover {
       .ql-toolbar.ql-snow,
       .ql-container.ql-snow {
@@ -115,7 +171,124 @@ const TabsContainerWrapper = styled(Box)(
 const MainComponent = ({ formik, subjectNames }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const isMountedRef = useRefMounted();
     const { filtersData, currentFilter } = useSelector(globalState);
+    const [editorContent, setEditorContent] = useState("");
+
+
+    useEffect(() => {
+        const Quill = require("quill");
+        const ListItem = Quill.import("formats/list/item");
+        const ListFormat = Quill.import("formats/list");
+
+        const CUSTOM_LIST_TYPES = [
+            "upper-alpha",
+            "lower-alpha",
+            "upper-roman",
+            "lower-roman",
+            "decimal",
+        ];
+
+        const getType = {
+            decimal: "1",
+            "upper-alpha": "A",
+            "lower-alpha": "a",
+            "upper-roman": "I",
+            "lower-roman": "i",
+        };
+
+        class CustomListItem extends ListItem {
+            static formats(domNode) {
+                return domNode.getAttribute("data-list") || null;
+            }
+
+            static create(value) {
+                const node = super.create();
+                if (CUSTOM_LIST_TYPES.includes(value)) {
+                    node.setAttribute("data-list", value);
+                    node.setAttribute("type", getType[value]);
+                }
+                return node;
+            }
+        }
+        CustomListItem.blotName = "list-item";
+        Quill.register(CustomListItem, true);
+
+        class CustomOrderedList extends ListFormat {
+            static formats(domNode) {
+                return (
+                    domNode.getAttribute("data-list") || super.formats(domNode)
+                );
+            }
+
+            static create(value) {
+                const node = super.create(value);
+                if (CUSTOM_LIST_TYPES.includes(value)) {
+                    node.setAttribute("data-list", value);
+                    node.setAttribute("type", getType[value]);
+                }
+                return node;
+            }
+        }
+        CustomOrderedList.blotName = "list";
+        CustomOrderedList.tagName = "OL";
+        Quill.register(CustomOrderedList, true);
+
+        // // Custom Unordered List
+        // class CustomUnorderedList extends ListFormat {
+        //     static formats(domNode) {
+        //         return null; // Unordered lists don't have custom formats
+        //     }
+
+        //     static create() {
+        //         const node = document.createElement("UL"); // Create a UL element
+        //         return node;
+        //     }
+        // }
+        // CustomUnorderedList.blotName = "unordered-list";
+        // CustomUnorderedList.tagName = "UL"; // Ensures it's an unordered list
+        // Quill.register(CustomUnorderedList, true);
+    }, []);
+
+    const updateButtons = () => {
+        const buttons = document.querySelectorAll(".ql-list");
+        buttons.forEach((button) => {
+            switch (button.getAttribute("value")) {
+                case "upper-alpha":
+                    const iconContainer = document.createElement("span");
+                    ReactDOM.render(<AbcTwoToneIcon />, iconContainer);
+                    button.appendChild(iconContainer);
+                    break;
+                case "lower-alpha":
+                    button.innerHTML = "abc";
+                    break;
+                case "upper-roman":
+                    button.innerHTML = "I.II.";
+                    break;
+                case "lower-roman":
+                    button.innerHTML = "i.ii.";
+                    break;
+                case "decimal":
+                    button.innerHTML = "123";
+                    break;
+                default:
+                    break;
+            }
+        });
+    };
+
+    useEffect(() => {
+        let timer;
+        timer = setTimeout(() => {
+            updateButtons();
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [isMountedRef()]);
+
+
+    const handleEditorChange = (content, delta, source, editor) => {
+        setEditorContent(content);
+    };
 
     const handleChange = (event) => {
         const { type, name, value, checked } = event.target;
@@ -253,8 +426,35 @@ const MainComponent = ({ formik, subjectNames }) => {
                         </Grid>
                         <Grid item xs={12}>
                             <EditorWrapper>
-                                <ReactQuill modules={modules} />
+                                <ReactQuill
+                                    modules={modules}
+                                    formats={formats}
+                                    value={editorContent}
+                                    onChange={handleEditorChange}
+                                />
                             </EditorWrapper>
+                            <Box mt={2}>
+                                <Button
+                                    onClick={() => {
+                                        setEditorContent(null);
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Box>
+                            <Box mt={2}>
+                                <h3>Preview:</h3>
+                                <div>{editorContent}</div>
+                            </Box>
+                            <Box mt={2}>
+                                <h3>Content:</h3>
+                                {/* Render the editor content */}
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: editorContent,
+                                    }}
+                                />
+                            </Box>
                         </Grid>
                         <Grid item xs={12}>
                             <Autocomplete
