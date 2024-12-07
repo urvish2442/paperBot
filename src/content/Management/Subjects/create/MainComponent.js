@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useState } from "react";
 import ReactDOM from "react-dom";
 
@@ -38,6 +38,7 @@ import { LABEL_FOR_QUESTION_TYPES } from "src/constants/keywords";
 import { useDispatch } from "react-redux";
 import AbcTwoToneIcon from "@mui/icons-material/AbcTwoTone";
 import { useRefMounted } from "src/hooks/useRefMounted";
+import QuillEditor from "./QuillEditor";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -47,15 +48,14 @@ const fullToolbarOptions = [
     ["bold", "italic", "underline", "strike"],
     [{ color: [] }, { background: [] }],
     [{ script: "sub" }, { script: "super" }],
-    ["blockquote", "code-block"], 
+    ["blockquote", "code-block"],
     [
         // { list: "ordered" },
         { list: "decimal" },
         { list: "upper-alpha" },
         { list: "lower-alpha" },
-        { list: "upper-roman" }, 
+        { list: "upper-roman" },
         { list: "lower-roman" },
-        
     ],
     // [{ indent: "-1" }, { indent: "+1" }],
     // [{ direction: "rtl" }], // Text direction
@@ -172,122 +172,131 @@ const MainComponent = ({ formik, subjectNames }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const isMountedRef = useRefMounted();
-    const { filtersData, currentFilter } = useSelector(globalState);
+    const { filtersData, currentFilter, subjectFiltersData } =
+        useSelector(globalState);
     const [editorContent, setEditorContent] = useState("");
 
+    const currentUnits = useMemo(() => {
+        const matchedSubject = subjectFiltersData.find(
+            (subject) => subject.model_name === currentFilter.subject,
+        );
+        return matchedSubject ? matchedSubject.units : [];
+    }, [subjectFiltersData, currentFilter.subject]);
 
-    useEffect(() => {
-        const Quill = require("quill");
-        const ListItem = Quill.import("formats/list/item");
-        const ListFormat = Quill.import("formats/list");
+    console.log('formik.values.type', formik.values.type)
 
-        const CUSTOM_LIST_TYPES = [
-            "upper-alpha",
-            "lower-alpha",
-            "upper-roman",
-            "lower-roman",
-            "decimal",
-        ];
+    // useEffect(() => {
+    //     const Quill = require("quill");
+    //     const ListItem = Quill.import("formats/list/item");
+    //     const ListFormat = Quill.import("formats/list");
 
-        const getType = {
-            decimal: "1",
-            "upper-alpha": "A",
-            "lower-alpha": "a",
-            "upper-roman": "I",
-            "lower-roman": "i",
-        };
+    //     const CUSTOM_LIST_TYPES = [
+    //         "upper-alpha",
+    //         "lower-alpha",
+    //         "upper-roman",
+    //         "lower-roman",
+    //         "decimal",
+    //     ];
 
-        class CustomListItem extends ListItem {
-            static formats(domNode) {
-                return domNode.getAttribute("data-list") || null;
-            }
+    //     const getType = {
+    //         decimal: "1",
+    //         "upper-alpha": "A",
+    //         "lower-alpha": "a",
+    //         "upper-roman": "I",
+    //         "lower-roman": "i",
+    //     };
 
-            static create(value) {
-                const node = super.create();
-                if (CUSTOM_LIST_TYPES.includes(value)) {
-                    node.setAttribute("data-list", value);
-                    node.setAttribute("type", getType[value]);
-                }
-                return node;
-            }
-        }
-        CustomListItem.blotName = "list-item";
-        Quill.register(CustomListItem, true);
+    //     class CustomListItem extends ListItem {
+    //         static formats(domNode) {
+    //             return domNode.getAttribute("data-list") || null;
+    //         }
 
-        class CustomOrderedList extends ListFormat {
-            static formats(domNode) {
-                return (
-                    domNode.getAttribute("data-list") || super.formats(domNode)
-                );
-            }
+    //         static create(value) {
+    //             const node = super.create();
+    //             if (CUSTOM_LIST_TYPES.includes(value)) {
+    //                 node.setAttribute("data-list", value);
+    //                 node.setAttribute("type", getType[value]);
+    //             }
+    //             return node;
+    //         }
+    //     }
+    //     CustomListItem.blotName = "list-item";
+    //     Quill.register(CustomListItem, true);
 
-            static create(value) {
-                const node = super.create(value);
-                if (CUSTOM_LIST_TYPES.includes(value)) {
-                    node.setAttribute("data-list", value);
-                    node.setAttribute("type", getType[value]);
-                }
-                return node;
-            }
-        }
-        CustomOrderedList.blotName = "list";
-        CustomOrderedList.tagName = "OL";
-        Quill.register(CustomOrderedList, true);
+    //     class CustomOrderedList extends ListFormat {
+    //         static formats(domNode) {
+    //             return (
+    //                 domNode.getAttribute("data-list") || super.formats(domNode)
+    //             );
+    //         }
 
-        // // Custom Unordered List
-        // class CustomUnorderedList extends ListFormat {
-        //     static formats(domNode) {
-        //         return null; // Unordered lists don't have custom formats
-        //     }
+    //         static create(value) {
+    //             const node = super.create(value);
+    //             if (CUSTOM_LIST_TYPES.includes(value)) {
+    //                 node.setAttribute("data-list", value);
+    //                 node.setAttribute("type", getType[value]);
+    //             }
+    //             return node;
+    //         }
+    //     }
+    //     CustomOrderedList.blotName = "list";
+    //     CustomOrderedList.tagName = "OL";
+    //     Quill.register(CustomOrderedList, true);
 
-        //     static create() {
-        //         const node = document.createElement("UL"); // Create a UL element
-        //         return node;
-        //     }
-        // }
-        // CustomUnorderedList.blotName = "unordered-list";
-        // CustomUnorderedList.tagName = "UL"; // Ensures it's an unordered list
-        // Quill.register(CustomUnorderedList, true);
-    }, []);
+    //     // // Custom Unordered List
+    //     // class CustomUnorderedList extends ListFormat {
+    //     //     static formats(domNode) {
+    //     //         return null; // Unordered lists don't have custom formats
+    //     //     }
 
-    const updateButtons = () => {
-        const buttons = document.querySelectorAll(".ql-list");
-        buttons.forEach((button) => {
-            switch (button.getAttribute("value")) {
-                case "upper-alpha":
-                    const iconContainer = document.createElement("span");
-                    ReactDOM.render(<AbcTwoToneIcon />, iconContainer);
-                    button.appendChild(iconContainer);
-                    break;
-                case "lower-alpha":
-                    button.innerHTML = "abc";
-                    break;
-                case "upper-roman":
-                    button.innerHTML = "I.II.";
-                    break;
-                case "lower-roman":
-                    button.innerHTML = "i.ii.";
-                    break;
-                case "decimal":
-                    button.innerHTML = "123";
-                    break;
-                default:
-                    break;
-            }
-        });
-    };
+    //     //     static create() {
+    //     //         const node = document.createElement("UL"); // Create a UL element
+    //     //         return node;
+    //     //     }
+    //     // }
+    //     // CustomUnorderedList.blotName = "unordered-list";
+    //     // CustomUnorderedList.tagName = "UL"; // Ensures it's an unordered list
+    //     // Quill.register(CustomUnorderedList, true);
+    // }, []);
 
-    useEffect(() => {
-        let timer;
-        timer = setTimeout(() => {
-            updateButtons();
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, [isMountedRef()]);
+    // const updateButtons = () => {
+    //     const buttons = document.querySelectorAll(".ql-list");
+    //     buttons.forEach((button) => {
+    //         switch (button.getAttribute("value")) {
+    //             case "upper-alpha":
+    //                 const iconContainer = document.createElement("span");
+    //                 ReactDOM.render(<AbcTwoToneIcon />, iconContainer);
+    //                 button.appendChild(iconContainer);
+    //                 break;
+    //             case "lower-alpha":
+    //                 button.innerHTML = "abc";
+    //                 break;
+    //             case "upper-roman":
+    //                 button.innerHTML = "I.II.";
+    //                 break;
+    //             case "lower-roman":
+    //                 button.innerHTML = "i.ii.";
+    //                 break;
+    //             case "decimal":
+    //                 button.innerHTML = "123";
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     });
+    // };
 
+    // useEffect(() => {
+    //     let timer;
+    //     timer = setTimeout(() => {
+    //         updateButtons();
+    //     }, 1000);
+    //     return () => clearTimeout(timer);
+    // }, [isMountedRef()]);
 
     const handleEditorChange = (content, delta, source, editor) => {
         setEditorContent(content);
+        formik.setFieldValue("question", content);
     };
 
     const handleChange = (event) => {
@@ -297,6 +306,11 @@ const MainComponent = ({ formik, subjectNames }) => {
         dispatch(setCurrentFilter({ [name]: updatedValue }));
         formik.setFieldValue(name, updatedValue);
     };
+
+    useEffect(() => {
+        formik.setFieldValue("unit", "");
+        dispatch(setCurrentFilter({ unit: null }));
+    }, [formik.values.subject]);
     return (
         <>
             <Grid item xs={12}>
@@ -305,7 +319,7 @@ const MainComponent = ({ formik, subjectNames }) => {
                     <Divider /> */}
                     <Box p={3}>
                         <Grid container spacing={3}>
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={4}>
                                 <FormControl fullWidth variant="outlined">
                                     <InputLabel>{t("Subject")}</InputLabel>
                                     <Select
@@ -318,6 +332,20 @@ const MainComponent = ({ formik, subjectNames }) => {
                                             formik.touched.subject &&
                                                 formik.errors.subject,
                                         )}
+                                        MenuProps={{
+                                            PaperProps: {
+                                                style: {
+                                                    maxHeight: 200, // Limit the height of the dropdown menu
+                                                    overflowY: "hidden",
+                                                },
+                                            },
+                                        }}
+                                        style={{
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            // overflowY: "hidden",
+                                            textOverflow: "ellipsis",
+                                        }}
                                     >
                                         <MenuItem value="">
                                             <em>{t("Select Subject...")}</em>
@@ -340,7 +368,7 @@ const MainComponent = ({ formik, subjectNames }) => {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={3}>
                                 <FormControl fullWidth variant="outlined">
                                     <InputLabel>{t("Type")}</InputLabel>
                                     <Select
@@ -380,6 +408,61 @@ const MainComponent = ({ formik, subjectNames }) => {
                                         )}
                                 </FormControl>
                             </Grid>
+
+                            <Grid item xs={6} md={3}>
+                                <FormControl fullWidth variant="outlined">
+                                    <InputLabel>{t("Unit")}</InputLabel>
+                                    <Select
+                                        value={formik.values.unit || ""}
+                                        onChange={handleChange}
+                                        onBlur={formik.handleBlur("unit")}
+                                        label={t("Unit")}
+                                        name="unit"
+                                        error={Boolean(
+                                            formik.touched.unit &&
+                                                formik.errors.unit,
+                                        )}
+                                    >
+                                        <MenuItem value="">
+                                            <em>{t("Select Unit...")}</em>
+                                        </MenuItem>
+                                        {currentUnits?.map((unit) => (
+                                            <MenuItem
+                                                key={unit._id}
+                                                value={unit._id}
+                                            >
+                                                {unit.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {formik.touched.unit &&
+                                        formik.errors.unit && (
+                                            <FormHelperText error>
+                                                {formik.errors.unit}
+                                            </FormHelperText>
+                                        )}
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={6} md={2}>
+                                <TextField
+                                    fullWidth
+                                    label="Marks"
+                                    name={`marks`}
+                                    value={formik.values.marks}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    error={
+                                        formik.touched.marks &&
+                                        Boolean(formik.errors.marks)
+                                    }
+                                    helperText={
+                                        formik.touched.marks &&
+                                        formik.errors.marks
+                                    }
+                                    variant="outlined"
+                                />
+                            </Grid>
                             <Grid item xs={12}>
                                 <FormControlLabel
                                     control={
@@ -416,23 +499,37 @@ const MainComponent = ({ formik, subjectNames }) => {
                     }}
                 >
                     <Grid container spacing={3}>
-                        <Grid item xs={12}>
+                        {/* <Grid item xs={12}>
                             <TextField
                                 fullWidth
                                 name="title"
                                 placeholder={t("Project title here...")}
                                 variant="outlined"
                             />
-                        </Grid>
+                        </Grid> */}
                         <Grid item xs={12}>
-                            <EditorWrapper>
+                            <Box>
+                                <h3 style={{ marginTop: "0px" }}>Question:</h3>
+                            </Box>
+                            <QuillEditor
+                                editorContent={editorContent}
+                                handleEditorChange={handleEditorChange}
+                            />
+                            {/* <EditorWrapper>
                                 <ReactQuill
                                     modules={modules}
                                     formats={formats}
                                     value={editorContent}
                                     onChange={handleEditorChange}
+                                    readOnly
                                 />
-                            </EditorWrapper>
+                            </EditorWrapper> */}
+                            {formik.touched.question &&
+                                        formik.errors.question && (
+                                            <FormHelperText error>
+                                                {formik.errors.question}
+                                            </FormHelperText>
+                                        )}
                             <Box mt={2}>
                                 <Button
                                     onClick={() => {
@@ -455,8 +552,9 @@ const MainComponent = ({ formik, subjectNames }) => {
                                     }}
                                 />
                             </Box>
+
                         </Grid>
-                        <Grid item xs={12}>
+                        {/* <Grid item xs={12}>
                             <Autocomplete
                                 multiple
                                 freeSolo
@@ -477,7 +575,7 @@ const MainComponent = ({ formik, subjectNames }) => {
                                     />
                                 )}
                             />
-                        </Grid>
+                        </Grid> */}
                     </Grid>
                 </Card>
             </Grid>

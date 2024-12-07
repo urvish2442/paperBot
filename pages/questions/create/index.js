@@ -86,6 +86,8 @@ function ManagementProductCreate() {
             question: "",
             answer: "",
             queDetails: "",
+            marks: currentFilter?.marks || 1,
+            unit: currentFilter?.unit || "",
             isFormatted: currentFilter?.isFormatted || false,
             submit: null,
         },
@@ -101,7 +103,7 @@ function ManagementProductCreate() {
                 ),
             question: Yup.string()
                 .min(10, "Question should have at least 10 characters")
-                .max(1000, "Question cannot exceed 1000 characters")
+                .max(10000, "Question cannot exceed 1000 characters")
                 .required("Question is required"),
             answer: Yup.string()
                 .min(1, "Answer should have at least 1 character")
@@ -113,6 +115,8 @@ function ManagementProductCreate() {
             isFormatted: Yup.boolean().required(
                 "Formatting status is required",
             ),
+            marks: Yup.number().required("Marks is required"),
+            unit: Yup.string().required("Unit is required"),
         }),
         onSubmit: async (values, helpers) => {
             try {

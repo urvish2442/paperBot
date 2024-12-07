@@ -12,7 +12,9 @@ const initialState = {
         medium: null,
         subject: null, //gseb_
         type: null,
-        isFormatted: false,
+        marks: 1,
+        unit: null,
+        isFormatted: true,
     },
 };
 

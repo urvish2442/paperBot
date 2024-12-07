@@ -668,6 +668,7 @@ const Results = () => {
                                         }}
                                         disabled={
                                             formik.values.units.length === 1
+                                            || index < currentItem?.units?.length 
                                         } // Prevent removal of the last item
                                     >
                                         <DeleteTwoToneIcon />
