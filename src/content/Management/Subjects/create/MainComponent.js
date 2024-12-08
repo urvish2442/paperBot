@@ -39,6 +39,9 @@ import { useDispatch } from "react-redux";
 import AbcTwoToneIcon from "@mui/icons-material/AbcTwoTone";
 import { useRefMounted } from "src/hooks/useRefMounted";
 import QuillEditor from "./QuillEditor";
+import Preview from "./Preview";
+// import Editor from "./Editor";
+const Editor = dynamic(() => import("./Editor"), { ssr: false });
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -183,7 +186,7 @@ const MainComponent = ({ formik, subjectNames }) => {
         return matchedSubject ? matchedSubject.units : [];
     }, [subjectFiltersData, currentFilter.subject]);
 
-    console.log('formik.values.type', formik.values.type)
+    console.log("formik.values.type", formik.values.type);
 
     // useEffect(() => {
     //     const Quill = require("quill");
@@ -311,6 +314,12 @@ const MainComponent = ({ formik, subjectNames }) => {
         formik.setFieldValue("unit", "");
         dispatch(setCurrentFilter({ unit: null }));
     }, [formik.values.subject]);
+
+    const [editorData, setEditorData] = useState(null);
+
+    const handleSave = (data) => {
+        setEditorData(data); // Save the editor data for preview
+    };
     return (
         <>
             <Grid item xs={12}>
@@ -511,25 +520,38 @@ const MainComponent = ({ formik, subjectNames }) => {
                             <Box>
                                 <h3 style={{ marginTop: "0px" }}>Question:</h3>
                             </Box>
+                            <Editor onSave={handleSave} />
+                            <Preview data={editorData} />
+                            {formik.touched.question &&
+                                formik.errors.question && (
+                                    <FormHelperText error>
+                                        {formik.errors.question}
+                                    </FormHelperText>
+                                )}
+                            <Box mt={2}>
+                                <Button
+                                    onClick={() => {
+                                        setEditorData(null);
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Box>
+                        </Grid>
+                        {/* <Grid item xs={12}>
+                            <Box>
+                                <h3 style={{ marginTop: "0px" }}>Question:</h3>
+                            </Box>
                             <QuillEditor
                                 editorContent={editorContent}
                                 handleEditorChange={handleEditorChange}
                             />
-                            {/* <EditorWrapper>
-                                <ReactQuill
-                                    modules={modules}
-                                    formats={formats}
-                                    value={editorContent}
-                                    onChange={handleEditorChange}
-                                    readOnly
-                                />
-                            </EditorWrapper> */}
                             {formik.touched.question &&
-                                        formik.errors.question && (
-                                            <FormHelperText error>
-                                                {formik.errors.question}
-                                            </FormHelperText>
-                                        )}
+                                formik.errors.question && (
+                                    <FormHelperText error>
+                                        {formik.errors.question}
+                                    </FormHelperText>
+                                )}
                             <Box mt={2}>
                                 <Button
                                     onClick={() => {
@@ -545,15 +567,13 @@ const MainComponent = ({ formik, subjectNames }) => {
                             </Box>
                             <Box mt={2}>
                                 <h3>Content:</h3>
-                                {/* Render the editor content */}
                                 <div
                                     dangerouslySetInnerHTML={{
                                         __html: editorContent,
                                     }}
                                 />
                             </Box>
-
-                        </Grid>
+                        </Grid> */}
                         {/* <Grid item xs={12}>
                             <Autocomplete
                                 multiple
