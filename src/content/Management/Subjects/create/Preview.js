@@ -1,20 +1,24 @@
+import { useTheme } from "@mui/material";
 import React from "react";
 
 const Preview = ({ data }) => {
-    // return <p>No content to display</p>;
+    const theme = useTheme(); // Get theme context
+
+    // Return "No content to display" if no data or blocks are available
     if (!data || !data.blocks) return <p>No content to display</p>;
 
     return (
         <div
             style={{
                 border: "1px solid #ddd",
-                padding: "20px",
-                marginTop: "20px",
-                width: "100%",
-                overflow: "auto",
+                padding: "10px",
+                borderRadius: theme.general.borderRadius,
+                // marginTop: "20px",
+                // width: "100%",
+                // overflow: "auto",
             }}
         >
-            {data.blocks.map((block, index) => {
+            {data?.blocks.map((block, index) => {
                 switch (block.type) {
                     case "header":
                         return React.createElement(
@@ -132,8 +136,11 @@ const Preview = ({ data }) => {
                                     )}
                                     {/* Render the table rows */}
                                     <tbody>
-                                        {block.data.content.map(
-                                            (row, rowIndex) => (
+                                        {block.data.content
+                                            .slice(
+                                                block.data.withHeadings ? 1 : 0,
+                                            )
+                                            .map((row, rowIndex) => (
                                                 <tr key={rowIndex}>
                                                     {row.map(
                                                         (cell, cellIndex) => (
@@ -150,8 +157,7 @@ const Preview = ({ data }) => {
                                                         ),
                                                     )}
                                                 </tr>
-                                            ),
-                                        )}
+                                            ))}
                                     </tbody>
                                 </tbody>
                             </table>
@@ -258,40 +264,10 @@ const Preview = ({ data }) => {
                         );
 
                     case "inlineCode":
-                        return (
-                            <code
-                                key={index}
-                                style={{
-                                    background: "#f4f4f4",
-                                    padding: "2px 4px",
-                                }}
-                            >
-                                {block.data.text}
-                            </code>
-                        );
-
-                    case "simpleImage":
-                        return (
-                            <figure key={index}>
-                                <img
-                                    src={block.data.url}
-                                    alt={block.data.caption}
-                                    style={{ maxWidth: "100%" }}
-                                />
-                                {block.data.caption && (
-                                    <figcaption>
-                                        {block.data.caption}
-                                    </figcaption>
-                                )}
-                            </figure>
-                        );
+                        return <code key={index}>{block.data.code}</code>;
 
                     default:
-                        return (
-                            <p key={index}>
-                                [Unsupported block type: {block.type}]
-                            </p>
-                        );
+                        return null;
                 }
             })}
         </div>

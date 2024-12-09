@@ -16,6 +16,7 @@ import CheckList from "@editorjs/checklist";
 import Delimiter from "@editorjs/delimiter";
 import InlineCode from "@editorjs/inline-code";
 import SimpleImage from "@editorjs/simple-image";
+import { useTheme } from "@mui/material";
 
 export const EDITOR_JS_TOOLS = {
     embed: Embed,
@@ -77,6 +78,10 @@ const Editor = ({ onSave }) => {
                 tools: EDITOR_JS_TOOLS,
                 placeholder: "Type your content here...",
                 autofocus: true,
+                onChange: async () => {
+                    const savedData = await editorInstance?.current?.save();
+                    onSave(savedData);
+                },
             });
         }
 
@@ -88,27 +93,17 @@ const Editor = ({ onSave }) => {
         };
     }, []);
 
-    const handleSave = async () => {
-        if (editorInstance.current) {
-            const savedData = await editorInstance.current.save();
-            onSave(savedData); // Pass saved data to the parent component
-        }
-    };
+    const theme = useTheme(); // Get theme context
 
     return (
-        <div>
-            <div
-                id="editorjs"
-                style={{ border: "1px solid #ddd", padding: "20px" }}
-            ></div>
-            <button
-                onClick={handleSave}
-                style={{ marginTop: "10px", padding: "10px" }}
-                type="button"
-            >
-                Save Content
-            </button>
-        </div>
+        <div
+            id="editorjs"
+            style={{
+                border: "1px solid #ddd",
+                padding: theme.general.padding,
+                borderRadius: theme.general.borderRadius,
+            }}
+        ></div>
     );
 };
 
