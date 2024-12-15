@@ -4,28 +4,46 @@ import Embed from "@editorjs/embed";
 import Table from "@editorjs/table";
 import Paragraph from "@editorjs/paragraph";
 import List from "@editorjs/list";
+import Image from "@editorjs/image";
+import Header from "@editorjs/header";
+import Quote from "@editorjs/quote";
+import CheckList from "@editorjs/checklist";
+import Delimiter from "@editorjs/delimiter";
+import { Divider, useTheme } from "@mui/material";
+import { Button, Box } from "@mui/material";
+import TableChartTwoToneIcon from "@mui/icons-material/TableChartTwoTone";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import ImageIcon from "@mui/icons-material/Image";
+import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
 import Warning from "@editorjs/warning";
 import Code from "@editorjs/code";
 import LinkTool from "@editorjs/link";
-import Image from "@editorjs/image";
 import Raw from "@editorjs/raw";
-import Header from "@editorjs/header";
-import Quote from "@editorjs/quote";
 import Marker from "@editorjs/marker";
-import CheckList from "@editorjs/checklist";
-import Delimiter from "@editorjs/delimiter";
 import InlineCode from "@editorjs/inline-code";
 import SimpleImage from "@editorjs/simple-image";
-import { useTheme } from "@mui/material";
+// import EmbedIcon from "@mui/icons-material/Embed";
+// import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+// import CodeIcon from "@mui/icons-material/Code";
+// import LinkIcon from "@mui/icons-material/Link";
+// import RawIcon from "@mui/icons-material/Description";
+// import HeaderIcon from "@mui/icons-material/Title";
+// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export const EDITOR_JS_TOOLS = {
-    embed: Embed,
+    paragraph: {
+        class: Paragraph,
+        inlineToolbar: ["bold", "italic"],
+    },
+    header: Headers,
+    list: {
+        class: List,
+        // inlineToolbar: ["bold", "italic"],
+    },
     table: Table,
-    paragraph: Paragraph,
-    list: List,
-    warning: Warning,
-    code: Code,
-    linkTool: LinkTool,
+    quote: Quote,
+    // delimiter: Delimiter,
+    embed: Embed,
     image: {
         class: Image,
         config: {
@@ -57,27 +75,74 @@ export const EDITOR_JS_TOOLS = {
             },
         },
     },
-
-    raw: Raw,
-    header: Header,
-    quote: Quote,
     marker: Marker,
     checklist: CheckList,
-    delimiter: Delimiter,
     inlineCode: InlineCode,
-    simpleImage: SimpleImage,
+    // raw: Raw,
+    // warning: Warning,
+    // code: Code,
+    // linkTool: LinkTool,
+    // simpleImage: SimpleImage,
 };
 
-const Editor = ({ onSave }) => {
+const TOOLS = [
+    { tool: "table", label: "Table", icon: <TableChartTwoToneIcon /> },
+    { tool: "list", label: "List", icon: <ListAltIcon /> },
+    // { tool: "image", label: "Image", icon: <ImageIcon /> },
+    // {
+    //     tool: "delimiter",
+    //     label: "Delimiter",
+    //     icon: <FormatStrikethroughIcon />,
+    // },
+];
+
+const Editor = ({ onSave, reset, setReset, holder = "question" }) => {
     const editorInstance = useRef(null);
+    const theme = useTheme();
+    const insertToolBlock = async (tool, config = {}) => {
+        if (editorInstance.current) {
+            await editorInstance.current.blocks.insert(tool, config);
+        }
+    };
+
+    useEffect(() => {
+        if (!reset) return;
+        setReset(false);
+        if (editorInstance.current) {
+            editorInstance.current?.clear();
+        }
+        return () => {
+            if (editorInstance.current) {
+                editorInstance.current?.clear();
+            }
+        };
+    }, [reset]);
 
     useEffect(() => {
         if (!editorInstance.current) {
             editorInstance.current = new EditorJS({
-                holder: "editorjs",
+                holder: holder,
                 tools: EDITOR_JS_TOOLS,
-                placeholder: "Type your content here...",
+                placeholder: `Enter ${holder} here...`,
                 autofocus: true,
+                onReady: () => {
+                    const editorRedactor = document.querySelector(
+                        `#${holder} .codex-editor .codex-editor__redactor`,
+                    );
+                    if (editorRedactor) {
+                        editorRedactor.style.paddingBottom = "200px";
+                    }
+
+                    // to hide checklist tool of editorjs/list
+                    setTimeout(() => {
+                        const listItems = document.querySelectorAll(
+                            ".ce-popover__items .ce-popover-item[data-item-name='list']",
+                        );
+                        if (listItems.length > 2) {
+                            listItems[2].style.display = "none";
+                        }
+                    }, 100);
+                },
                 onChange: async () => {
                     const savedData = await editorInstance?.current?.save();
                     onSave(savedData);
@@ -87,23 +152,38 @@ const Editor = ({ onSave }) => {
 
         return () => {
             if (editorInstance.current) {
-                editorInstance.current.destroy();
+                editorInstance.current?.destroy();
                 editorInstance.current = null;
             }
         };
     }, []);
 
-    const theme = useTheme(); // Get theme context
-
     return (
-        <div
-            id="editorjs"
-            style={{
-                border: "1px solid #ddd",
-                padding: theme.general.padding,
-                borderRadius: theme.general.borderRadius,
-            }}
-        ></div>
+        <>
+            <div
+                style={{
+                    border: "1px solid #ddd",
+                    padding: theme.general.padding,
+                    borderRadius: theme.general.borderRadius,
+                }}
+            >
+                <Box sx={{ display: "flex", gap: 1, margin: 1 }}>
+                    {TOOLS.map((tool) => (
+                        <Button
+                            key={tool.tool}
+                            // variant="contained"
+                            // color="primary"
+                            onClick={() => insertToolBlock(tool.tool)}
+                            startIcon={tool.icon || ""}
+                        >
+                            {tool.label}
+                        </Button>
+                    ))}
+                </Box>
+                <Divider />
+                <div id={holder}></div>
+            </div>
+        </>
     );
 };
 

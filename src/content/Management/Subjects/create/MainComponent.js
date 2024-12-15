@@ -27,6 +27,7 @@ import {
     CircularProgress,
     MenuItem,
     FormHelperText,
+    useTheme,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import HelpOutlineTwoToneIcon from "@mui/icons-material/HelpOutlineTwoTone";
@@ -43,13 +44,30 @@ import Preview from "./Preview";
 // import Editor from "./Editor";
 const Editor = dynamic(() => import("./Editor"), { ssr: false });
 
-const MainComponent = ({ formik, subjectNames }) => {
+const MainComponent = ({
+    formik,
+    subjectNames,
+    reset,
+    setReset,
+    answerReset,
+    setAnswerReset,
+}) => {
+    const theme = useTheme();
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const isMountedRef = useRefMounted();
     const [editorData, setEditorData] = useState(null);
+
+    const [answerData, setAnswerData] = useState(null);
     const { filtersData, currentFilter, subjectFiltersData } =
         useSelector(globalState);
+    useEffect(() => {
+        formik.setValues((preVal) => ({
+            ...preVal,
+            type: currentFilter.type,
+            unit: currentFilter.unit,
+        }));
+    }, [currentFilter]);
 
     const currentUnits = useMemo(() => {
         const matchedSubject = subjectFiltersData.find(
@@ -61,21 +79,29 @@ const MainComponent = ({ formik, subjectNames }) => {
     const handleChange = (event) => {
         const { type, name, value, checked } = event.target;
         const updatedValue = type === "checkbox" ? checked : value;
-
         dispatch(setCurrentFilter({ [name]: updatedValue }));
         formik.setFieldValue(name, updatedValue);
+        if (name === "isFormatted") {
+            formik.setFieldValue("question", "");
+            setEditorData("");
+        }
     };
 
     useEffect(() => {
         formik.setFieldValue("unit", "");
-        dispatch(setCurrentFilter({ unit: null }));
+        dispatch(setCurrentFilter({ unit: "" }));
     }, [formik.values.subject]);
-
 
     const handleSave = (data) => {
         formik.setFieldValue("question", data);
-        setEditorData(data); // Save the editor data for preview
+        setEditorData(data);
     };
+
+    // const handleAnswerSave = (data) => {
+    //     formik.setFieldValue("answer", data);
+    //     setAnswerData(data);
+    // };
+
     return (
         <>
             <Grid item xs={12}>
@@ -243,7 +269,7 @@ const MainComponent = ({ formik, subjectNames }) => {
                                     }
                                     label={t("Formatted Question")}
                                 />
-                                <Typography
+                                {/* <Typography
                                     variant="h6"
                                     color="text.secondary"
                                     sx={{ mt: 1 }}
@@ -251,7 +277,7 @@ const MainComponent = ({ formik, subjectNames }) => {
                                     {t(
                                         "Enable this to format the question text",
                                     )}
-                                </Typography>
+                                </Typography> */}
                             </Grid>
                         </Grid>
                     </Box>
@@ -273,94 +299,318 @@ const MainComponent = ({ formik, subjectNames }) => {
                             />
                         </Grid> */}
                         <Grid item xs={12}>
-                            <Box>
+                            {/* <Box>
                                 <h3 style={{ marginTop: "0px" }}>Question:</h3>
-                            </Box>
+                            </Box> */}
                             <Box>
-                                <Editor onSave={handleSave} />
+                                {formik.values.isFormatted ? (
+                                    <Editor
+                                        onSave={handleSave}
+                                        reset={reset}
+                                        setReset={setReset}
+                                    />
+                                ) : (
+                                    "" //add mui textarea component here
+                                )}
+                                {!formik?.values?.isFormatted ? (
+                                    <TextField
+                                        fullWidth
+                                        helperText={
+                                            formik.touched.question &&
+                                            typeof formik.errors.question ===
+                                                "string" &&
+                                            formik.errors.question
+                                        }
+                                        error={Boolean(
+                                            formik.touched.question &&
+                                                formik.errors.question &&
+                                                typeof formik.errors
+                                                    .question === "string",
+                                        )}
+                                        label={t("Question")}
+                                        name="question"
+                                        onBlur={formik.handleBlur}
+                                        onChange={formik.handleChange}
+                                        value={formik.values.question}
+                                        variant="outlined"
+                                        multiline
+                                        rows={4} // You can adjust the number of rows
+                                    />
+                                ) : (
+                                    ""
+                                )}
                             </Box>
-                            <Box mt={2}>
+                            {/* <Box mt={2}>
                                 <h3 style={{ marginTop: "0px" }}>
                                     Preview (Question):
                                 </h3>
-                            </Box>
-                            <Box>
-                                <Preview data={editorData} />
-                            </Box>
-                            {formik.touched.question &&
-                                formik.errors.question && (
-                                    <FormHelperText error>
-                                        {formik.errors.question}
-                                    </FormHelperText>
-                                )}
-                            <Box mt={2}>
-                                <Button
-                                    onClick={() => {
-                                        setEditorData(null);
-                                    }}
-                                >
-                                    Reset
-                                </Button>
-                            </Box>
+                            </Box> */}
+                            {formik?.values?.isFormatted ? (
+                                <>
+                                    <Box>
+                                        <Preview data={editorData} />
+                                    </Box>
+                                    {formik.touched.question &&
+                                    formik.errors.question?.blocks ? (
+                                        <FormHelperText error>
+                                            {typeof formik.errors?.question
+                                                ?.blocks === "string"
+                                                ? formik.errors?.question
+                                                      ?.blocks
+                                                : // Render errors for each block
+                                                  formik.errors.question.blocks.map(
+                                                      (blockError, index) => {
+                                                          if (
+                                                              blockError?.data
+                                                                  ?.text
+                                                          ) {
+                                                              // Render error for text field
+                                                              return (
+                                                                  <div
+                                                                      key={
+                                                                          index
+                                                                      }
+                                                                  >
+                                                                      Block{" "}
+                                                                      {index +
+                                                                          1}
+                                                                      :{" "}
+                                                                      {
+                                                                          blockError
+                                                                              .data
+                                                                              .text
+                                                                      }
+                                                                  </div>
+                                                              );
+                                                          } else if (
+                                                              blockError?.data
+                                                                  ?.items &&
+                                                              Array.isArray(
+                                                                  blockError
+                                                                      .data
+                                                                      .items,
+                                                              )
+                                                          ) {
+                                                              // Render error for items if present
+                                                              return blockError.data.items.map(
+                                                                  (
+                                                                      itemError,
+                                                                      itemIndex,
+                                                                  ) => (
+                                                                      <div
+                                                                          key={`${index}-${itemIndex}`}
+                                                                      >
+                                                                          Block{" "}
+                                                                          {index +
+                                                                              1}
+                                                                          , Item{" "}
+                                                                          {itemIndex +
+                                                                              1}
+                                                                          :{" "}
+                                                                          {itemError.content ||
+                                                                              "Content error"}
+                                                                      </div>
+                                                                  ),
+                                                              );
+                                                          } else if (
+                                                              typeof blockError?.data ===
+                                                              "text"
+                                                          ) {
+                                                              return (
+                                                                  <div
+                                                                      key={
+                                                                          index
+                                                                      }
+                                                                  >
+                                                                      Block{" "}
+                                                                      {index +
+                                                                          1}
+                                                                      :
+                                                                      {
+                                                                          blockError?.data
+                                                                      }
+                                                                  </div>
+                                                              );
+                                                          }
+                                                          return (
+                                                              // Fallback for a generic block error
+                                                              <div key={index}>
+                                                                  Block{" "}
+                                                                  {index + 1}:
+                                                                  Unknown error
+                                                                  in block data
+                                                              </div>
+                                                          );
+                                                      },
+                                                  )}
+                                        </FormHelperText>
+                                    ) : (
+                                        ""
+                                    )}
+                                    <Box mt={2}>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => {
+                                                setEditorData(null);
+                                                setReset(true);
+                                            }}
+                                        >
+                                            Reset Question
+                                        </Button>
+                                    </Box>
+                                </>
+                            ) : (
+                                ""
+                            )}
                         </Grid>
-                        {/* <Grid item xs={12}>
+                    </Grid>
+                </Card>
+            </Grid>
+            <Grid item xs={12}>
+                <Card
+                    sx={{
+                        p: 3,
+                    }}
+                >
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            {/* <Box>
+                                <h3 style={{ marginTop: "0px" }}>Answer:</h3>
+                            </Box> */}
                             <Box>
-                                <h3 style={{ marginTop: "0px" }}>Question:</h3>
-                            </Box>
-                            <QuillEditor
-                                editorContent={editorContent}
-                                handleEditorChange={handleEditorChange}
-                            />
-                            {formik.touched.question &&
-                                formik.errors.question && (
-                                    <FormHelperText error>
-                                        {formik.errors.question}
-                                    </FormHelperText>
-                                )}
-                            <Box mt={2}>
-                                <Button
-                                    onClick={() => {
-                                        setEditorContent(null);
-                                    }}
-                                >
-                                    Reset
-                                </Button>
-                            </Box>
-                            <Box mt={2}>
-                                <h3>Preview:</h3>
-                                <div>{editorContent}</div>
-                            </Box>
-                            <Box mt={2}>
-                                <h3>Content:</h3>
-                                <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: editorContent,
-                                    }}
+                                {/* <Editor
+                                        holder="answer"
+                                        onSave={handleAnswerSave}
+                                        reset={answerReset}
+                                        setReset={setAnswerReset}
+                                    /> */}
+                                <TextField
+                                    fullWidth
+                                    helperText={
+                                        formik.touched.answer &&
+                                        typeof formik.errors.answer ===
+                                            "string" &&
+                                        formik.errors.answer
+                                    }
+                                    error={Boolean(
+                                        formik.touched.answer &&
+                                            formik.errors.answer &&
+                                            typeof formik.errors.answer ===
+                                                "string",
+                                    )}
+                                    label={t("Answer")}
+                                    name="answer"
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    value={formik.values.answer}
+                                    variant="outlined"
+                                    multiline
+                                    rows={3} // You can adjust the number of rows
                                 />
                             </Box>
-                        </Grid> */}
-                        {/* <Grid item xs={12}>
-                            <Autocomplete
-                                multiple
-                                freeSolo
-                                sx={{
-                                    m: 0,
-                                }}
-                                limitTags={5}
-                                options={productTags}
-                                getOptionLabel={(option) => option.title}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        fullWidth
-                                        variant="outlined"
-                                        placeholder={t(
-                                            "Select project tags...",
-                                        )}
-                                    />
-                                )}
-                            />
-                        </Grid> */}
+                            {/* <Box mt={2}>
+                                <h3 style={{ marginTop: "0px" }}>
+                                    Preview (Answer):
+                                </h3>
+                            </Box> */}
+                            {/* <Box>
+                                <Preview data={answerData} type="Answer" />
+                            </Box> */}
+                            {/* {formik.touched.answer &&
+                                formik.errors.answer?.blocks && (
+                                    <FormHelperText error>
+                                        {typeof formik.errors.answer.blocks ===
+                                        "string"
+                                            ? formik.errors.answer.blocks
+                                            : formik.errors.answer.blocks.map(
+                                                  (blockError, index) => {
+                                                      if (
+                                                          blockError?.data?.text
+                                                      ) {
+                                                          return (
+                                                              <div key={index}>
+                                                                  Block{" "}
+                                                                  {index + 1}:{" "}
+                                                                  {
+                                                                      blockError
+                                                                          .data
+                                                                          .text
+                                                                  }
+                                                              </div>
+                                                          );
+                                                      } else if (
+                                                          blockError?.data
+                                                              ?.items &&
+                                                          Array.isArray(
+                                                              blockError.data
+                                                                  .items,
+                                                          )
+                                                      ) {
+                                                          return blockError.data.items.map(
+                                                              (
+                                                                  itemError,
+                                                                  itemIndex,
+                                                              ) => (
+                                                                  <div
+                                                                      key={`${index}-${itemIndex}`}
+                                                                  >
+                                                                      Block{" "}
+                                                                      {index +
+                                                                          1}
+                                                                      , Item{" "}
+                                                                      {itemIndex +
+                                                                          1}
+                                                                      :{" "}
+                                                                      {itemError.content ||
+                                                                          "Content error"}
+                                                                  </div>
+                                                              ),
+                                                          );
+                                                      } else if (
+                                                          typeof blockError?.data ===
+                                                          "text"
+                                                      ) {
+                                                          return (
+                                                              <div key={index}>
+                                                                  Block{" "}
+                                                                  {index + 1}:
+                                                                  {
+                                                                      blockError?.data
+                                                                  }
+                                                              </div>
+                                                          );
+                                                      }
+                                                      return (
+                                                          <div key={index}>
+                                                              Block {index + 1}:
+                                                              Unknown error in
+                                                              block data
+                                                          </div>
+                                                      );
+                                                  },
+                                              )}
+                                    </FormHelperText>
+                                )} */}
+                            {/* {formik.touched.answer && formik.errors.answer && (
+                                <FormHelperText error>
+                                    {formik.errors.answer}
+                                </FormHelperText>
+                            )} */}
+
+                            {/* <Box mt={2}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => {
+                                        setAnswerData(null);
+                                        setAnswerReset(true);
+                                    }}
+                                >
+                                    Reset Answer
+                                </Button>
+                            </Box> */}
+                        </Grid>
                     </Grid>
                 </Card>
             </Grid>

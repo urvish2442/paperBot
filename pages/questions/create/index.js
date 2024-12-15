@@ -22,7 +22,14 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { globalState } from "src/redux/slices/global";
 import { useSelector } from "src/redux/store";
-import { LABEL_FOR_QUESTION_TYPES } from "src/constants/keywords";
+import {
+    LABEL_FOR_QUESTION_TYPES,
+    TOAST_ALERTS,
+    TOAST_TYPES,
+} from "src/constants/keywords";
+import { API_ROUTER } from "src/services/apiRouter";
+import { axiosPost } from "src/services/axiosHelper";
+import useToaster from "src/hooks/useToaster";
 
 const DrawerWrapper = styled(Drawer)(
     ({ theme }) => `
@@ -70,8 +77,11 @@ const IconButtonToggle = styled(IconButton)(
 
 function ManagementProductCreate() {
     const theme = useTheme();
+    const { toaster } = useToaster();
 
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [reset, setReset] = useState(false);
+    const [answerReset, setAnswerReset] = useState(false);
     const { filtersData, subjectFiltersData, currentFilter } =
         useSelector(globalState);
 
@@ -85,7 +95,7 @@ function ManagementProductCreate() {
             type: currentFilter?.type || "",
             question: "",
             answer: "",
-            queDetails: "",
+            // queDetails: "",
             marks: currentFilter?.marks || 1,
             unit: currentFilter?.unit || "",
             isFormatted: currentFilter?.isFormatted || false,
@@ -101,27 +111,112 @@ function ManagementProductCreate() {
                     Object.keys(LABEL_FOR_QUESTION_TYPES),
                     "Invalid Question Type",
                 ),
-            question: Yup.string()
-                .min(10, "Question should have at least 10 characters")
-                .max(10000, "Question cannot exceed 1000 characters")
-                .required("Question is required"),
-            answer: Yup.string()
-                .min(1, "Answer should have at least 1 character")
-                .max(1000, "Answer cannot exceed 1000 characters")
-                .required("Answer is required"),
-            queDetails: Yup.string()
-                .max(2000, "Details cannot exceed 2000 characters")
-                .nullable(), // Optional field
             isFormatted: Yup.boolean().required(
                 "Formatting status is required",
             ),
-            marks: Yup.number().required("Marks is required"),
-            unit: Yup.string().required("Unit is required"),
+            question: Yup.mixed().when("isFormatted", {
+                is: false, // When isFormatted is false (simple text input)
+                then: Yup.string()
+                    .required("Question is required")
+                    .min(3, "Question must be at least 3 characters long"),
+                otherwise: Yup.object({
+                    blocks: Yup.array()
+                        .of(
+                            Yup.object().shape({
+                                data: Yup.object()
+                                    .test(
+                                        "text-or-content",
+                                        "Block data is required",
+                                        function (value) {
+                                            const hasText =
+                                                (value?.text &&
+                                                    value.text.trim().length >
+                                                        0) ||
+                                                false;
+                                            const hasContent =
+                                                value?.items?.some(
+                                                    (item) =>
+                                                        item.content &&
+                                                        item.content.trim()
+                                                            .length > 0,
+                                                ) || false;
+                                            return hasText || hasContent;
+                                        },
+                                    )
+                                    // .required("Block data is required"),
+                            }),
+                        )
+                        .min(1, "At least one block is required")
+                        .required("Blocks are required"),
+                }).required("Question is required when formatted"),
+            }),
+            answer: Yup.string().trim().required("Answer is required"),
+            // answer: Yup.object({
+            //     blocks: Yup.array()
+            //         .of(
+            //             Yup.object().shape({
+            //                 data: Yup.object()
+            //                     .test(
+            //                         "text-or-content",
+            //                         "Block data is required",
+            //                         function (value) {
+            //                             const hasText =
+            //                                 (value?.text &&
+            //                                     value.text.trim().length > 0) ||
+            //                                 false;
+            //                             const hasContent =
+            //                                 value?.items?.some(
+            //                                     (item) =>
+            //                                         item.content &&
+            //                                         item.content.trim().length >
+            //                                             0,
+            //                                 ) || false;
+            //                             return hasText || hasContent;
+            //                         },
+            //                     )
+            //                     .required("Block data is required"),
+            //             }),
+            //         )
+            //         .min(1, "At least one block is required")
+            //         .required("Blocks are required"),
+            // }).required("Answer is required"),
+            // queDetails: Yup.string()
+            //     .max(2000, "Details cannot exceed 2000 characters")
+            //     .nullable(), // Optional field
+            marks: Yup.number("Enter valid marks").required(
+                "Marks is required",
+            ),
+            unit: Yup.string("Select valid unit").required("Unit is required"),
         }),
         onSubmit: async (values, helpers) => {
             try {
-                // Handle form submission
-                console.log("Form Submitted:", values);
+                helpers.setSubmitting(true);
+                const { subject, submit, ...rest } = values;
+                const { data, status, message } = await axiosPost(
+                    API_ROUTER.CREATE_QUESTION_BY_SUBJECT(values?.subject),
+                    { ...rest },
+                );
+                if (status) {
+                    currentFilter?.isFormatted && setReset(true);
+                    toaster(
+                        TOAST_TYPES.SUCCESS,
+                        TOAST_ALERTS.QUESTION_CREATE_SUCCESS,
+                    );
+                    helpers.resetForm();
+                    helpers.setValues((preVal) => ({
+                        ...preVal,
+                        type: currentFilter?.type,
+                        unit: currentFilter?.unit,
+                        isFormatted: currentFilter?.isFormatted,
+                    }));
+                    // setAnswerReset(true);
+                } else {
+                    toaster(
+                        TOAST_TYPES.ERROR,
+                        message || TOAST_ALERTS.GENERAL_ERROR,
+                    );
+                }
+                helpers.setSubmitting(false);
             } catch (error) {
                 helpers.setSubmitting(false);
                 helpers.setErrors({
@@ -180,6 +275,10 @@ function ManagementProductCreate() {
                             <MainComponent
                                 formik={formik}
                                 subjectNames={subjectNames}
+                                reset={reset}
+                                setReset={setReset}
+                                answerReset={answerReset}
+                                setAnswerReset={setAnswerReset}
                             />
                         </Grid>
                     </form>

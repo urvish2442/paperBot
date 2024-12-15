@@ -1,11 +1,11 @@
 import { useTheme } from "@mui/material";
 import React from "react";
 
-const Preview = ({ data }) => {
+const Preview = ({ data, type = "Question" }) => {
     const theme = useTheme(); // Get theme context
 
     // Return "No content to display" if no data or blocks are available
-    if (!data || !data.blocks) return <p>No content to display</p>;
+    if (!data || !data.blocks) return <p>No {type} Preview Available!</p>;
 
     return (
         <div
@@ -13,11 +13,12 @@ const Preview = ({ data }) => {
                 border: "1px solid #ddd",
                 padding: "10px",
                 borderRadius: theme.general.borderRadius,
-                // marginTop: "20px",
+                marginTop: "10px",
                 // width: "100%",
                 // overflow: "auto",
             }}
         >
+            <h3 style={{ marginTop: "0px" }}>Preview ({type}):</h3>
             {data?.blocks.map((block, index) => {
                 switch (block.type) {
                     case "header":
@@ -28,7 +29,14 @@ const Preview = ({ data }) => {
                         );
 
                     case "paragraph":
-                        return <p key={index}>{block.data.text}</p>;
+                        return (
+                            <p
+                                key={index}
+                                dangerouslySetInnerHTML={{
+                                    __html: block.data.text,
+                                }}
+                            ></p>
+                        );
 
                     case "list":
                         const renderListItems = (items, style, counterType) =>
@@ -111,55 +119,50 @@ const Preview = ({ data }) => {
                                     textAlign: "left",
                                 }}
                             >
+                                {block.data.withHeadings && (
+                                    <thead>
+                                        <tr>
+                                            {block.data.content[0]?.map(
+                                                (header, headerIndex) => (
+                                                    <th
+                                                        key={headerIndex}
+                                                        style={{
+                                                            border: "1px solid #ddd",
+                                                            padding: "8px",
+                                                            fontWeight: "bold", // Make the header bold
+                                                        }}
+                                                    >
+                                                        {header}
+                                                    </th>
+                                                ),
+                                            )}
+                                        </tr>
+                                    </thead>
+                                )}
+                                {/* <tbody> */}
+                                {/* Render table heading if withHeadings is true */}
+
+                                {/* Render the table rows */}
                                 <tbody>
-                                    {/* Render table heading if withHeadings is true */}
-                                    {block.data.withHeadings && (
-                                        <thead>
-                                            <tr>
-                                                {block.data.content[0].map(
-                                                    (header, headerIndex) => (
-                                                        <th
-                                                            key={headerIndex}
-                                                            style={{
-                                                                border: "1px solid #ddd",
-                                                                padding: "8px",
-                                                                fontWeight:
-                                                                    "bold", // Make the header bold
-                                                            }}
-                                                        >
-                                                            {header}
-                                                        </th>
-                                                    ),
-                                                )}
+                                    {block.data.content
+                                        .slice(block.data.withHeadings ? 1 : 0)
+                                        .map((row, rowIndex) => (
+                                            <tr key={rowIndex}>
+                                                {row.map((cell, cellIndex) => (
+                                                    <td
+                                                        key={cellIndex}
+                                                        style={{
+                                                            border: "1px solid #ddd", // Merged border style
+                                                            padding: "8px",
+                                                        }}
+                                                    >
+                                                        {cell}
+                                                    </td>
+                                                ))}
                                             </tr>
-                                        </thead>
-                                    )}
-                                    {/* Render the table rows */}
-                                    <tbody>
-                                        {block.data.content
-                                            .slice(
-                                                block.data.withHeadings ? 1 : 0,
-                                            )
-                                            .map((row, rowIndex) => (
-                                                <tr key={rowIndex}>
-                                                    {row.map(
-                                                        (cell, cellIndex) => (
-                                                            <td
-                                                                key={cellIndex}
-                                                                style={{
-                                                                    border: "1px solid #ddd", // Merged border style
-                                                                    padding:
-                                                                        "8px",
-                                                                }}
-                                                            >
-                                                                {cell}
-                                                            </td>
-                                                        ),
-                                                    )}
-                                                </tr>
-                                            ))}
-                                    </tbody>
+                                        ))}
                                 </tbody>
+                                {/* </tbody> */}
                             </table>
                         );
 
