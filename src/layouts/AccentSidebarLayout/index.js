@@ -24,7 +24,7 @@ const AccentSidebarLayout = ({ children }) => {
 
     useEffect(() => {
         dispatch(getFiltersAction());
-        dispatch(getSubjectsAction(globalFilters));
+        dispatch(getSubjectsAction());
     }, [dispatch]);
 
     useEffect(() => {
@@ -36,7 +36,7 @@ const AccentSidebarLayout = ({ children }) => {
 
         if (JSON.stringify(globalFilters) !== JSON.stringify(updatedFilters)) {
             setGlobalFilters(updatedFilters);
-            dispatch(getSubjectsAction(updatedFilters));
+            dispatch(getSubjectsAction());
         }
     }, [currentFilter, globalFilters, dispatch]);
 

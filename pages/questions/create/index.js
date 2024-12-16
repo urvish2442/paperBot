@@ -12,12 +12,12 @@ import {
 } from "@mui/material";
 import Scrollbar from "src/components/Scrollbar";
 
-import Sidebar from "src/content/Management/Subjects/create/Sidebar";
+import Sidebar from "src/content/Management/Questions/create/Sidebar";
 
-import AdditionalInfo from "src/content/Management/Subjects/create/AdditionalInfo";
-import GeneralSection from "src/content/Management/Subjects/create/GeneralSection";
+import AdditionalInfo from "src/content/Management/Questions/create/AdditionalInfo";
+import GeneralSection from "src/content/Management/Questions/create/GeneralSection";
 import MenuTwoToneIcon from "@mui/icons-material/MenuTwoTone";
-import MainComponent from "src/content/Management/Subjects/create/MainComponent";
+import MainComponent from "src/content/Management/Questions/create/MainComponent";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { globalState } from "src/redux/slices/global";
@@ -76,7 +76,7 @@ const IconButtonToggle = styled(IconButton)(
 );
 
 function ManagementProductCreate() {
-    const theme = useTheme();
+    // const theme = useTheme();
     const { toaster } = useToaster();
 
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -86,7 +86,9 @@ function ManagementProductCreate() {
         useSelector(globalState);
 
     const subjectNames = useMemo(() => {
-        return subjectFiltersData?.map((subject) => subject?.model_name);
+        return subjectFiltersData
+            ?.filter((subject) => subject?.isActive)
+            .map((subject) => subject?.model_name);
     }, [subjectFiltersData]);
 
     const formik = useFormik({
@@ -123,27 +125,25 @@ function ManagementProductCreate() {
                     blocks: Yup.array()
                         .of(
                             Yup.object().shape({
-                                data: Yup.object()
-                                    .test(
-                                        "text-or-content",
-                                        "Block data is required",
-                                        function (value) {
-                                            const hasText =
-                                                (value?.text &&
-                                                    value.text.trim().length >
-                                                        0) ||
-                                                false;
-                                            const hasContent =
-                                                value?.items?.some(
-                                                    (item) =>
-                                                        item.content &&
-                                                        item.content.trim()
-                                                            .length > 0,
-                                                ) || false;
-                                            return hasText || hasContent;
-                                        },
-                                    )
-                                    // .required("Block data is required"),
+                                data: Yup.object().test(
+                                    "text-or-content",
+                                    "Block data is required",
+                                    function (value) {
+                                        const hasText =
+                                            (value?.text &&
+                                                value.text.trim().length > 0) ||
+                                            false;
+                                        const hasContent =
+                                            value?.items?.some(
+                                                (item) =>
+                                                    item.content &&
+                                                    item.content.trim().length >
+                                                        0,
+                                            ) || false;
+                                        return hasText || hasContent;
+                                    },
+                                ),
+                                // .required("Block data is required"),
                             }),
                         )
                         .min(1, "At least one block is required")

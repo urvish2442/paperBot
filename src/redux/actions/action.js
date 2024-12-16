@@ -18,9 +18,12 @@ export const getFiltersAction = createAsyncThunk(
 
 export const getSubjectsAction = createAsyncThunk(
     "globalSlice/getSubjectsAction",
-    async (payload, { rejectWithValue }) => {
+    async (payload, { rejectWithValue, getState }) => {
         try {
-            const { data, status, message } = await GetSubjectsService(payload);
+            const state = getState();
+            const { name, standard, board } = state.global.currentFilter;
+            let query = { name, standard, board };
+            const { data, status, message } = await GetSubjectsService(query);
             return data?.data || [];
         } catch (err) {
             if (err instanceof AxiosError) {

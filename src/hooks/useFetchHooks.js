@@ -8,6 +8,8 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useSelector } from "src/redux/store";
 import { globalState } from "src/redux/slices/global";
+import { getSubjectsAction } from "src/redux/actions/action";
+import { useDispatch } from "react-redux";
 
 const STATE = {
     STARTLOADING: "STARTLOADING",
@@ -210,6 +212,7 @@ export const useSubjects = () => {
     const { toaster } = useToaster();
     const { user } = useAuth();
     const { currentFilter } = useSelector(globalState);
+    const storeDispatch = useDispatch();
 
     const initialState = {
         loading: false,
@@ -408,7 +411,7 @@ export const useSubjects = () => {
             units:
                 currentItem?.units?.length > 0
                     ? currentItem.units
-                    : [{ number: 1, name: "" }], // Set existing units or default
+                    : [{ number: 1, name: "", isActive: true }],
         },
         enableReinitialize: true,
         validationSchema: Yup.object().shape({
@@ -440,6 +443,7 @@ export const useSubjects = () => {
                         TOAST_TYPES.SUCCESS,
                         TOAST_ALERTS.UNITS_UPDATE_SUCCESS,
                     );
+                    storeDispatch(getSubjectsAction());
                 } else {
                     setStatus({ success: false });
                     setSubmitting(false);
@@ -470,6 +474,7 @@ export const useSubjects = () => {
             );
             if (status) {
                 getData();
+                storeDispatch(getSubjectsAction());
             }
             toaster(
                 status ? TOAST_TYPES.SUCCESS : TOAST_TYPES.ERROR,
