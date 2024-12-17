@@ -53,6 +53,9 @@ const slice = createSlice({
                 state.isLoading = false;
                 state.subjectFiltersData = payload;
                 state.error = null;
+                if (!state.currentFilter.subject) {
+                    state.currentFilter.subject = payload[0]?.model_name;
+                }
             })
             .addCase(getSubjectsAction.rejected, (state, { payload }) => {
                 state.isLoading = false;

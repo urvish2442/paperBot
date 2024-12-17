@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useMemo } from "react";
 import PropTypes from "prop-types";
 
 import numeral from "numeral";
@@ -49,13 +49,18 @@ import Text from "src/components/Text";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
 
-import { useSubjects } from "src/hooks/useFetchHooks";
+import { useQuestions, useSubjects } from "src/hooks/useFetchHooks";
 import {
     LABEL_FOR_BOARDS,
     LABEL_FOR_MEDIUM,
+    LABEL_FOR_QUESTION_TYPES,
     LABEL_FOR_STANDARDS,
     LABEL_FOR_SUBJECTS,
 } from "src/constants/keywords";
+import Preview from "../Subjects/create/Preview";
+import QuestionFormatter from "./QuestionFormatter";
+import { useSelector } from "react-redux";
+import { globalState } from "src/redux/slices/global";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -105,29 +110,17 @@ const applyPagination = (products, page, limit) => {
 };
 
 const Results = () => {
-    const SUBJECTS_TABLE_HEADERS = [
-        { value: "name", label: "Name", isSortable: true },
-        {
-            value: "standard",
-            label: "Standard",
-            isSortable: true,
-            align: "center",
-        },
+    const { t } = useTranslation();
+    const theme = useTheme();
+    const mobile = useMediaQuery(theme.breakpoints.down("md"));
+    const { filtersData, subjectFiltersData, currentFilter } =
+        useSelector(globalState);
 
-        { value: "code", label: "Code", isSortable: false, align: "center" },
-        { value: "board", label: "Board", isSortable: true, align: "center" },
-        {
-            value: "price",
-            label: "Price",
-            align: "center",
-            isSortable: false,
-        },
-        {
-            value: "medium",
-            label: "Medium",
-            isSortable: false,
-            align: "center",
-        },
+    const SUBJECTS_TABLE_HEADERS = [
+        { value: "question", label: "Question", isSortable: true },
+        { value: "marks", label: "Marks", isSortable: true, align: "center" },
+        { value: "type", label: "Type", isSortable: false, align: "center" },
+        { value: "unit", label: "Unit", isSortable: false, align: "center" },
         {
             value: "actions",
             label: "Actions",
@@ -135,202 +128,161 @@ const Results = () => {
             isSortable: false,
         },
     ];
+
     const {
-        items: subjects,
+        items: questions,
         loading: isLoading,
-        count,
-        hasMore,
         page,
         limit,
         payload,
-        handleQueryChange,
-        handlePageChange,
-        handleLimitChange,
-        // handleFilterChange,
-        handleSort,
-        toggleSubjectStatus,
+        count,
+        subjectNames,
+        hasMore,
         currentItem,
         handleOpenModal,
         handleCloseModal,
-        formik,
-    } = useSubjects();
+        handlePageChange,
+        handleFilterChange,
+        handleSort,
+    } = useQuestions();
 
-    // const [selectedItems, setSelectedProducts] = useState([]);
-    const { t } = useTranslation();
-    const theme = useTheme();
-    const mobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    // const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
-    // const handleConfirmDelete = () => {
-    //     setOpenConfirmDelete(true);
-    // };
-
-    // const closeConfirmDelete = () => {
-    //     setOpenConfirmDelete(false);
-    // };
-
-    // const handleDeleteCompleted = () => {
-    //     setOpenConfirmDelete(false);
-
-    //     enqueueSnackbar(t("You successfully deleted the product"), {
-    //         variant: "success",
-    //         anchorOrigin: {
-    //             vertical: "top",
-    //             horizontal: "right",
-    //         },
-    //         TransitionComponent: Zoom,
-    //     });
-    // };
+    const currentUnits = useMemo(() => {
+        const matchedSubject = subjectFiltersData.find(
+            (subject) => subject.model_name === currentFilter.subject,
+        );
+        return matchedSubject ? matchedSubject.units : [];
+    }, [subjectFiltersData, currentFilter.subject]);
 
     return (
         <>
+            <Grid item xs={12}>
+                <Card>
+                    {/* <CardHeader title={t("Subject Information")} />
+                    <Divider /> */}
+                </Card>
+            </Grid>
             <Card>
-                <Box display="flex" alignItems="center">
-                    {/* {selectedBulkActions && (
-                        <Box flex={1} p={2}>
-                            <BulkActions />
-                        </Box>
-                    )} */}
-                    <Box
-                        flex={1}
-                        p={2}
-                        display={{ xs: "block", md: "flex" }}
-                        alignItems="center"
-                        justifyContent="space-between"
-                    >
-                        <Box
-                            sx={{
-                                mb: { xs: 2, md: 0 },
-                            }}
-                        >
-                            <TextField
-                                size="small"
-                                fullWidth={mobile}
-                                onChange={handleQueryChange}
-                                value={payload?.search || ""}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchTwoToneIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                placeholder={t("Search by product name...")}
-                            />
-                        </Box>
-                        {/* <Box
-                            py={2}
-                            display="flex"
-                            alignItems="center"
-                            flexDirection={{ xs: "row", sm: "row" }}
-                            justifyContent={{
-                                xs: "flex-start",
-                                sm: "flex-end",
-                            }}
-                            pb={3}
-                            gap={{ sm: 2, xs: 1 }}
-                        >
+                <Box p={3}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={4}>
                             <FormControl
-                                size="small"
                                 variant="outlined"
-                                sx={{ width: 90 }}
+                                fullWidth
+                                // size="small"
+                                // sx={{ maxWidth: 300 }}
                             >
-                                <InputLabel>Subject</InputLabel>
+                                <InputLabel id="subject-label">
+                                    Subject
+                                </InputLabel>
                                 <Select
-                                    value={
-                                        payload.name === null
-                                            ? "all"
-                                            : payload.name
-                                    }
+                                    labelId="subject-label"
+                                    id="subject-select"
+                                    value={payload.subject || ""}
                                     onChange={(e) =>
                                         handleFilterChange(
-                                            "name",
+                                            "subject",
                                             e.target.value,
                                         )
                                     }
                                     label="Subject"
                                     disabled={isLoading}
                                 >
-                                    <MenuItem value="all">All</MenuItem>
-                                    {Object.entries(LABEL_FOR_SUBJECTS).map(
-                                        ([key, label]) => (
-                                            <MenuItem key={key} value={key}>
-                                                {label}
-                                            </MenuItem>
-                                        ),
-                                    )}
+                                    <MenuItem value="all">
+                                        <em>Select Subject...</em>
+                                    </MenuItem>
+                                    {subjectNames.map((subject) => (
+                                        <MenuItem key={subject} value={subject}>
+                                            {subject.toUpperCase()}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
                             <FormControl
-                                size="small"
                                 variant="outlined"
-                                sx={{ width: 90 }}
+                                fullWidth
+                                // size="small"
+                                // sx={{ maxWidth: 300 }}
                             >
-                                <InputLabel>Standard</InputLabel>
+                                <InputLabel id="type-label">Type</InputLabel>
                                 <Select
+                                    labelId="type-label"
+                                    id="type-select"
                                     value={
-                                        payload.standard === null
+                                        payload.type === null
                                             ? "all"
-                                            : payload.standard
+                                            : payload.type
                                     }
                                     onChange={(e) =>
                                         handleFilterChange(
-                                            "standard",
+                                            "type",
                                             e.target.value,
                                         )
                                     }
-                                    label="Standard"
+                                    label="type"
                                     disabled={isLoading}
                                 >
-                                    <MenuItem value="all">All</MenuItem>
-                                    {Object.entries(LABEL_FOR_STANDARDS).map(
-                                        ([key, label]) => (
-                                            <MenuItem key={key} value={key}>
-                                                {" "}
-                                                {label}
-                                            </MenuItem>
-                                        ),
-                                    )}
+                                    <MenuItem value="all">
+                                        <em>All</em>
+                                    </MenuItem>
+                                    {filtersData?.questionTypes?.map((type) => (
+                                        <MenuItem key={type} value={type}>
+                                            {LABEL_FOR_QUESTION_TYPES[type] ||
+                                                type}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
                             <FormControl
-                                size="small"
                                 variant="outlined"
-                                sx={{ width: 90 }}
+                                fullWidth
+                                // size="small"
+                                // sx={{ maxWidth: 300 }}
                             >
-                                <InputLabel>Board</InputLabel>
+                                <InputLabel id="unit-label">Unit</InputLabel>
                                 <Select
+                                    labelId="unit-label"
+                                    id="unit-select"
                                     value={
-                                        payload.board === null
+                                        payload.unit === null
                                             ? "all"
-                                            : payload.board
+                                            : payload.unit
                                     }
                                     onChange={(e) =>
                                         handleFilterChange(
-                                            "board",
+                                            "unit",
                                             e.target.value,
                                         )
                                     }
-                                    label="Board"
+                                    label="unit"
                                     disabled={isLoading}
                                 >
-                                    <MenuItem value="all">All</MenuItem>
-                                    {Object.entries(LABEL_FOR_BOARDS).map(
-                                        ([key, label]) => (
-                                            <MenuItem key={key} value={key}>
-                                                {" "}
-                                                {label}
-                                            </MenuItem>
-                                        ),
+                                    <MenuItem value="all">
+                                        <em>All</em>
+                                    </MenuItem>
+                                    {currentUnits?.map(
+                                        (unit) =>
+                                            unit?.isActive && (
+                                                <MenuItem
+                                                    key={unit._id}
+                                                    value={unit._id}
+                                                >
+                                                    {unit.name}
+                                                </MenuItem>
+                                            ),
                                     )}
                                 </Select>
                             </FormControl>
-                        </Box> */}
-                    </Box>
+                        </Grid>
+                    </Grid>
                 </Box>
                 <Divider />
-
-                {subjects?.length === 0 ? (
+                {questions?.length === 0 ? (
                     <Typography
                         sx={{
                             py: 10,
@@ -340,9 +292,11 @@ const Results = () => {
                         color="text.secondary"
                         align="center"
                     >
-                        {t(
-                            "We couldn't find any products matching your search criteria",
-                        )}
+                        {!payload?.subject
+                            ? t("Please select a subject")
+                            : t(
+                                  "We couldn't find any products matching your search criteria",
+                              )}
                     </Typography>
                 ) : (
                     <>
@@ -381,147 +335,56 @@ const Results = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {subjects.map((subject, index) => {
-                                        {
-                                            /* const isProductSelected =
-                                            selectedItems.includes(subject.id); */
-                                        }
+                                    {questions.map((item, index) => {
                                         return (
                                             <TableRow
                                                 hover
-                                                key={
-                                                    subject.id ||
-                                                    subject.model_name
-                                                }
+                                                key={item?.id}
                                                 selected={index % 2 !== 0}
                                             >
-                                                {/* <TableCell padding="checkbox">
-                                                    <Checkbox
-                                                        checked={
-                                                            isProductSelected
-                                                        }
-                                                        onChange={(event) =>
-                                                            handleSelectOneProduct(
-                                                                event,
-                                                                subject.id,
-                                                            )
-                                                        }
-                                                        value={
-                                                            isProductSelected
-                                                        }
-                                                    />
-                                                </TableCell> */}
                                                 <TableCell>
-                                                    <Box
-                                                        display="flex"
-                                                        alignItems="center"
-                                                    >
-                                                        <Box
-                                                        // pl={1}
-                                                        // sx={{
-                                                        //     width: 250,
-                                                        // }}
-                                                        >
-                                                            <Link
-                                                                href="#"
-                                                                variant="h5"
-                                                            >
-                                                                {subject?.name ||
-                                                                    ""}
-                                                            </Link>
-                                                            <Typography
-                                                                variant="subtitle2"
-                                                                noWrap
-                                                            >
-                                                                {subject?.model_name ||
-                                                                    ""}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {
-                                                        LABEL_FOR_STANDARDS[
-                                                            subject?.standard ||
-                                                                ""
-                                                        ]
-                                                    }
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Label color="success">
-                                                        <b>
-                                                            {subject?.code ||
-                                                                ""}
-                                                        </b>
-                                                    </Label>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {/* <Box
-                                                        display="flex"
-                                                        alignItems="center"
-                                                    >
-                                                        <Text color="warning">
-                                                            <LocalFireDepartmentTwoToneIcon fontSize="small" />
-                                                        </Text>
-                                                        <Typography
-                                                            variant="h5"
-                                                            sx={{
-                                                                pl: 0.5,
-                                                            }}
-                                                        > */}
-                                                    {subject?.board || ""}
-                                                    {/* </Typography>
-                                                    </Box> */}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {/* <Typography
-                                                        sx={{
-                                                            textDecorationLine:
-                                                                subject.sale_price !==
-                                                                0
-                                                                    ? "line-through"
-                                                                    : "",
-                                                        }}
-                                                    >
-                                                        ₹
-                                                        {numeral(
-                                                            subject.price,
-                                                        ).format(`0,0.00`)}
-                                                    </Typography> */}
-                                                    {subject?.price !== 0 && (
-                                                        <Typography>
-                                                            <Text color="error">
-                                                                ₹
-                                                                {numeral(
-                                                                    subject?.price,
-                                                                ).format(
-                                                                    `0,0.00`,
-                                                                )}
-                                                            </Text>
-                                                        </Typography>
+                                                    {!item?.isFormatted ? (
+                                                        item?.question
+                                                    ) : (
+                                                        <QuestionFormatter
+                                                            data={
+                                                                item?.question
+                                                            }
+                                                        />
                                                     )}
                                                 </TableCell>
                                                 <TableCell align="center">
+                                                    {item?.marks || ""}
+                                                </TableCell>
+                                                <TableCell align="center">
                                                     {
-                                                        LABEL_FOR_MEDIUM[
-                                                            subject?.medium ||
-                                                                ""
+                                                        LABEL_FOR_QUESTION_TYPES[
+                                                            item?.type || ""
                                                         ]
                                                     }
+                                                    {/* <Label color="success"> */}
+                                                    {/* <b> */}
+                                                    {/* </b> */}
+                                                    {/* </Label> */}
                                                 </TableCell>
+                                                <TableCell align="center">
+                                                    {item?.unit || ""}
+                                                </TableCell>
+
                                                 <TableCell align="center">
                                                     <Typography noWrap>
                                                         <Tooltip
                                                             title={t(
-                                                                "Add Lessons",
+                                                                "View details",
                                                             )}
                                                             arrow
                                                         >
                                                             <IconButton
-                                                                onClick={() =>
-                                                                    handleOpenModal(
-                                                                        subject,
-                                                                    )
+                                                                onClick={
+                                                                    () => {}
+                                                                    // handleOpenModal(
+                                                                    //     item,
+                                                                    // )
                                                                 }
                                                                 color="primary"
                                                             >
@@ -534,12 +397,12 @@ const Results = () => {
                                                         >
                                                             <Switch
                                                                 checked={
-                                                                    subject?.isActive
+                                                                    item?.isActive
                                                                 }
                                                                 onChange={(e) =>
-                                                                    toggleSubjectStatus(
-                                                                        subject?._id,
-                                                                        subject?.isActive,
+                                                                    toggleitemStatus(
+                                                                        item?._id,
+                                                                        item?.isActive,
                                                                     )
                                                                 }
                                                                 name="is_approved"
@@ -560,17 +423,18 @@ const Results = () => {
                                 component="div"
                                 count={count || 0}
                                 onPageChange={handlePageChange}
-                                onRowsPerPageChange={handleLimitChange}
+                                labelRowsPerPage=""
+                                rowsPerPageOptions={[]}
+                                // onRowsPerPageChange={handleLimitChange}
                                 page={page - 1 >= 0 ? page - 1 : 0}
                                 rowsPerPage={limit}
-                                rowsPerPageOptions={[5, 10, 15]}
                                 disabled={isLoading}
                             />
                         </Box>
                     </>
                 )}
             </Card>
-            <Dialog
+            {/* <Dialog
                 fullWidth
                 maxWidth="md"
                 open={!!currentItem}
@@ -720,7 +584,7 @@ const Results = () => {
                         </Button>
                     </DialogActions>
                 </form>
-            </Dialog>
+            </Dialog> */}
             {/* <DialogWrapper
                 open={openConfirmDelete}
                 maxWidth="sm"
