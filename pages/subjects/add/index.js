@@ -124,7 +124,7 @@ function AddSubjectPage() {
                 >
                     <Grid item>
                         <Typography variant="h3" component="h3" gutterBottom>
-                            {t("Add New subject")}
+                            {t("Add new Subject")}
                         </Typography>
                         <Typography variant="subtitle2">
                             {t(

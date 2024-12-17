@@ -341,7 +341,7 @@ const Results = () => {
                         align="center"
                     >
                         {t(
-                            "We couldn't find any products matching your search criteria",
+                            "We couldn't find any subjects matching your search criteria",
                         )}
                     </Typography>
                 ) : (

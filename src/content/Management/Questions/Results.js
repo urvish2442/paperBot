@@ -49,7 +49,7 @@ import Text from "src/components/Text";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
 
-import { useQuestions, useSubjects } from "src/hooks/useFetchHooks";
+import { useQuestions } from "src/hooks/useFetchHooks";
 import {
     LABEL_FOR_BOARDS,
     LABEL_FOR_MEDIUM,
@@ -61,6 +61,7 @@ import Preview from "../Subjects/create/Preview";
 import QuestionFormatter from "./QuestionFormatter";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
+import { useInView } from "react-intersection-observer";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -120,7 +121,7 @@ const Results = () => {
         { value: "question", label: "Question", isSortable: true },
         { value: "marks", label: "Marks", isSortable: true, align: "center" },
         { value: "type", label: "Type", isSortable: false, align: "center" },
-        { value: "unit", label: "Unit", isSortable: false, align: "center" },
+        { value: "unit", label: "Unit", isSortable: false },
         {
             value: "actions",
             label: "Actions",
@@ -144,7 +145,18 @@ const Results = () => {
         handlePageChange,
         handleFilterChange,
         handleSort,
+        toggleQuestionStatus,
     } = useQuestions();
+
+    const { ref: viewRef, inView } = useInView({
+        threshold: 0.5,
+    });
+
+    useMemo(() => {
+        if (inView && hasMore) {
+            handlePageChange();
+        }
+    }, [inView, hasMore]);
 
     const currentUnits = useMemo(() => {
         const matchedSubject = subjectFiltersData.find(
@@ -152,6 +164,19 @@ const Results = () => {
         );
         return matchedSubject ? matchedSubject.units : [];
     }, [subjectFiltersData, currentFilter.subject]);
+
+    const getUnitName = (unitId) => {
+        if (!unitId) return "";
+        const matchedUnit = currentUnits.find((unit) => unit._id === unitId);
+        if (!matchedUnit) return "";
+        const textColor = matchedUnit?.isActive ? "default" : "error";
+
+        return (
+            <Text color={textColor}>
+                {`${matchedUnit.number}: ${matchedUnit.name}`}
+            </Text>
+        );
+    };
 
     return (
         <>
@@ -187,9 +212,9 @@ const Results = () => {
                                     label="Subject"
                                     disabled={isLoading}
                                 >
-                                    <MenuItem value="all">
+                                    {/* <MenuItem value="all">
                                         <em>Select Subject...</em>
-                                    </MenuItem>
+                                    </MenuItem> */}
                                     {subjectNames.map((subject) => (
                                         <MenuItem key={subject} value={subject}>
                                             {subject.toUpperCase()}
@@ -199,7 +224,7 @@ const Results = () => {
                             </FormControl>
                         </Grid>
 
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={3}>
                             <FormControl
                                 variant="outlined"
                                 fullWidth
@@ -236,8 +261,7 @@ const Results = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={6} md={3}>
                             <FormControl
                                 variant="outlined"
                                 fullWidth
@@ -279,6 +303,22 @@ const Results = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
+                        <Grid item xs={6} md={2}>
+                            <Typography
+                                sx={{
+                                    mt: { xs: 2, md: 0 },
+                                    py: 1.8,
+                                    textAlign: "end",
+                                }}
+                                variant="subtitle2"
+                            >
+                                Showing{" "}
+                                {`${questions.length == 0 ? 0 : 1}-${
+                                    page * limit > count ? count : page * limit
+                                } of ${count}`}{" "}
+                                Results
+                            </Typography>
+                        </Grid>
                     </Grid>
                 </Box>
                 <Divider />
@@ -295,7 +335,7 @@ const Results = () => {
                         {!payload?.subject
                             ? t("Please select a subject")
                             : t(
-                                  "We couldn't find any products matching your search criteria",
+                                  "We couldn't find any questions matching your search criteria",
                               )}
                     </Typography>
                 ) : (
@@ -367,8 +407,12 @@ const Results = () => {
                                                     {/* </b> */}
                                                     {/* </Label> */}
                                                 </TableCell>
-                                                <TableCell align="center">
-                                                    {item?.unit || ""}
+                                                <TableCell>
+                                                    <Typography>
+                                                        {getUnitName(
+                                                            item?.unit,
+                                                        )}
+                                                    </Typography>
                                                 </TableCell>
 
                                                 <TableCell align="center">
@@ -380,11 +424,10 @@ const Results = () => {
                                                             arrow
                                                         >
                                                             <IconButton
-                                                                onClick={
-                                                                    () => {}
-                                                                    // handleOpenModal(
-                                                                    //     item,
-                                                                    // )
+                                                                onClick={() =>
+                                                                    handleOpenModal(
+                                                                        item,
+                                                                    )
                                                                 }
                                                                 color="primary"
                                                             >
@@ -400,9 +443,8 @@ const Results = () => {
                                                                     item?.isActive
                                                                 }
                                                                 onChange={(e) =>
-                                                                    toggleitemStatus(
+                                                                    toggleQuestionStatus(
                                                                         item?._id,
-                                                                        item?.isActive,
                                                                     )
                                                                 }
                                                                 name="is_approved"
@@ -410,6 +452,12 @@ const Results = () => {
                                                                 sx={{ ml: 1 }}
                                                             />
                                                         </Tooltip>
+                                                        {/* <IconButton
+                                                            color="error"
+                                                            onClick={() => {}}                                                        
+                                                        >
+                                                            <DeleteTwoToneIcon />
+                                                        </IconButton> */}
                                                     </Typography>
                                                 </TableCell>
                                             </TableRow>
@@ -418,23 +466,29 @@ const Results = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        <Box p={2}>
-                            <TablePagination
-                                component="div"
-                                count={count || 0}
-                                onPageChange={handlePageChange}
-                                labelRowsPerPage=""
-                                rowsPerPageOptions={[]}
-                                // onRowsPerPageChange={handleLimitChange}
-                                page={page - 1 >= 0 ? page - 1 : 0}
-                                rowsPerPage={limit}
-                                disabled={isLoading}
-                            />
-                        </Box>
+
+                        {/* Infinite Scroll Loader */}
+                        {isLoading && (
+                            <Box display="flex" justifyContent="center" p={2}>
+                                <CircularProgress />
+                            </Box>
+                        )}
+
+                        {/* Loader for Intersection Observer */}
+                        {hasMore && !isLoading && (
+                            <Box
+                                ref={viewRef}
+                                display="flex"
+                                justifyContent="center"
+                                p={2}
+                            >
+                                <Typography>Loading more...</Typography>
+                            </Box>
+                        )}
                     </>
                 )}
             </Card>
-            {/* <Dialog
+            <Dialog
                 fullWidth
                 maxWidth="md"
                 open={!!currentItem}
@@ -442,58 +496,58 @@ const Results = () => {
             >
                 <DialogTitle
                     sx={{
-                        p: 3,
+                        p: 2,
                     }}
                 >
-                    <Typography variant="h4" gutterBottom>
-                        {t("Add Units in Subject : ") +
-                            currentItem?.model_name?.toUpperCase()}
+                    <Typography variant="h3" gutterBottom>
+                        {t("Question Details:")}
                     </Typography>
-                    <Typography variant="subtitle2">
+                    {/* <Typography variant="subtitle2">
                         {t(
                             "Fill in the fields below to update Units in Subject",
                         )}
-                    </Typography>
+                    </Typography> */}
                 </DialogTitle>
-                <form onSubmit={formik.handleSubmit}>
-                    <DialogContent dividers>
-                        <Typography variant="h6">Add Units</Typography>
-                        {formik.values.units.map((unit, index) => (
-                            <Grid
-                                container
-                                spacing={2}
-                                key={index}
-                                alignItems="center"
-                                sx={{ mt: 1 }}
-                            >
-                                <Grid item xs={4}>
-                                    <TextField
-                                        fullWidth
-                                        label="Unit Number"
-                                        name={`units[${index}].number`}
-                                        type="number"
-                                        value={
-                                            formik.values.units[index].number
-                                        }
-                                        onBlur={formik.handleBlur}
-                                        onChange={formik.handleChange}
-                                        error={
-                                            formik.touched.units?.[index]
-                                                ?.number &&
-                                            Boolean(
-                                                formik.errors.units?.[index]
-                                                    ?.number,
-                                            )
-                                        }
-                                        helperText={
-                                            formik.touched.units?.[index]
-                                                ?.number &&
-                                            formik.errors.units?.[index]?.number
-                                        }
-                                        variant="outlined"
+                {/* <form onSubmit={formik.handleSubmit}> */}
+                <DialogContent dividers>
+                    {/* <Typography variant="h6">Add Units</Typography> */}
+                    <Grid
+                        container
+                        // spacing={2}
+                        alignItems="center"
+                        sx={{ mt: 1 }}
+                    >
+                        <Grid item xs={12}>
+                            <Typography variant="h5">Question :</Typography>
+                            <Typography sx={{ mb: 2, p: 1 }}>
+                                {currentItem?.isFormatted ? (
+                                    <QuestionFormatter
+                                        data={currentItem?.question}
                                     />
-                                </Grid>
-                                <Grid item xs={6}>
+                                ) : (
+                                    currentItem?.question
+                                )}
+                            </Typography>
+                            <Divider />
+                            <Typography variant="h5" sx={{ mt: 2 }}>
+                                Answer :
+                            </Typography>
+                            <Typography sx={{ mb: 2, p: 1 }}>
+                                {currentItem?.answer}
+                            </Typography>
+                            <Divider />
+                            <Typography variant="h5" sx={{ mt: 2 }}>
+                                Question Type :
+                            </Typography>
+                            <Typography sx={{ p: 1 }}>
+                                {
+                                    LABEL_FOR_QUESTION_TYPES[
+                                        currentItem?.type || ""
+                                    ]
+                                }
+                            </Typography>
+                        </Grid>
+                        {/* <Grid item xs={6}>
                                     <TextField
                                         fullWidth
                                         label="Unit Name"
@@ -549,10 +603,9 @@ const Results = () => {
                                             sx={{ ml: 1 }}
                                         />
                                     </Tooltip>
-                                </Grid>
-                            </Grid>
-                        ))}
-                        <Button
+                                </Grid> */}
+                    </Grid>
+                    {/* <Button
                             variant="contained"
                             color="primary"
                             sx={{ mt: 2 }}
@@ -564,27 +617,27 @@ const Results = () => {
                             }}
                         >
                             Add Unit
-                        </Button>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseModal} color="secondary">
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={formik.isSubmitting}
-                            startIcon={
-                                formik.isSubmitting ? (
-                                    <CircularProgress size="1rem" />
-                                ) : null
-                            }
-                            variant="contained"
-                        >
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog> */}
+                        </Button> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseModal} variant="contained">
+                        Close
+                    </Button>
+                    {/* <Button
+                        type="submit"
+                        // disabled={formik.isSubmitting}
+                        // startIcon={
+                        //     formik.isSubmitting ? (
+                        //         <CircularProgress size="1rem" />
+                        //     ) : null
+                        // }
+                        variant="contained"
+                    >
+                        Submit
+                    </Button> */}
+                </DialogActions>
+                {/* </form> */}
+            </Dialog>
             {/* <DialogWrapper
                 open={openConfirmDelete}
                 maxWidth="sm"

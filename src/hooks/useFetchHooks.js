@@ -519,7 +519,7 @@ export const useQuestions = () => {
         items: [],
         count: 0,
         page: 1,
-        limit: 5,
+        limit: 10,
         state: null,
         hasMore: false,
         payload: {
@@ -541,7 +541,15 @@ export const useQuestions = () => {
             case STATE.STOREDATA:
                 return {
                     ...state,
-                    items: payload.items,
+                    items:
+                        state?.page === 1
+                            ? payload.items
+                            : [...state.items, ...payload.items].filter(
+                                  (item, index, self) =>
+                                      self.findIndex(
+                                          (i) => i._id === item._id,
+                                      ) === index,
+                              ),
                     count: payload.count,
                     hasMore: payload.hasMore,
                     loading: false,
@@ -678,7 +686,44 @@ export const useQuestions = () => {
     // }, [globalFilters]);
 
     const handlePageChange = (_event, newPage) => {
-        dispatch({ type: STATE.PAGECHANGE, payload: { page: newPage + 1 } });
+        if (!state.hasMore) return;
+        dispatch({ type: STATE.PAGECHANGE, payload: { page: state.page + 1 } });
+    };
+
+    const toggleQuestionStatus = async (id) => {
+        if (!id) return;
+        try {
+            const { data, status, message } = await axiosPatch(
+                API_ROUTER.UPDATE_QUESTION_STATUS(state.payload.subject, id),
+            );
+            if (status) {
+                const updatedItems = state.items.map((item) => {
+                    if (item._id === id) {
+                        return {
+                            ...item,
+                            isActive: data.isActive,
+                        };
+                    }
+                    return item;
+                });
+                dispatch({
+                    type: STATE.STOREDATA,
+                    payload: {
+                        items: updatedItems,
+                        count: state.count,
+                        hasMore: state.hasMore,
+                    },
+                });
+            }
+            toaster(
+                status ? TOAST_TYPES.SUCCESS : TOAST_TYPES.ERROR,
+                status
+                    ? TOAST_ALERTS.QUESTION_UPDATE_SUCCESS
+                    : message || TOAST_ALERTS.GENERAL_ERROR,
+            );
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleFilterChange = (key, value) => {
@@ -717,5 +762,6 @@ export const useQuestions = () => {
         handlePageChange,
         handleFilterChange,
         handleSort,
+        toggleQuestionStatus,
     };
 };

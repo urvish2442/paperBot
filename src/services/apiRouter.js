@@ -37,6 +37,8 @@ export const API_ROUTER = {
         getQuestionsRoute(`${model_name}/${id}`),
     DELETE_QUESTION_BY_ID: (model_name, id) =>
         getQuestionsRoute(`${model_name}/${id}`),
+    UPDATE_QUESTION_STATUS: (model_name, id) =>
+        getQuestionsRoute(`${model_name}/${id}/active`),
 
     //** Extra */
     VERIFY_CODE: getUserRoute("verify-login-code"),
