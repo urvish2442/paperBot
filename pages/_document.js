@@ -9,7 +9,7 @@ export default class MyDocument extends Document {
         const ogTitle = "PaperBot";
         const ogDescription =
             "PaperBot is a personalized Question paper generator for students.";
-        const ogImgUrl = "https://paperbot-one.vercel.app/images/og.png";
+        const ogImgUrl = "https://paperbot-one.vercel.app/images/og.jpeg";
 
         return (
             <Html lang="en">
