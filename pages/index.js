@@ -1,7 +1,7 @@
 import React from "react";
 
 const HomePage = () => {
-    return <div>home page</div>;
+    return <div>Home page</div>;
 };
 
 HomePage.guestLayout = true;

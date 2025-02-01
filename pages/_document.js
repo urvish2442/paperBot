@@ -5,6 +5,12 @@ import createEmotionCache from "src/createEmotionCache";
 
 export default class MyDocument extends Document {
     render() {
+        const ogUrl = "https://paperbot-one.vercel.app";
+        const ogTitle = "PaperBot";
+        const ogDescription =
+            "PaperBot is a personalized Question paper generator for students.";
+        const ogImgUrl = "https://paperbot-one.vercel.app/images/og.png";
+
         return (
             <Html lang="en">
                 <Head>
@@ -17,6 +23,24 @@ export default class MyDocument extends Document {
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400&display=swap"
                     />
+                    {/* Open Graph Meta Tags */}
+                    <meta property="og:type" content="website" />
+                    <meta property="og:url" content={ogUrl} />
+                    <meta property="og:title" content={ogTitle} />
+                    <meta property="og:description" content={ogDescription} />
+                    <meta property="og:image" content={ogImgUrl} />
+                    <meta property="og:image:width" content="600" />
+                    <meta property="og:image:height" content="315" />
+
+                    {/* Twitter Meta Tags */}
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta property="twitter:url" content={ogUrl} />
+                    <meta property="twitter:title" content={ogTitle} />
+                    <meta
+                        property="twitter:description"
+                        content={ogDescription}
+                    />
+                    <meta property="twitter:image" content={ogImgUrl} />
                 </Head>
                 <body>
                     <Main />
@@ -26,7 +50,6 @@ export default class MyDocument extends Document {
         );
     }
 }
-
 // `getInitialProps` belongs to `_document` (instead of `_app`),
 // it's compatible with static-site generation (SSG).
 MyDocument.getInitialProps = async (ctx) => {
