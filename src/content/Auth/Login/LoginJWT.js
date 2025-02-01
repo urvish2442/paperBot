@@ -12,6 +12,8 @@ import {
     Typography,
     FormControlLabel,
     CircularProgress,
+    InputAdornment,
+    IconButton,
 } from "@mui/material";
 import { useAuth } from "src/hooks/useAuth";
 import { useRefMounted } from "src/hooks/useRefMounted";
@@ -20,13 +22,16 @@ import useToaster from "src/hooks/useToaster";
 import { TOAST_ALERTS, TOAST_TYPES } from "src/constants/keywords";
 import { useState } from "react";
 import { PATH_AUTH, PATH_DASHBOARD } from "src/routes/paths";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-export const LoginJWT = ({ setOtp,setEmail, ...rest }) => {
+export const LoginJWT = ({ setOtp, setEmail, ...rest }) => {
     const { t } = useTranslation();
     const { login } = useAuth();
     const isMountedRef = useRefMounted();
     const router = useRouter();
     const { toaster } = useToaster();
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const formik = useFormik({
         initialValues: {
@@ -73,6 +78,10 @@ export const LoginJWT = ({ setOtp,setEmail, ...rest }) => {
         },
     });
 
+    const handleTogglePasswordVisibility = () => {
+        setShowPassword((prevShowPassword) => !prevShowPassword);
+    };
+
     return (
         <form noValidate onSubmit={formik.handleSubmit} {...rest}>
             <TextField
@@ -100,9 +109,26 @@ export const LoginJWT = ({ setOtp,setEmail, ...rest }) => {
                 name="password"
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formik.values.password}
                 variant="outlined"
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton
+                                onClick={handleTogglePasswordVisibility}
+                                edge="end"
+                                aria-label="toggle password visibility"
+                            >
+                                {showPassword ? (
+                                    <VisibilityOff />
+                                ) : (
+                                    <Visibility />
+                                )}
+                            </IconButton>
+                        </InputAdornment>
+                    ),
+                }}
             />
             <Box
                 alignItems="center"

@@ -12,6 +12,8 @@ import {
     Typography,
     FormControlLabel,
     CircularProgress,
+    InputAdornment,
+    IconButton,
 } from "@mui/material";
 import { useAuth } from "src/hooks/useAuth";
 import { useRefMounted } from "src/hooks/useRefMounted";
@@ -19,6 +21,8 @@ import { useTranslation } from "react-i18next";
 import { TOAST_ALERTS, TOAST_TYPES } from "src/constants/keywords";
 import useToaster from "src/hooks/useToaster";
 import { PATH_AUTH } from "src/routes/paths";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useState } from "react";
 
 export const RegisterJWT = (props) => {
     const { register } = useAuth();
@@ -27,6 +31,7 @@ export const RegisterJWT = (props) => {
     const router = useRouter();
     const { toaster } = useToaster();
 
+    const [showPassword, setShowPassword] = useState(false);
 
     const formik = useFormik({
         initialValues: {
@@ -64,16 +69,15 @@ export const RegisterJWT = (props) => {
 
                 if (status) {
                     toaster(TOAST_TYPES.SUCCESS, TOAST_ALERTS.REGISTER_SUCCESS);
+                    if (isMountedRef()) {
+                        const backTo = PATH_AUTH.login;
+                        router.push(backTo);
+                    }
                 } else {
                     toaster(
                         TOAST_TYPES.ERROR,
                         message || TOAST_ALERTS.GENERAL_ERROR,
                     );
-                }
-
-                if (isMountedRef()) {
-                    const backTo = PATH_AUTH.login;
-                    router.push(backTo);
                 }
             } catch (err) {
                 console.error(err);
@@ -86,6 +90,10 @@ export const RegisterJWT = (props) => {
             }
         },
     });
+
+    const handleTogglePasswordVisibility = () => {
+        setShowPassword((prevShowPassword) => !prevShowPassword);
+    };
 
     return (
         <form noValidate onSubmit={formik.handleSubmit} {...props}>
@@ -127,9 +135,26 @@ export const RegisterJWT = (props) => {
                 name="password"
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formik.values.password}
                 variant="outlined"
+                InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton
+                                onClick={handleTogglePasswordVisibility}
+                                edge="end"
+                                aria-label="toggle password visibility"
+                            >
+                                {showPassword ? (
+                                    <VisibilityOff />
+                                ) : (
+                                    <Visibility />
+                                )}
+                            </IconButton>
+                        </InputAdornment>
+                    ),
+                }}
             />
             {/* <FormControlLabel
                 control={
