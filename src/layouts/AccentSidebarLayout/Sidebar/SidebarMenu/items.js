@@ -252,10 +252,10 @@ const menuItems = [
                         name: "List",
                         link: PATH_DASHBOARD.users.root,
                     },
-                    {
-                        name: "Add User",
-                        link: PATH_DASHBOARD.users.add,
-                    },
+                    // {
+                    //     name: "Add User",
+                    //     link: PATH_DASHBOARD.users.add,
+                    // },
                 ],
             },
             // {

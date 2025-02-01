@@ -88,7 +88,7 @@ function AddSubjectPage() {
         }),
         onSubmit: async (_values, helpers) => {
             try {
-                const { data, status } = await axiosPost(
+                const { data, status, message } = await axiosPost(
                     API_ROUTER.CREATE_SUBJECT,
                     _values,
                 );
@@ -99,7 +99,10 @@ function AddSubjectPage() {
                     );
                     push(PATH_DASHBOARD.subjects.root);
                 } else {
-                    toaster(TOAST_TYPES.ERROR, TOAST_ALERTS.GENERAL_ERROR);
+                    toaster(
+                        TOAST_TYPES.ERROR,
+                        message || TOAST_ALERTS.GENERAL_ERROR,
+                    );
                 }
             } catch (err) {
                 console.error(err);
