@@ -80,14 +80,14 @@ function PageHeader() {
                     <Typography variant="h3" component="h3" gutterBottom>
                         {t("Reports")}
                     </Typography>
-                    <Typography variant="subtitle2">
+                    {/* <Typography variant="subtitle2">
                         {t(
                             "Custom dashboard built using the included components",
                         )}
-                    </Typography>
+                    </Typography> */}
                 </Box>
             </Box>
-            <Box mt={{ xs: 3, md: 0 }}>
+            {/* <Box mt={{ xs: 3, md: 0 }}>
                 <Button
                     variant="outlined"
                     ref={actionRef1}
@@ -132,7 +132,7 @@ function PageHeader() {
                 >
                     {t("Export")}
                 </Button>
-            </Box>
+            </Box> */}
         </Box>
     );
 }

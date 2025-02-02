@@ -24,140 +24,15 @@ const AvatarWrapper = styled(Avatar)(
 `,
 );
 
-function Block3() {
+// Dashboard component
+
+const Block3 = () => {
     const { t } = useTranslation();
     const theme = useTheme();
 
     return (
         <Grid container spacing={4}>
-            <Grid item xs={12} sm={6} lg={3}>
-                <Card
-                    sx={{
-                        px: 3,
-                        pb: 6,
-                        pt: 3,
-                    }}
-                >
-                    <Box display="flex" alignItems="center">
-                        <AvatarWrapper
-                            sx={{
-                                background: `${theme.colors.gradients.blue4}`,
-                            }}
-                        >
-                            <ReceiptTwoToneIcon fontSize="small" />
-                        </AvatarWrapper>
-                        <Typography
-                            sx={{
-                                ml: 1.5,
-                                fontSize: `${theme.typography.pxToRem(15)}`,
-                                fontWeight: "bold",
-                            }}
-                            variant="subtitle2"
-                            component="div"
-                        >
-                            {t("Orders")}
-                        </Typography>
-                    </Box>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        sx={{
-                            ml: -2,
-                            pt: 2,
-                            pb: 1.5,
-                            justifyContent: "center",
-                        }}
-                    >
-                        <ArrowDownwardTwoToneIcon
-                            sx={{
-                                color: `${theme.colors.error.main}`,
-                            }}
-                        />
-                        <Typography
-                            sx={{
-                                pl: 1,
-                                fontSize: `${theme.typography.pxToRem(35)}`,
-                            }}
-                            variant="h1"
-                        >
-                            $3,594
-                        </Typography>
-                    </Box>
-                    <Typography
-                        align="center"
-                        variant="body2"
-                        noWrap
-                        color="text.secondary"
-                        component="div"
-                    >
-                        <b>+36%</b> from last month
-                    </Typography>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} lg={3}>
-                <Card
-                    sx={{
-                        px: 3,
-                        pb: 6,
-                        pt: 3,
-                    }}
-                >
-                    <Box display="flex" alignItems="center">
-                        <AvatarWrapper
-                            sx={{
-                                background: `${theme.colors.gradients.orange3}`,
-                            }}
-                        >
-                            <SupportTwoToneIcon fontSize="small" />
-                        </AvatarWrapper>
-                        <Typography
-                            sx={{
-                                ml: 1.5,
-                                fontSize: `${theme.typography.pxToRem(15)}`,
-                                fontWeight: "bold",
-                            }}
-                            variant="subtitle2"
-                            component="div"
-                        >
-                            {t("Reports")}
-                        </Typography>
-                    </Box>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        sx={{
-                            ml: -2,
-                            pt: 2,
-                            pb: 1.5,
-                            justifyContent: "center",
-                        }}
-                    >
-                        <ArrowUpwardTwoToneIcon
-                            sx={{
-                                color: `${theme.colors.success.main}`,
-                            }}
-                        />
-                        <Typography
-                            sx={{
-                                pl: 1,
-                                fontSize: `${theme.typography.pxToRem(35)}`,
-                            }}
-                            variant="h1"
-                        >
-                            987
-                        </Typography>
-                    </Box>
-                    <Typography
-                        align="center"
-                        variant="body2"
-                        noWrap
-                        color="text.secondary"
-                        component="div"
-                    >
-                        <b>+65%</b> from last month
-                    </Typography>
-                </Card>
-            </Grid>
+            {/* Users */}
             <Grid item xs={12} sm={6} lg={3}>
                 <Card
                     sx={{
@@ -183,7 +58,7 @@ function Block3() {
                             variant="subtitle2"
                             component="div"
                         >
-                            {t("Customers")}
+                            {t("Users")}
                         </Typography>
                     </Box>
                     <Box
@@ -222,6 +97,137 @@ function Block3() {
                     </Typography>
                 </Card>
             </Grid>
+            {/* Subjects */}
+            <Grid item xs={12} sm={6} lg={3}>
+                <Card
+                    sx={{
+                        px: 3,
+                        pb: 6,
+                        pt: 3,
+                    }}
+                >
+                    <Box display="flex" alignItems="center">
+                        <AvatarWrapper
+                            sx={{
+                                background: `${theme.colors.gradients.blue4}`,
+                            }}
+                        >
+                            <ReceiptTwoToneIcon fontSize="small" />
+                        </AvatarWrapper>
+                        <Typography
+                            sx={{
+                                ml: 1.5,
+                                fontSize: `${theme.typography.pxToRem(15)}`,
+                                fontWeight: "bold",
+                            }}
+                            variant="subtitle2"
+                            component="div"
+                        >
+                            {t("Subjects")}
+                        </Typography>
+                    </Box>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        sx={{
+                            ml: -2,
+                            pt: 2,
+                            pb: 1.5,
+                            justifyContent: "center",
+                        }}
+                    >
+                        <ArrowDownwardTwoToneIcon
+                            sx={{
+                                color: `${theme.colors.error.main}`,
+                            }}
+                        />
+                        <Typography
+                            sx={{
+                                pl: 1,
+                                fontSize: `${theme.typography.pxToRem(35)}`,
+                            }}
+                            variant="h1"
+                        >
+                            3,594
+                        </Typography>
+                    </Box>
+                    <Typography
+                        align="center"
+                        variant="body2"
+                        noWrap
+                        color="text.secondary"
+                        component="div"
+                    >
+                        <b>+36%</b> from last month
+                    </Typography>
+                </Card>
+            </Grid>
+            {/* Questions */}
+            <Grid item xs={12} sm={6} lg={3}>
+                <Card
+                    sx={{
+                        px: 3,
+                        pb: 6,
+                        pt: 3,
+                    }}
+                >
+                    <Box display="flex" alignItems="center">
+                        <AvatarWrapper
+                            sx={{
+                                background: `${theme.colors.gradients.orange3}`,
+                            }}
+                        >
+                            <SupportTwoToneIcon fontSize="small" />
+                        </AvatarWrapper>
+                        <Typography
+                            sx={{
+                                ml: 1.5,
+                                fontSize: `${theme.typography.pxToRem(15)}`,
+                                fontWeight: "bold",
+                            }}
+                            variant="subtitle2"
+                            component="div"
+                        >
+                            {t("Questions")}
+                        </Typography>
+                    </Box>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        sx={{
+                            ml: -2,
+                            pt: 2,
+                            pb: 1.5,
+                            justifyContent: "center",
+                        }}
+                    >
+                        <ArrowUpwardTwoToneIcon
+                            sx={{
+                                color: `${theme.colors.success.main}`,
+                            }}
+                        />
+                        <Typography
+                            sx={{
+                                pl: 1,
+                                fontSize: `${theme.typography.pxToRem(35)}`,
+                            }}
+                            variant="h1"
+                        >
+                            987
+                        </Typography>
+                    </Box>
+                    <Typography
+                        align="center"
+                        variant="body2"
+                        noWrap
+                        color="text.secondary"
+                        component="div"
+                    >
+                        <b>+65%</b> from last month
+                    </Typography>
+                </Card>
+            </Grid>
+            {/* Subscriptions */}
             <Grid item xs={12} sm={6} lg={3}>
                 <Card
                     sx={{
@@ -247,7 +253,7 @@ function Block3() {
                             variant="subtitle2"
                             component="div"
                         >
-                            {t("Sales")}
+                            {t("Subscriptions")}
                         </Typography>
                     </Box>
                     <Box
@@ -288,6 +294,6 @@ function Block3() {
             </Grid>
         </Grid>
     );
-}
+};
 
 export default Block3;
