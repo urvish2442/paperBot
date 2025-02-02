@@ -18,6 +18,7 @@ export const API_ROUTER = {
     GET_CURRENT_USER: getUserRoute("current-user"),
     CHANGE_PASSWORD: getUserRoute("change-password"),
     RESEND_VERIFICATION_CODE: getUserRoute("resend-email-verification"),
+    GET_ALL_USERS: getUserRoute("all"),
 
     //** Common */
     GET_FILTERS: getSubjectsRoute("filters"),

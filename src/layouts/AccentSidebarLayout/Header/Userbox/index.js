@@ -73,8 +73,8 @@ function HeaderUserbox() {
 
     const { user: USER, logout } = useAuth();
     const user = {
-        avatar: USER?.avatar?.url || "/static/images/avatars/1.jpg",
-        name: USER?.username || USER?.email || "Rachael Simons",
+        avatar: USER?.image || "/static/images/avatars/1.jpg",
+        name: USER?.username || USER?.email || "",
         jobtitle: USER_ROLES_LABEL[USER?.role],
     };
 

@@ -23,7 +23,7 @@ function ManagementUsers() {
     return (
         <>
             <Head>
-                <title>Creator - Management</title>
+                <title>User - Management</title>
             </Head>
             <PageTitleWrapper>
                 <PageHeader />

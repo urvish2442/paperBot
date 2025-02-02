@@ -34,9 +34,9 @@ export const useCreators = () => {
         hasMore: false,
         payload: {
             search: null,
-            is_approved: null,
-            user__is_active: "true",
-            ordering: null,
+            isActive: null,
+            // user__is_active: "true",
+            // ordering: null,
         },
     };
 
@@ -114,13 +114,13 @@ export const useCreators = () => {
                 page_size: state.page_size,
             };
 
-            const { data } = await axiosGet(API_ROUTER.GET_CREATORS, query);
+            const { data } = await axiosGet(API_ROUTER.GET_ALL_USERS, query);
 
             dispatch({
                 type: STATE.STOREDATA,
                 payload: {
-                    items: data.results || [],
-                    count: data.count || 0,
+                    items: data?.users || [],
+                    count: data?.count || 0,
                     hasMore:
                         Math.ceil(data?.count / state.page_size) > state.page,
                 },

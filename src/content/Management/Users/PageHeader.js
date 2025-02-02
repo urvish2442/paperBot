@@ -120,7 +120,7 @@ function PageHeader() {
             <Grid container justifyContent="space-between" alignItems="center">
                 <Grid item>
                     <Typography variant="h3" component="h3" gutterBottom>
-                        {t("Creators Management")}
+                        {t("User Management")}
                     </Typography>
                     <Typography variant="subtitle2">
                         {t(
@@ -128,7 +128,7 @@ function PageHeader() {
                         )}
                     </Typography>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                     <Button
                         sx={{
                             mt: { xs: 2, sm: 0 },
@@ -139,9 +139,9 @@ function PageHeader() {
                     >
                         {t("Create user")}
                     </Button>
-                </Grid>
+                </Grid> */}
             </Grid>
-            <Dialog
+            {/* <Dialog
                 fullWidth
                 maxWidth="md"
                 open={open}
@@ -444,7 +444,7 @@ function PageHeader() {
                         </form>
                     )}
                 </Formik>
-            </Dialog>
+            </Dialog> */}
         </>
     );
 }

@@ -149,16 +149,15 @@ const getUserRoleLabel = (userRole) => {
 
 const Results = () => {
     const CREATOR_TABLE_HEADERS = [
-        { value: "user__username", label: "Username", isSortable: true },
-        { value: "user__first_name", label: "Name", isSortable: true },
-        { value: "user__email", label: "Email", isSortable: true },
-        {
-            value: "commission_percentage",
-            label: "Commission (%)",
-            align: "center",
-            isSortable: false,
-        },
-        { value: "is_approved", label: "Verified", isSortable: false },
+        { value: "username", label: "User Name", isSortable: true },
+        { value: "email", label: "Email", isSortable: true },
+        { value: "role", label: "Role", isSortable: true },
+        // {
+        //     value: "commission_percentage",
+        //     label: "Commission (%)",
+        //     align: "center",
+        //     isSortable: false,
+        // },
         {
             value: "actions",
             label: "Actions",
@@ -167,7 +166,7 @@ const Results = () => {
         },
     ];
     const {
-        items: creators,
+        items,
         loading: isLoading,
         count,
         hasMore,
@@ -205,6 +204,25 @@ const Results = () => {
         // });
     };
 
+    const getUserRoleLabel = (userRole) => {
+        const map = {
+            ADMIN: {
+                text: "Administrator",
+                color: "error",
+            },
+            USER: {
+                text: "User",
+                color: "info",
+            },
+            STAFF: {
+                text: "Staff",
+                color: "warning",
+            },
+        };
+        const { text, color } = map[userRole];
+        return <Label color={color}>{text}</Label>;
+    };
+
     return (
         <>
             <Box
@@ -228,10 +246,7 @@ const Results = () => {
                                 : payload.user__is_active
                         }
                         onChange={(e) =>
-                            handleFilterChange(
-                                "user__is_active",
-                                e.target.value,
-                            )
+                            handleFilterChange("isActive", e.target.value)
                         }
                         label="Active Status"
                         disabled={isLoading}
@@ -241,7 +256,7 @@ const Results = () => {
                         <MenuItem value="false">Inactive</MenuItem>
                     </Select>
                 </FormControl>
-                <FormControl
+                {/* <FormControl
                     size="small"
                     variant="outlined"
                     sx={{ width: 100 }}
@@ -263,7 +278,7 @@ const Results = () => {
                         <MenuItem value="true">Verified</MenuItem>
                         <MenuItem value="false">Pending</MenuItem>
                     </Select>
-                </FormControl>
+                </FormControl> */}
             </Box>
 
             <Card>
@@ -293,7 +308,7 @@ const Results = () => {
 
                 {isLoading ? (
                     <Loader size={32} defaultLoader={false} height={"300px"} />
-                ) : creators.length === 0 ? (
+                ) : items.length === 0 ? (
                     <>
                         <Typography
                             sx={{
@@ -335,105 +350,123 @@ const Results = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {creators.map(
-                                        (
-                                            {
-                                                user,
-                                                commission_percentage,
-                                                is_approved,
-                                                verification_document: image,
-                                            },
-                                            index,
-                                        ) => {
-                                            return (
-                                                <TableRow hover key={index}>
-                                                    <TableCell>
-                                                        <Typography variant="h5">
-                                                            {user?.username ||
-                                                                ""}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell>
+                                    {items.map((user, index) => {
+                                        return (
+                                            <TableRow hover key={index}>
+                                                <TableCell>
+                                                    <Typography variant="h5">
+                                                        {/* {user?.username || ""} */}
                                                         <Box
                                                             display="flex"
                                                             alignItems="center"
                                                         >
+                                                            <Avatar
+                                                                sx={{
+                                                                    mr: 1,
+                                                                }}
+                                                                src={
+                                                                    user?.image
+                                                                }
+                                                            />
                                                             <Box>
-                                                                <Typography
+                                                                <Link
+                                                                    variant="h5"
+                                                                    href="#"
+                                                                >
+                                                                    {
+                                                                        user?.username
+                                                                    }
+                                                                </Link>
+                                                                {/* <Typography
                                                                     noWrap
                                                                     variant="subtitle2"
                                                                 >
-                                                                    {user?.first_name ||
-                                                                        ""}{" "}
-                                                                    {user?.last_name ||
-                                                                        ""}
-                                                                </Typography>
+                                                                    {
+                                                                        user.jobtitle
+                                                                    }
+                                                                </Typography> */}
                                                             </Box>
                                                         </Box>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Typography>
-                                                            {user?.email}
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell align="center">
-                                                        <Typography fontWeight="bold">
-                                                            {
-                                                                commission_percentage
-                                                            }
-                                                        </Typography>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Switch
-                                                            checked={
-                                                                is_approved
-                                                            }
-                                                            onChange={(e) => {}}
-                                                            name="is_approved"
-                                                            color="primary"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell align="center">
-                                                        <Typography noWrap>
-                                                            {!user?.is_active ? (
-                                                                <Tooltip
-                                                                    title={t(
-                                                                        "Active",
-                                                                    )}
-                                                                    arrow
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box
+                                                        display="flex"
+                                                        alignItems="center"
+                                                    >
+                                                        <Box>
+                                                            <Typography
+                                                                noWrap
+                                                                variant="subtitle2"
+                                                            >
+                                                                {user?.email ||
+                                                                    ""}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography>
+                                                        {getUserRoleLabel(
+                                                            user?.role,
+                                                        )}
+                                                    </Typography>
+                                                </TableCell>
+                                                {/* <TableCell align="center">
+                                                    <Typography fontWeight="bold">
+                                                        {user?.role}
+                                                    </Typography>
+                                                </TableCell> */}
+                                                {/* <TableCell>
+                                                    <Switch
+                                                        checked={
+                                                            user?.is_approved
+                                                        }
+                                                        onChange={(e) => {}}
+                                                        name="is_approved"
+                                                        color="primary"
+                                                    />
+                                                </TableCell> */}
+                                                <TableCell align="center">
+                                                    <Typography noWrap>
+                                                        {!user?.isActive ? (
+                                                            <Tooltip
+                                                                title={t(
+                                                                    "Active",
+                                                                )}
+                                                                arrow
+                                                            >
+                                                                <IconButton
+                                                                    // onClick={
+                                                                    //     handleConfirmDelete
+                                                                    // }
+                                                                    color="primary"
                                                                 >
-                                                                    <IconButton
-                                                                        // onClick={
-                                                                        //     handleConfirmDelete
-                                                                        // }
-                                                                        color="primary"
-                                                                    >
-                                                                        <PersonAddTwoToneIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            ) : (
-                                                                <Tooltip
-                                                                    title={t(
-                                                                        "Delete",
-                                                                    )}
-                                                                    arrow
+                                                                    <PersonAddTwoToneIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        ) : (
+                                                            <Tooltip
+                                                                title={t(
+                                                                    "Delete",
+                                                                )}
+                                                                arrow
+                                                            >
+                                                                <IconButton
+                                                                    onClick={
+                                                                        handleConfirmDelete
+                                                                    }
+                                                                    color="primary"
                                                                 >
-                                                                    <IconButton
-                                                                        onClick={
-                                                                            handleConfirmDelete
-                                                                        }
-                                                                        color="primary"
-                                                                    >
-                                                                        <DeleteTwoToneIcon fontSize="small" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )}
-                                                        </Typography>
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        },
-                                    )}
+                                                                    <DeleteTwoToneIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )}
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -453,7 +486,7 @@ const Results = () => {
                 </Box>
             </Card>
 
-            {/* <DialogWrapper
+            <DialogWrapper
                 open={openConfirmDelete}
                 maxWidth="sm"
                 fullWidth
@@ -476,12 +509,12 @@ const Results = () => {
                         align="center"
                         sx={{
                             py: 4,
-                            px: 6
+                            px: 6,
                         }}
                         variant="h3"
                     >
                         {t(
-                            "Are you sure you want to permanently delete this user account"
+                            "Are you sure you want to delete this user account?",
                         )}
                         ?
                     </Typography>
@@ -491,7 +524,7 @@ const Results = () => {
                             variant="text"
                             size="large"
                             sx={{
-                                mx: 1
+                                mx: 1,
                             }}
                             onClick={closeConfirmDelete}
                         >
@@ -502,7 +535,7 @@ const Results = () => {
                             size="large"
                             sx={{
                                 mx: 1,
-                                px: 3
+                                px: 3,
                             }}
                             variant="contained"
                         >
@@ -510,7 +543,7 @@ const Results = () => {
                         </ButtonError>
                     </Box>
                 </Box>
-            </DialogWrapper> */}
+            </DialogWrapper>
         </>
     );
 };
