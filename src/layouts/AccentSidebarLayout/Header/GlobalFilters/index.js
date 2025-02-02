@@ -32,25 +32,24 @@ const GlobalFilters = () => {
                 pb={3}
                 gap={{ sm: 2, xs: 1 }}
             >
-                {/* Subject */}
                 <FormControl size="small" variant="outlined" sx={{ width: 90 }}>
-                    <InputLabel>Subject</InputLabel>
+                    <InputLabel>Board</InputLabel>
                     <Select
                         value={
-                            currentFilter.name === null
+                            currentFilter.board === null
                                 ? "all"
-                                : currentFilter.name
+                                : currentFilter.board
                         }
                         onChange={(e) =>
-                            handleFilterChange("name", e.target.value)
+                            handleFilterChange("board", e.target.value)
                         }
-                        label="Subject"
+                        label="Board"
                         // disabled={isLoading}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {filtersData?.subjects?.map((item) => (
+                        {filtersData?.boards?.map((item) => (
                             <MenuItem key={item} value={item}>
-                                {LABEL_FOR_SUBJECTS[item] || item}
+                                {LABEL_FOR_BOARDS[item] || item}
                             </MenuItem>
                         ))}
                     </Select>
@@ -77,24 +76,32 @@ const GlobalFilters = () => {
                         ))}
                     </Select>
                 </FormControl>
-                <FormControl size="small" variant="outlined" sx={{ width: 90 }}>
-                    <InputLabel>Board</InputLabel>
+                {/* Subject */}
+                <FormControl
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                        width: 90,
+                        display: { xs: "none", sm: "block" },
+                    }}
+                >
+                    <InputLabel>Subject</InputLabel>
                     <Select
                         value={
-                            currentFilter.board === null
+                            currentFilter.name === null
                                 ? "all"
-                                : currentFilter.board
+                                : currentFilter.name
                         }
                         onChange={(e) =>
-                            handleFilterChange("board", e.target.value)
+                            handleFilterChange("name", e.target.value)
                         }
-                        label="Board"
+                        label="Subject"
                         // disabled={isLoading}
                     >
                         <MenuItem value="all">All</MenuItem>
-                        {filtersData?.boards?.map((item) => (
+                        {filtersData?.subjects?.map((item) => (
                             <MenuItem key={item} value={item}>
-                                {LABEL_FOR_BOARDS[item] || item}
+                                {LABEL_FOR_SUBJECTS[item] || item}
                             </MenuItem>
                         ))}
                     </Select>

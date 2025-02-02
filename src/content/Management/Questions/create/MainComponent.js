@@ -146,7 +146,9 @@ const MainComponent = ({
                                                 key={subject}
                                                 value={subject}
                                             >
-                                                {subject.toUpperCase()}
+                                                {subject
+                                                    .replace("_questions", "")
+                                                    .toUpperCase()}
                                             </MenuItem>
                                         ))}
                                     </Select>
