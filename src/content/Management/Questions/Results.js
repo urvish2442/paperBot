@@ -397,11 +397,7 @@ const Results = () => {
                                                     {item?.marks || ""}
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    {
-                                                        LABEL_FOR_QUESTION_TYPES[
-                                                            item?.type || ""
-                                                        ]
-                                                    }
+                                                    {item?.type || ""}
                                                     {/* <Label color="success"> */}
                                                     {/* <b> */}
                                                     {/* </b> */}
