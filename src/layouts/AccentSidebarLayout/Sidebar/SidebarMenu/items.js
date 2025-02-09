@@ -258,11 +258,17 @@ const menuItems = [
                     // },
                 ],
             },
-            // {
-            //     name: "Projects",
-            //     link: "/management/projects",
-            //     icon: AccountTreeTwoToneIcon
-            // },
+            {
+                name: "Question Types",
+                icon: AssignmentIndTwoToneIcon,
+                link: PATH_DASHBOARD.questions.root,
+                items: [
+                    {
+                        name: "List",
+                        link: PATH_DASHBOARD.questionTypes.root,
+                    },
+                ],
+            },
             {
                 name: "Subjects",
                 icon: StorefrontTwoToneIcon,

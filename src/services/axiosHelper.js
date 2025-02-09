@@ -23,7 +23,7 @@ export const axiosPost = async (
         response.status = false;
         response.message =
             e?.response?.data?.message || "An unknown error occurred.";
-        response.data = e;
+        response.data = e?.response?.data?.errors || e;
     }
     return response;
 };

@@ -1,6 +1,7 @@
 const getUserRoute = (path) => `users/${path}`;
 const getSubjectsRoute = (path) => `subjects/${path}`;
 const getQuestionsRoute = (path) => `questions/${path}`;
+const getQuestionTypeRoute = (path) => `question-types/${path}`;
 
 export const API_ROUTER = {
     // AUTH
@@ -22,6 +23,10 @@ export const API_ROUTER = {
 
     //** Common */
     GET_FILTERS: getSubjectsRoute("filters"),
+
+    //** Question Types */
+    QUESTION_TYPES: getQuestionTypeRoute(""), // ["GET", "POST"]
+    QUESTION_TYPE_BY_ID: (id) => getQuestionTypeRoute(`${id}`), // ["GET", "PUT", "DELETE"]
 
     //** Subjects */
     GET_SUBJECTS: getSubjectsRoute(""),

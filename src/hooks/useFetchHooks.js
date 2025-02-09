@@ -208,6 +208,161 @@ export const useCreators = () => {
     };
 };
 
+export const useQuestionTypes = () => {
+    const { toaster } = useToaster();
+    const { user } = useAuth();
+    const { currentFilter } = useSelector(globalState);
+    const storeDispatch = useDispatch();
+
+    const initialState = {
+        loading: false,
+        items: [],
+        count: 0,
+        page: 1,
+        limit: 10,
+        state: null,
+        hasMore: false,
+        payload: {
+            search: null,
+            board: null,
+            name: null,
+            medium: null,
+            standard: null,
+            isActive: user?.role === USER_ROLES.ADMIN ? null : true,
+            sortBy: null,
+        },
+    };
+
+    const reducer = (state, { type, payload }) => {
+        switch (type) {
+            case STATE.STARTLOADING:
+                return { ...state, loading: true, state: null };
+            case STATE.STOPLOADING:
+                return { ...state, loading: false, state: null };
+            case STATE.STOREDATA:
+                return {
+                    ...state,
+                    items: payload.items,
+                    count: payload.count,
+                    hasMore: payload.hasMore,
+                    loading: false,
+                };
+            case STATE.PAGECHANGE:
+                return {
+                    ...state,
+                    page: payload.page,
+                    state: STATE.PAGECHANGE,
+                };
+            case STATE.LIMITCHANGE:
+                return {
+                    ...state,
+                    limit: payload.limit,
+                    page: payload.page,
+                    state: STATE.LIMITCHANGE,
+                };
+            case STATE.SORT:
+                return {
+                    ...state,
+                    payload: {
+                        ...state.payload,
+                        sortBy: payload.sortBy,
+                    },
+                    page: 1,
+                    state: STATE.SORT,
+                };
+
+            default:
+                return state;
+        }
+    };
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    //** Fetch Function */
+
+    const getData = async () => {
+        try {
+            dispatch({ type: STATE.STARTLOADING });
+
+            const query = {
+                ...state.payload,
+                page: state.page,
+                limit: state.limit,
+            };
+
+            const { data, status, message } = await axiosGet(
+                API_ROUTER.QUESTION_TYPES,
+                query,
+            );
+
+            dispatch({
+                type: STATE.STOREDATA,
+                payload: {
+                    items: data?.data || [],
+                    count: data?.count || 0,
+                    hasMore: data?.hasNextPage || false,
+                },
+            });
+        } catch (error) {
+            dispatch({
+                type: STATE.STOREDATA,
+                payload: { items: [], count: 0 },
+            });
+        }
+    };
+
+    //** Effects */
+
+    useEffect(() => {
+        if (!state.state) return;
+        getData();
+    }, [state]);
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    //** Handlers */
+
+    const handlePageChange = (_event, newPage) => {
+        dispatch({ type: STATE.PAGECHANGE, payload: { page: newPage + 1 } });
+    };
+
+    const handleLimitChange = (event) => {
+        const newPageSize = parseInt(event.target.value, 10);
+        if (!newPageSize || newPageSize <= 0) {
+            console.error("Invalid page size");
+            return;
+        }
+
+        const page = Math.min(
+            state.page,
+            Math.ceil(state.count / newPageSize) || 1,
+        );
+        dispatch({
+            type: STATE.LIMITCHANGE,
+            payload: { limit: newPageSize, page },
+        });
+    };
+
+    // const handleSort = (column) => {
+    //     dispatch({
+    //         type: STATE.SORT,
+    //         payload: {
+    //             sortBy: state.payload.sortBy === column ? `-${column}` : column,
+    //         },
+    //     });
+    // };
+
+    return {
+        ...state,
+        handlePageChange,
+        handleLimitChange,
+        // handleFilterChange,
+        // handleSort,
+    };
+};
+
 export const useSubjects = () => {
     const { toaster } = useToaster();
     const { user } = useAuth();

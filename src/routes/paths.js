@@ -23,6 +23,9 @@ export const PATH_DASHBOARD = {
         root: path(ROOT, "users"),
         add: path(ROOT, "users/add"),
     },
+    questionTypes: {
+        root: path(ROOT, "question-types"),
+    },
     subjects: {
         root: path(ROOT, "subjects"),
         add: path(ROOT, "subjects/add"),

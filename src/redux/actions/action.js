@@ -6,7 +6,9 @@ export const getFiltersAction = createAsyncThunk(
     async (payload, { rejectWithValue }) => {
         try {
             const { data, status, message } = await GetFiltersService();
-            return data || {};
+            const { questionTypes: QTS = [] } = data;
+            const questionTypes = QTS?.map((item) => item?.name);
+            return { ...data, questionTypes } || {};
         } catch (err) {
             if (err instanceof AxiosError) {
                 return rejectWithValue(err?.response?.data?.message);
