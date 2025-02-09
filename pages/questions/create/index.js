@@ -107,12 +107,7 @@ function ManagementProductCreate() {
             subject: Yup.string()
                 .oneOf(subjectNames, "Invalid Question Type")
                 .required("Subject is required"),
-            type: Yup.string()
-                .required("Type is required")
-                .oneOf(
-                    Object.keys(LABEL_FOR_QUESTION_TYPES),
-                    "Invalid Question Type",
-                ),
+            type: Yup.string().required("Type is required"),
             isFormatted: Yup.boolean().required(
                 "Formatting status is required",
             ),
