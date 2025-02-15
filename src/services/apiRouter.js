@@ -36,7 +36,7 @@ export const API_ROUTER = {
     GET_QUESTIONS_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
     CREATE_QUESTION_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
     GET_QUESTION_BY_ID: (model_name, id) =>
-        getQuestionsRoute(`${model_name}/${id}`), // ["GET", "POST", "DELETE"]
+        getQuestionsRoute(`${model_name}/${id}`), // ["GET", "PUT", "DELETE"]
     UPDATE_QUESTION_STATUS: (model_name, id) =>
         getQuestionsRoute(`${model_name}/${id}/active`),
 

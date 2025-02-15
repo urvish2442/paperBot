@@ -48,6 +48,7 @@ import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import Text from "src/components/Text";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
+import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
 import { useQuestions } from "src/hooks/useFetchHooks";
 import {
@@ -63,6 +64,8 @@ import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
 import { useInView } from "react-intersection-observer";
 import Loader from "src/components/Loader";
+import { useRouter } from "next/router";
+import { PATH_DASHBOARD } from "src/routes/paths";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -114,6 +117,7 @@ const applyPagination = (products, page, limit) => {
 const Results = () => {
     const { t } = useTranslation();
     const theme = useTheme();
+    const { push } = useRouter();
     const mobile = useMediaQuery(theme.breakpoints.down("md"));
     const { filtersData, subjectFiltersData, currentFilter } =
         useSelector(globalState);
@@ -200,6 +204,15 @@ const Results = () => {
             return <Text>{matchedType?.name || ""}</Text>;
         },
         [currentQuestionTypes],
+    );
+
+    const handleEditRoute = useCallback(
+        (item) => {
+            push(
+                PATH_DASHBOARD.questions.edit(currentFilter.subject, item?._id),
+            );
+        },
+        [push, PATH_DASHBOARD, currentFilter.subject],
     );
 
     return (
@@ -362,9 +375,7 @@ const Results = () => {
                     >
                         {!payload?.subject
                             ? t("Please select a subject")
-                            : t(
-                                  "No data found for the selected filters",
-                              )}
+                            : t("No data found for the selected filters")}
                     </Typography>
                 ) : (
                     <>
@@ -458,6 +469,24 @@ const Results = () => {
                                                                 color="primary"
                                                             >
                                                                 <ListTwoToneIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                            title={t(
+                                                                "Edit Question",
+                                                            )}
+                                                            arrow
+                                                        >
+                                                            <IconButton
+                                                                onClick={() =>
+                                                                    handleEditRoute(
+                                                                        item,
+                                                                    )
+                                                                }
+                                                                color="primary"
+                                                                sx={{ ml: 1 }}
+                                                            >
+                                                                <EditTwoToneIcon fontSize="small" />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip

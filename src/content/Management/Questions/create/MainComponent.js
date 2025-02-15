@@ -51,6 +51,7 @@ const MainComponent = ({
     setReset,
     answerReset,
     setAnswerReset,
+    isEdit = false,
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
@@ -62,6 +63,7 @@ const MainComponent = ({
     const { filtersData, currentFilter, subjectFiltersData } =
         useSelector(globalState);
     useEffect(() => {
+        if (isEdit) return;
         formik.setValues((preVal) => ({
             ...preVal,
             type: currentFilter.type,
@@ -95,6 +97,7 @@ const MainComponent = ({
     };
 
     useEffect(() => {
+        if (isEdit) return;
         formik.setFieldValue("unit", "");
         formik.setFieldValue("type", "");
         dispatch(setCurrentFilter({ unit: "", type: "" }));
@@ -131,6 +134,7 @@ const MainComponent = ({
                                             formik.touched.subject &&
                                                 formik.errors.subject,
                                         )}
+                                        disabled={isEdit}
                                         MenuProps={{
                                             PaperProps: {
                                                 style: {

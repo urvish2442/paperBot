@@ -152,7 +152,7 @@ const Editor = ({ onSave, reset, setReset, holder = "question" }) => {
 
         return () => {
             if (editorInstance.current) {
-                editorInstance.current?.destroy();
+                // editorInstance.current?.destroy();
                 editorInstance.current = null;
             }
         };

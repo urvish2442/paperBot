@@ -30,5 +30,7 @@ export const PATH_DASHBOARD = {
     questions: {
         root: path(ROOT, "questions"),
         add: path(ROOT, "questions/create"),
+        edit: (sub, id) =>
+            path(ROOT, `questions/edit?subject=${sub}&questionId=${id}`),
     },
 };

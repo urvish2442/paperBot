@@ -10,7 +10,7 @@ const RootWrapper = styled(Box)(
 `,
 );
 
-function PageHeader() {
+function PageHeader({ isEdit = false }) {
     const { t } = useTranslation();
 
     return (
@@ -28,7 +28,7 @@ function PageHeader() {
                                 component="h3"
                                 gutterBottom
                             >
-                                {t("Add new Question")}
+                                {t(`${isEdit ? "Edit" : "Add new"} Question`)}
                             </Typography>
                             <Typography variant="subtitle2">
                                 {t(
