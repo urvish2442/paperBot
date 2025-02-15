@@ -259,17 +259,6 @@ const menuItems = [
                 ],
             },
             {
-                name: "Question Types",
-                icon: AssignmentIndTwoToneIcon,
-                link: PATH_DASHBOARD.questions.root,
-                items: [
-                    {
-                        name: "List",
-                        link: PATH_DASHBOARD.questionTypes.root,
-                    },
-                ],
-            },
-            {
                 name: "Subjects",
                 icon: StorefrontTwoToneIcon,
                 link: PATH_DASHBOARD.subjects.root,

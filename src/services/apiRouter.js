@@ -1,7 +1,6 @@
 const getUserRoute = (path) => `users/${path}`;
 const getSubjectsRoute = (path) => `subjects/${path}`;
 const getQuestionsRoute = (path) => `questions/${path}`;
-const getQuestionTypeRoute = (path) => `question-types/${path}`;
 
 export const API_ROUTER = {
     // AUTH
@@ -19,30 +18,25 @@ export const API_ROUTER = {
     GET_CURRENT_USER: getUserRoute("current-user"),
     CHANGE_PASSWORD: getUserRoute("change-password"),
     RESEND_VERIFICATION_CODE: getUserRoute("resend-email-verification"),
+
+    //** Users */
     GET_ALL_USERS: getUserRoute("all"),
 
     //** Common */
     GET_FILTERS: getSubjectsRoute("filters"),
-
-    //** Question Types */
-    QUESTION_TYPES: getQuestionTypeRoute(""), // ["GET", "POST"]
-    QUESTION_TYPE_BY_ID: (id) => getQuestionTypeRoute(`${id}`), // ["GET", "PUT", "DELETE"]
 
     //** Subjects */
     GET_SUBJECTS: getSubjectsRoute(""),
     CREATE_SUBJECT: getSubjectsRoute(""),
     UPDATE_SUBJECT_STATUS: (id) => getSubjectsRoute(`${id}/status`),
     UPDATE_SUBJECT_UNITS: (id) => getSubjectsRoute(`${id}/units`),
+    UPDATE_QUESTION_TYPES: (id) => getSubjectsRoute(`${id}/question-types`),
 
     //** Questions */
     GET_QUESTIONS_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
     CREATE_QUESTION_BY_SUBJECT: (model_name) => getQuestionsRoute(model_name),
     GET_QUESTION_BY_ID: (model_name, id) =>
-        getQuestionsRoute(`${model_name}/${id}`),
-    UPDATE_QUESTION_BY_ID: (model_name, id) =>
-        getQuestionsRoute(`${model_name}/${id}`),
-    DELETE_QUESTION_BY_ID: (model_name, id) =>
-        getQuestionsRoute(`${model_name}/${id}`),
+        getQuestionsRoute(`${model_name}/${id}`), // ["GET", "POST", "DELETE"]
     UPDATE_QUESTION_STATUS: (model_name, id) =>
         getQuestionsRoute(`${model_name}/${id}/active`),
 

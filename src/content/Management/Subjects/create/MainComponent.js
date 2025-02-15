@@ -89,7 +89,8 @@ const MainComponent = ({
 
     useEffect(() => {
         formik.setFieldValue("unit", "");
-        dispatch(setCurrentFilter({ unit: "" }));
+        formik.setFieldValue("type", "");
+        dispatch(setCurrentFilter({ unit: "", type: "" }));
     }, [formik.values.subject]);
 
     const handleSave = (data) => {

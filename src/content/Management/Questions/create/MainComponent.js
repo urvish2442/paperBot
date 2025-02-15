@@ -76,6 +76,13 @@ const MainComponent = ({
         return matchedSubject ? matchedSubject.units : [];
     }, [subjectFiltersData, currentFilter.subject]);
 
+    const currentQuestionTypes = useMemo(() => {
+        const matchedSubject = subjectFiltersData.find(
+            (subject) => subject.model_name === currentFilter.subject,
+        );
+        return matchedSubject ? matchedSubject.questionTypes : [];
+    }, [subjectFiltersData, currentFilter.subject]);
+
     const handleChange = (event) => {
         const { type, name, value, checked } = event.target;
         const updatedValue = type === "checkbox" ? checked : value;
@@ -89,7 +96,8 @@ const MainComponent = ({
 
     useEffect(() => {
         formik.setFieldValue("unit", "");
-        dispatch(setCurrentFilter({ unit: "" }));
+        formik.setFieldValue("type", "");
+        dispatch(setCurrentFilter({ unit: "", type: "" }));
     }, [formik.values.subject]);
 
     const handleSave = (data) => {
@@ -180,15 +188,13 @@ const MainComponent = ({
                                                 {t("Select Question Type...")}
                                             </em>
                                         </MenuItem>
-                                        {filtersData?.questionTypes?.map(
-                                            (type) => (
+                                        {currentQuestionTypes?.map(
+                                            (item, index) => (
                                                 <MenuItem
-                                                    key={type}
-                                                    value={type}
+                                                    key={index}
+                                                    value={item?._id}
                                                 >
-                                                    {LABEL_FOR_QUESTION_TYPES[
-                                                        type
-                                                    ] || type}
+                                                    {item?.name?.toUpperCase()}
                                                 </MenuItem>
                                             ),
                                         )}

@@ -1,4 +1,4 @@
-import { useState, forwardRef, useMemo } from "react";
+import { useState, forwardRef, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 
 import numeral from "numeral";
@@ -165,18 +165,41 @@ const Results = () => {
         return matchedSubject ? matchedSubject.units : [];
     }, [subjectFiltersData, currentFilter.subject]);
 
-    const getUnitName = (unitId) => {
-        if (!unitId) return "";
-        const matchedUnit = currentUnits.find((unit) => unit._id === unitId);
-        if (!matchedUnit) return "";
-        const textColor = matchedUnit?.isActive ? "default" : "error";
-
-        return (
-            <Text color={textColor}>
-                {`${matchedUnit.number}: ${matchedUnit.name}`}
-            </Text>
+    const currentQuestionTypes = useMemo(() => {
+        const matchedSubject = subjectFiltersData.find(
+            (subject) => subject.model_name === currentFilter.subject,
         );
-    };
+        return matchedSubject ? matchedSubject.questionTypes : [];
+    }, [subjectFiltersData, currentFilter.subject]);
+
+    const getUnitName = useCallback(
+        (unitId) => {
+            if (!unitId) return "";
+            const matchedUnit = currentUnits.find(
+                (unit) => unit._id === unitId,
+            );
+            if (!matchedUnit) return "";
+            const textColor = matchedUnit?.isActive ? "default" : "error";
+
+            return (
+                <Text color={textColor}>
+                    {`${matchedUnit.number}: ${matchedUnit.name}`}
+                </Text>
+            );
+        },
+        [currentUnits],
+    );
+
+    const getQuestionTypeName = useCallback(
+        (questionTypeId) => {
+            if (!questionTypeId) return "";
+            const matchedType = currentQuestionTypes.find(
+                (type) => type._id === questionTypeId,
+            );
+            return <Text>{matchedType?.name || ""}</Text>;
+        },
+        [currentQuestionTypes],
+    );
 
     return (
         <>
@@ -252,12 +275,16 @@ const Results = () => {
                                     <MenuItem value="all">
                                         <em>All</em>
                                     </MenuItem>
-                                    {filtersData?.questionTypes?.map((type) => (
-                                        <MenuItem key={type} value={type}>
-                                            {LABEL_FOR_QUESTION_TYPES[type] ||
-                                                type}
-                                        </MenuItem>
-                                    ))}
+                                    {currentQuestionTypes?.map(
+                                        (item, index) => (
+                                            <MenuItem
+                                                key={index}
+                                                value={item?._id}
+                                            >
+                                                {item?.name?.toUpperCase()}
+                                            </MenuItem>
+                                        ),
+                                    )}
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -397,7 +424,9 @@ const Results = () => {
                                                     {item?.marks || ""}
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    {item?.type || ""}
+                                                    {getQuestionTypeName(
+                                                        item?.type || "",
+                                                    )}
                                                     {/* <Label color="success"> */}
                                                     {/* <b> */}
                                                     {/* </b> */}
@@ -536,11 +565,7 @@ const Results = () => {
                                 Question Type :
                             </Typography>
                             <Typography sx={{ p: 1 }}>
-                                {
-                                    LABEL_FOR_QUESTION_TYPES[
-                                        currentItem?.type || ""
-                                    ]
-                                }
+                                {getQuestionTypeName(currentItem?.type || "")}
                             </Typography>
                         </Grid>
                         {/* <Grid item xs={6}>

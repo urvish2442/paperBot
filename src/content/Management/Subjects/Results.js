@@ -48,6 +48,7 @@ import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import Text from "src/components/Text";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
+import TitleTwoToneIcon from "@mui/icons-material/TitleTwoTone";
 
 import { useSubjects } from "src/hooks/useFetchHooks";
 import {
@@ -56,6 +57,7 @@ import {
     LABEL_FOR_STANDARDS,
     LABEL_FOR_SUBJECTS,
 } from "src/constants/keywords";
+import AddQuestionTypesModal from "./AddQuestionTypesModal";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -152,7 +154,11 @@ const Results = () => {
         currentItem,
         handleOpenModal,
         handleCloseModal,
+        currentQuestion,
+        handleOpenTypeModal,
+        handleCloseTypeModal,
         formik,
+        typeFormik,
     } = useSubjects();
 
     // const [selectedItems, setSelectedProducts] = useState([]);
@@ -513,6 +519,23 @@ const Results = () => {
                                                     <Typography noWrap>
                                                         <Tooltip
                                                             title={t(
+                                                                "Add Question Types",
+                                                            )}
+                                                            arrow
+                                                        >
+                                                            <IconButton
+                                                                onClick={() =>
+                                                                    handleOpenTypeModal(
+                                                                        subject,
+                                                                    )
+                                                                }
+                                                                color="primary"
+                                                            >
+                                                                <TitleTwoToneIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip
+                                                            title={t(
                                                                 "Add Lessons",
                                                             )}
                                                             arrow
@@ -570,6 +593,11 @@ const Results = () => {
                     </>
                 )}
             </Card>
+            <AddQuestionTypesModal
+                currentQuestion={currentQuestion}
+                handleCloseTypeModal={handleCloseTypeModal}
+                formik={typeFormik}
+            />
             <Dialog
                 fullWidth
                 maxWidth="md"
