@@ -203,6 +203,7 @@ function ManagementProductCreate() {
                         type: currentFilter?.type,
                         unit: currentFilter?.unit,
                         isFormatted: currentFilter?.isFormatted,
+                        marks: currentFilter?.marks,
                     }));
                     // setAnswerReset(true);
                 } else {

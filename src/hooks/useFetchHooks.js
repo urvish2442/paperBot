@@ -25,7 +25,7 @@ const STATE = {
 
 export const useCreators = () => {
     const initialState = {
-        loading: false,
+        loading: true,
         items: [],
         count: 0,
         page: 1,
@@ -215,7 +215,7 @@ export const useSubjects = () => {
     const storeDispatch = useDispatch();
 
     const initialState = {
-        loading: false,
+        loading: true,
         items: [],
         count: 0,
         page: 1,
@@ -582,7 +582,7 @@ export const useQuestions = () => {
     }, [subjectFiltersData]);
 
     const initialState = {
-        loading: false,
+        loading: true,
         items: [],
         count: 0,
         page: 1,

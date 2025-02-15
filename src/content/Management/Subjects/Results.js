@@ -58,6 +58,7 @@ import {
     LABEL_FOR_SUBJECTS,
 } from "src/constants/keywords";
 import AddQuestionTypesModal from "./AddQuestionTypesModal";
+import Loader from "src/components/Loader";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -336,7 +337,7 @@ const Results = () => {
                 </Box>
                 <Divider />
 
-                {subjects?.length === 0 ? (
+                {!isLoading && subjects?.length === 0 ? (
                     <Typography
                         sx={{
                             py: 10,
@@ -346,9 +347,7 @@ const Results = () => {
                         color="text.secondary"
                         align="center"
                     >
-                        {t(
-                            "We couldn't find any subjects matching your search criteria",
-                        )}
+                        {t("No data found for the selected filters")}
                     </Typography>
                 ) : (
                     <>
@@ -387,21 +386,36 @@ const Results = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {subjects.map((subject, index) => {
-                                        {
-                                            /* const isProductSelected =
-                                            selectedItems.includes(subject.id); */
-                                        }
-                                        return (
-                                            <TableRow
-                                                hover
-                                                key={
-                                                    subject.id ||
-                                                    subject.model_name
+                                    {isLoading ? (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={
+                                                    SUBJECTS_TABLE_HEADERS.length
                                                 }
-                                                selected={index % 2 !== 0}
                                             >
-                                                {/* <TableCell padding="checkbox">
+                                                <Loader
+                                                    size={32}
+                                                    defaultLoader={false}
+                                                    height={"300px"}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        subjects.map((subject, index) => {
+                                            {
+                                                /* const isProductSelected =
+                                            selectedItems.includes(subject.id); */
+                                            }
+                                            return (
+                                                <TableRow
+                                                    hover
+                                                    key={
+                                                        subject.id ||
+                                                        subject.model_name
+                                                    }
+                                                    selected={index % 2 !== 0}
+                                                >
+                                                    {/* <TableCell padding="checkbox">
                                                     <Checkbox
                                                         checked={
                                                             isProductSelected
@@ -417,52 +431,52 @@ const Results = () => {
                                                         }
                                                     />
                                                 </TableCell> */}
-                                                <TableCell>
-                                                    <Box
-                                                        display="flex"
-                                                        alignItems="center"
-                                                    >
+                                                    <TableCell>
                                                         <Box
-                                                        // pl={1}
-                                                        // sx={{
-                                                        //     width: 250,
-                                                        // }}
+                                                            display="flex"
+                                                            alignItems="center"
                                                         >
-                                                            <Link
-                                                                href="#"
-                                                                variant="h5"
+                                                            <Box
+                                                            // pl={1}
+                                                            // sx={{
+                                                            //     width: 250,
+                                                            // }}
                                                             >
-                                                                {subject?.name ||
-                                                                    ""}
-                                                            </Link>
-                                                            <Typography
-                                                                variant="subtitle2"
-                                                                noWrap
-                                                            >
-                                                                {subject?.model_name ||
-                                                                    ""}
-                                                            </Typography>
+                                                                <Link
+                                                                    href="#"
+                                                                    variant="h5"
+                                                                >
+                                                                    {subject?.name ||
+                                                                        ""}
+                                                                </Link>
+                                                                <Typography
+                                                                    variant="subtitle2"
+                                                                    noWrap
+                                                                >
+                                                                    {subject?.model_name ||
+                                                                        ""}
+                                                                </Typography>
+                                                            </Box>
                                                         </Box>
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {
-                                                        LABEL_FOR_STANDARDS[
-                                                            subject?.standard ||
-                                                                ""
-                                                        ]
-                                                    }
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Label color="success">
-                                                        <b>
-                                                            {subject?.code ||
-                                                                ""}
-                                                        </b>
-                                                    </Label>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {/* <Box
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {
+                                                            LABEL_FOR_STANDARDS[
+                                                                subject?.standard ||
+                                                                    ""
+                                                            ]
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        <Label color="success">
+                                                            <b>
+                                                                {subject?.code ||
+                                                                    ""}
+                                                            </b>
+                                                        </Label>
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {/* <Box
                                                         display="flex"
                                                         alignItems="center"
                                                     >
@@ -475,12 +489,12 @@ const Results = () => {
                                                                 pl: 0.5,
                                                             }}
                                                         > */}
-                                                    {subject?.board || ""}
-                                                    {/* </Typography>
+                                                        {subject?.board || ""}
+                                                        {/* </Typography>
                                                     </Box> */}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {/* <Typography
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {/* <Typography
                                                         sx={{
                                                             textDecorationLine:
                                                                 subject.sale_price !==
@@ -494,87 +508,95 @@ const Results = () => {
                                                             subject.price,
                                                         ).format(`0,0.00`)}
                                                     </Typography> */}
-                                                    {subject?.price !== 0 && (
-                                                        <Typography>
-                                                            <Text color="error">
-                                                                ₹
-                                                                {numeral(
-                                                                    subject?.price,
-                                                                ).format(
-                                                                    `0,0.00`,
+                                                        {subject?.price !==
+                                                            0 && (
+                                                            <Typography>
+                                                                <Text color="error">
+                                                                    ₹
+                                                                    {numeral(
+                                                                        subject?.price,
+                                                                    ).format(
+                                                                        `0,0.00`,
+                                                                    )}
+                                                                </Text>
+                                                            </Typography>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {
+                                                            LABEL_FOR_MEDIUM[
+                                                                subject?.medium ||
+                                                                    ""
+                                                            ]
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        <Typography noWrap>
+                                                            <Tooltip
+                                                                title={t(
+                                                                    "Add Question Types",
                                                                 )}
-                                                            </Text>
+                                                                arrow
+                                                            >
+                                                                <IconButton
+                                                                    onClick={() =>
+                                                                        handleOpenTypeModal(
+                                                                            subject,
+                                                                        )
+                                                                    }
+                                                                    color="primary"
+                                                                >
+                                                                    <TitleTwoToneIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip
+                                                                title={t(
+                                                                    "Add Lessons",
+                                                                )}
+                                                                arrow
+                                                            >
+                                                                <IconButton
+                                                                    onClick={() =>
+                                                                        handleOpenModal(
+                                                                            subject,
+                                                                        )
+                                                                    }
+                                                                    color="primary"
+                                                                >
+                                                                    <ListTwoToneIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip
+                                                                title={t(
+                                                                    "Status",
+                                                                )}
+                                                                arrow
+                                                            >
+                                                                <Switch
+                                                                    checked={
+                                                                        subject?.isActive
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        toggleSubjectStatus(
+                                                                            subject?._id,
+                                                                            subject?.isActive,
+                                                                        )
+                                                                    }
+                                                                    name="is_approved"
+                                                                    color="primary"
+                                                                    sx={{
+                                                                        ml: 1,
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
                                                         </Typography>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {
-                                                        LABEL_FOR_MEDIUM[
-                                                            subject?.medium ||
-                                                                ""
-                                                        ]
-                                                    }
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Typography noWrap>
-                                                        <Tooltip
-                                                            title={t(
-                                                                "Add Question Types",
-                                                            )}
-                                                            arrow
-                                                        >
-                                                            <IconButton
-                                                                onClick={() =>
-                                                                    handleOpenTypeModal(
-                                                                        subject,
-                                                                    )
-                                                                }
-                                                                color="primary"
-                                                            >
-                                                                <TitleTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip
-                                                            title={t(
-                                                                "Add Lessons",
-                                                            )}
-                                                            arrow
-                                                        >
-                                                            <IconButton
-                                                                onClick={() =>
-                                                                    handleOpenModal(
-                                                                        subject,
-                                                                    )
-                                                                }
-                                                                color="primary"
-                                                            >
-                                                                <ListTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip
-                                                            title={t("Status")}
-                                                            arrow
-                                                        >
-                                                            <Switch
-                                                                checked={
-                                                                    subject?.isActive
-                                                                }
-                                                                onChange={(e) =>
-                                                                    toggleSubjectStatus(
-                                                                        subject?._id,
-                                                                        subject?.isActive,
-                                                                    )
-                                                                }
-                                                                name="is_approved"
-                                                                color="primary"
-                                                                sx={{ ml: 1 }}
-                                                            />
-                                                        </Tooltip>
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>

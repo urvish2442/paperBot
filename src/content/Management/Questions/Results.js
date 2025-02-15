@@ -62,6 +62,7 @@ import QuestionFormatter from "./QuestionFormatter";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
 import { useInView } from "react-intersection-observer";
+import Loader from "src/components/Loader";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -349,7 +350,7 @@ const Results = () => {
                     </Grid>
                 </Box>
                 <Divider />
-                {questions?.length === 0 ? (
+                {!isLoading && questions?.length === 0 ? (
                     <Typography
                         sx={{
                             py: 10,
@@ -362,7 +363,7 @@ const Results = () => {
                         {!payload?.subject
                             ? t("Please select a subject")
                             : t(
-                                  "We couldn't find any questions matching your search criteria",
+                                  "No data found for the selected filters",
                               )}
                     </Typography>
                 ) : (

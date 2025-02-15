@@ -30,7 +30,7 @@ function PageHeader() {
                     variant="contained"
                     startIcon={<AddTwoToneIcon fontSize="small" />}
                 >
-                    {t("Create Subject")}
+                    {t("Create Question")}
                 </Button>
             </Grid>
         </Grid>
