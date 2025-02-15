@@ -257,7 +257,7 @@ const MainComponent = ({
                                     name={`marks`}
                                     value={formik.values.marks}
                                     onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
+                                    onChange={handleChange}
                                     error={
                                         formik.touched.marks &&
                                         Boolean(formik.errors.marks)
