@@ -215,7 +215,7 @@ export const useSubjects = () => {
     const storeDispatch = useDispatch();
 
     const initialState = {
-        loading: true,
+        loading: false,
         items: [],
         count: 0,
         page: 1,
