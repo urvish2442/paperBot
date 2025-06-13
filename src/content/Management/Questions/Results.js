@@ -421,7 +421,15 @@ const Results = () => {
                                                 key={item?.id}
                                                 selected={index % 2 !== 0}
                                             >
-                                                <TableCell>
+                                                <TableCell
+                                                    sx={{
+                                                        maxWidth: 300,
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                    }}
+                                                >
                                                     {!item?.isFormatted ? (
                                                         item?.question
                                                     ) : (
@@ -452,7 +460,12 @@ const Results = () => {
                                                     </Typography>
                                                 </TableCell>
 
-                                                <TableCell align="center">
+                                                <TableCell
+                                                    align="center"
+                                                    sx={{
+                                                        maxWidth: 180,
+                                                    }}
+                                                >
                                                     <Typography noWrap>
                                                         <Tooltip
                                                             title={t(
