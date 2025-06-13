@@ -649,7 +649,7 @@ const Results = () => {
                                 container
                                 spacing={2}
                                 key={index}
-                                alignItems="center"
+                                alignItems="flex-start"
                                 sx={{ mt: 1 }}
                             >
                                 <Grid item xs={4}>
@@ -677,6 +677,9 @@ const Results = () => {
                                             formik.errors.units?.[index]?.number
                                         }
                                         variant="outlined"
+                                        FormHelperTextProps={{
+                                            style: { minHeight: "24px" },
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={6}>
@@ -701,6 +704,9 @@ const Results = () => {
                                             formik.errors.units?.[index]?.name
                                         }
                                         variant="outlined"
+                                        FormHelperTextProps={{
+                                            style: { minHeight: "24px" },
+                                        }}
                                     />
                                 </Grid>
                                 <Grid item xs={2}>

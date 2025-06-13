@@ -52,7 +52,7 @@ export const EDITOR_JS_TOOLS = {
                     return new Promise((resolve, reject) => {
                         if (!file) {
                             // If no file is selected, remove the image block and reject the promise
-                            block.api.blocks.remove(block.id); // Remove the image block from the editor
+                            block?.api?.blocks?.remove(block.id); // Remove the image block from the editor
                             reject("No file selected");
                             return;
                         }
@@ -96,7 +96,13 @@ const TOOLS = [
     // },
 ];
 
-const Editor = ({ onSave, reset, setReset, holder = "question" }) => {
+const Editor = ({
+    onSave,
+    reset,
+    setReset,
+    holder = "question",
+    values = {},
+}) => {
     const editorInstance = useRef(null);
     const theme = useTheme();
     const insertToolBlock = async (tool, config = {}) => {
@@ -111,11 +117,11 @@ const Editor = ({ onSave, reset, setReset, holder = "question" }) => {
         if (editorInstance.current) {
             editorInstance.current?.clear();
         }
-        return () => {
-            if (editorInstance.current) {
-                editorInstance.current?.clear();
-            }
-        };
+        // return () => {
+        //     if (editorInstance.current) {
+        //         editorInstance.current = null;
+        //     }
+        // };
     }, [reset]);
 
     useEffect(() => {
@@ -125,6 +131,7 @@ const Editor = ({ onSave, reset, setReset, holder = "question" }) => {
                 tools: EDITOR_JS_TOOLS,
                 placeholder: `Enter ${holder} here...`,
                 autofocus: true,
+                data: values,
                 onReady: () => {
                     const editorRedactor = document.querySelector(
                         `#${holder} .codex-editor .codex-editor__redactor`,

@@ -41,7 +41,7 @@ const AddQuestionTypesModal = ({
                             container
                             spacing={2}
                             key={index}
-                            alignItems="center"
+                            alignItems="flex-start"
                             sx={{ mt: 1 }}
                         >
                             <Grid item xs={5}>
@@ -69,6 +69,9 @@ const AddQuestionTypesModal = ({
                                             ?.name
                                     }
                                     variant="outlined"
+                                    FormHelperTextProps={{
+                                        style: { minHeight: "24px" },
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={5}>
@@ -97,6 +100,9 @@ const AddQuestionTypesModal = ({
                                             ?.description
                                     }
                                     variant="outlined"
+                                    FormHelperTextProps={{
+                                        style: { minHeight: "24px" },
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={2}>

@@ -97,11 +97,28 @@ const MainComponent = ({
     };
 
     useEffect(() => {
-        if (isEdit) return;
-        formik.setFieldValue("unit", "");
-        formik.setFieldValue("type", "");
-        dispatch(setCurrentFilter({ unit: "", type: "" }));
-    }, [formik.values.subject]);
+        if (isEdit || !formik.values.subject) return;
+
+        const { type, unit } = formik.values;
+
+        const filtersToUpdate = {};
+        if (!currentQuestionTypes.some((item) => item._id === type)) {
+            filtersToUpdate.type = "";
+        }
+        if (!currentUnits.some((item) => item._id === unit)) {
+            filtersToUpdate.unit = "";
+        }
+
+        if (Object.keys(filtersToUpdate).length > 0) {
+            dispatch(setCurrentFilter(filtersToUpdate));
+        }
+    }, [
+        formik.values.subject,
+        // formik.values.type,
+        // formik.values.unit,
+        isEdit,
+        dispatch,
+    ]);
 
     const handleSave = (data) => {
         formik.setFieldValue("question", data);
@@ -323,6 +340,7 @@ const MainComponent = ({
                                         onSave={handleSave}
                                         reset={reset}
                                         setReset={setReset}
+                                        values={formik.values.question}
                                     />
                                 ) : (
                                     "" //add mui textarea component here
