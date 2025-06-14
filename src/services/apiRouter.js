@@ -21,7 +21,7 @@ export const API_ROUTER = {
 
     //** Users */
     GET_ALL_USERS: getUserRoute("all"),
-    GET_USER_STATS: getUserRoute("/stats"),
+    GET_USER_STATS: getUserRoute("stats"),
 
     //** Common */
     GET_FILTERS: getSubjectsRoute("filters"),
