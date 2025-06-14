@@ -78,7 +78,7 @@ function PageHeader() {
                 </AvatarPageTitle>
                 <Box>
                     <Typography variant="h3" component="h3" gutterBottom>
-                        {t("Reports")}
+                        {t("Dashboard")}
                     </Typography>
                     {/* <Typography variant="subtitle2">
                         {t(
