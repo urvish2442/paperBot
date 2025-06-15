@@ -10,6 +10,8 @@ import {
     Button,
     CircularProgress,
     Autocomplete,
+    FormControlLabel,
+    Checkbox,
 } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -46,6 +48,7 @@ function AddSubjectPage() {
             medium: "",
             code: "",
             price: "",
+            isSequenceRequired: false,
         },
         validationSchema: Yup.object().shape({
             board: Yup.string()
@@ -85,6 +88,7 @@ function AddSubjectPage() {
                 .typeError(t("Price must be a valid number"))
                 .min(0, t("Price must be at least 0"))
                 .max(100000, t("Price cannot exceed 100,000")),
+            isSequenceRequired: Yup.boolean(),
         }),
         onSubmit: async (_values, helpers) => {
             try {
@@ -454,6 +458,25 @@ function AddSubjectPage() {
                                             inputProps={{ min: 0, max: 100 }}
                                         />
                                     </Grid>
+                                </Grid>
+                                <Grid item xs={12} md={6} sx={{ mt: 2 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                name="isSequenceRequired"
+                                                checked={
+                                                    formik.values
+                                                        .isSequenceRequired
+                                                }
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                color="primary"
+                                            />
+                                        }
+                                        label={t(
+                                            "Require sequential questions in generated paper",
+                                        )}
+                                    />
                                 </Grid>
                             </Grid>
                             {/* <Grid
