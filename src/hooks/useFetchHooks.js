@@ -679,16 +679,31 @@ export const useQuestions = () => {
     // }, [subjectNames]);
 
     const getData = async () => {
-        if (!state.payload.subject) return;
+        // if (!state.payload.subject) return;
+
+        const { subject, ...restPayload } = state.payload;
+
+        if (!subject) {
+            dispatch({
+                type: STATE.STOREDATA,
+                payload: {
+                    items: [],
+                    count: 0,
+                    hasMore: false,
+                },
+            });
+            return;
+        }
+
         try {
             dispatch({ type: STATE.STARTLOADING });
 
             const query = {
-                ...state.payload,
+                ...restPayload,
                 page: state.page,
                 limit: state.limit,
             };
-            delete query.subject;
+
             const { data, status, message } = await axiosGet(
                 API_ROUTER.GET_QUESTIONS_BY_SUBJECT(state.payload.subject),
                 query,
@@ -717,6 +732,19 @@ export const useQuestions = () => {
             });
         }
     };
+
+    useEffect(() => {
+        const { subject, type, unit } = currentFilter || {};
+
+        dispatch({
+            type: STATE.FILTERCHANGE,
+            payload: {
+                subject,
+                type,
+                unit,
+            },
+        });
+    }, [currentFilter]);
 
     useEffect(() => {
         if (!state.state) return;
@@ -800,7 +828,7 @@ export const useQuestions = () => {
             ...(key === "subject" && { type: null, unit: null }),
         };
 
-        dispatch({ type: STATE.FILTERCHANGE, payload: filterPayload });
+        // dispatch({ type: STATE.FILTERCHANGE, payload: filterPayload });
         storeDispatch(setCurrentFilter(filterPayload));
     };
 

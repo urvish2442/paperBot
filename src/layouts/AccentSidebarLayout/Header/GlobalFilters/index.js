@@ -16,7 +16,14 @@ const GlobalFilters = () => {
     console.log("🚀 ~ GlobalFilters ~ currentFilter:", currentFilter);
     const handleFilterChange = (key, value) => {
         const newValue = value === "all" ? null : value;
-        dispatch(setCurrentFilter({ [key]: newValue }));
+        dispatch(
+            setCurrentFilter({
+                [key]: newValue,
+                subject: null,
+                type: null,
+                unit: null,
+            }),
+        );
     };
     return (
         <>

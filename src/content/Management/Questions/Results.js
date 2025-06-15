@@ -163,6 +163,10 @@ const Results = () => {
         }
     }, [inView, hasMore]);
 
+    const isFirstPageLoading = useMemo(() => {
+        return isLoading && page === 1;
+    }, [isLoading, page]);
+
     const currentUnits = useMemo(() => {
         const matchedSubject = subjectFiltersData.find(
             (subject) => subject.model_name === currentFilter.subject,
@@ -414,123 +418,135 @@ const Results = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {questions.map((item, index) => {
-                                        return (
-                                            <TableRow
-                                                hover
-                                                key={item?.id}
-                                                selected={index % 2 !== 0}
-                                            >
-                                                <TableCell
-                                                    sx={{
-                                                        maxWidth: 300,
-                                                        whiteSpace: "nowrap",
-                                                        overflow: "hidden",
-                                                        textOverflow:
-                                                            "ellipsis",
-                                                    }}
-                                                >
-                                                    {!item?.isFormatted ? (
-                                                        item?.question
-                                                    ) : (
-                                                        <QuestionFormatter
-                                                            data={
-                                                                item?.question
-                                                            }
-                                                        />
-                                                    )}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {item?.marks || ""}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {getQuestionTypeName(
-                                                        item?.type || "",
-                                                    )}
-                                                    {/* <Label color="success"> */}
-                                                    {/* <b> */}
-                                                    {/* </b> */}
-                                                    {/* </Label> */}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography>
-                                                        {getUnitName(
-                                                            item?.unit,
-                                                        )}
-                                                    </Typography>
-                                                </TableCell>
+                                    {isFirstPageLoading
+                                        ? ""
+                                        : questions?.map((item, index) => {
+                                              return (
+                                                  <TableRow
+                                                      hover
+                                                      key={item?.id}
+                                                      selected={index % 2 !== 0}
+                                                  >
+                                                      <TableCell
+                                                          sx={{
+                                                              maxWidth: 300,
+                                                              whiteSpace:
+                                                                  "nowrap",
+                                                              overflow:
+                                                                  "hidden",
+                                                              textOverflow:
+                                                                  "ellipsis",
+                                                          }}
+                                                      >
+                                                          {!item?.isFormatted ? (
+                                                              item?.question
+                                                          ) : (
+                                                              <QuestionFormatter
+                                                                  data={
+                                                                      item?.question
+                                                                  }
+                                                              />
+                                                          )}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {item?.marks || ""}
+                                                      </TableCell>
+                                                      <TableCell align="center">
+                                                          {getQuestionTypeName(
+                                                              item?.type || "",
+                                                          )}
+                                                          {/* <Label color="success"> */}
+                                                          {/* <b> */}
+                                                          {/* </b> */}
+                                                          {/* </Label> */}
+                                                      </TableCell>
+                                                      <TableCell>
+                                                          <Typography>
+                                                              {getUnitName(
+                                                                  item?.unit,
+                                                              )}
+                                                          </Typography>
+                                                      </TableCell>
 
-                                                <TableCell
-                                                    align="center"
-                                                    sx={{
-                                                        maxWidth: 180,
-                                                    }}
-                                                >
-                                                    <Typography noWrap>
-                                                        <Tooltip
-                                                            title={t(
-                                                                "View details",
-                                                            )}
-                                                            arrow
-                                                        >
-                                                            <IconButton
-                                                                onClick={() =>
-                                                                    handleOpenModal(
-                                                                        item,
-                                                                    )
-                                                                }
-                                                                color="primary"
-                                                            >
-                                                                <ListTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip
-                                                            title={t(
-                                                                "Edit Question",
-                                                            )}
-                                                            arrow
-                                                        >
-                                                            <IconButton
-                                                                onClick={() =>
-                                                                    handleEditRoute(
-                                                                        item,
-                                                                    )
-                                                                }
-                                                                color="primary"
-                                                                sx={{ ml: 1 }}
-                                                            >
-                                                                <EditTwoToneIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip
-                                                            title={t("Status")}
-                                                            arrow
-                                                        >
-                                                            <Switch
-                                                                checked={
-                                                                    item?.isActive
-                                                                }
-                                                                onChange={(e) =>
-                                                                    toggleQuestionStatus(
-                                                                        item?._id,
-                                                                    )
-                                                                }
-                                                                name="is_approved"
-                                                                color="primary"
-                                                                sx={{ ml: 1 }}
-                                                            />
-                                                        </Tooltip>
-                                                        {/* <IconButton
+                                                      <TableCell
+                                                          align="center"
+                                                          sx={{
+                                                              maxWidth: 180,
+                                                          }}
+                                                      >
+                                                          <Typography noWrap>
+                                                              <Tooltip
+                                                                  title={t(
+                                                                      "View details",
+                                                                  )}
+                                                                  arrow
+                                                              >
+                                                                  <IconButton
+                                                                      onClick={() =>
+                                                                          handleOpenModal(
+                                                                              item,
+                                                                          )
+                                                                      }
+                                                                      color="primary"
+                                                                  >
+                                                                      <ListTwoToneIcon fontSize="small" />
+                                                                  </IconButton>
+                                                              </Tooltip>
+                                                              <Tooltip
+                                                                  title={t(
+                                                                      "Edit Question",
+                                                                  )}
+                                                                  arrow
+                                                              >
+                                                                  <IconButton
+                                                                      onClick={() =>
+                                                                          handleEditRoute(
+                                                                              item,
+                                                                          )
+                                                                      }
+                                                                      color="primary"
+                                                                      sx={{
+                                                                          ml: 1,
+                                                                      }}
+                                                                  >
+                                                                      <EditTwoToneIcon fontSize="small" />
+                                                                  </IconButton>
+                                                              </Tooltip>
+                                                              <Tooltip
+                                                                  title={t(
+                                                                      "Status",
+                                                                  )}
+                                                                  arrow
+                                                              >
+                                                                  <Switch
+                                                                      checked={
+                                                                          item?.isActive
+                                                                      }
+                                                                      onChange={(
+                                                                          e,
+                                                                      ) =>
+                                                                          toggleQuestionStatus(
+                                                                              item?._id,
+                                                                          )
+                                                                      }
+                                                                      name="is_approved"
+                                                                      color="primary"
+                                                                      sx={{
+                                                                          ml: 1,
+                                                                      }}
+                                                                  />
+                                                              </Tooltip>
+                                                              {/* <IconButton
                                                             color="error"
                                                             onClick={() => {}}                                                        
                                                         >
                                                             <DeleteTwoToneIcon />
                                                         </IconButton> */}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
+                                                          </Typography>
+                                                      </TableCell>
+                                                  </TableRow>
+                                              );
+                                          })}
                                 </TableBody>
                             </Table>
                         </TableContainer>
