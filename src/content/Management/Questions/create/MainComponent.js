@@ -367,7 +367,7 @@ const MainComponent = ({
                                         value={formik.values.question}
                                         variant="outlined"
                                         multiline
-                                        rows={4} // You can adjust the number of rows
+                                        // rows={2} // You can adjust the number of rows
                                     />
                                 ) : (
                                     ""

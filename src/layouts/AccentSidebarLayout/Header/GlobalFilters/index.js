@@ -1,5 +1,5 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import {
@@ -13,7 +13,11 @@ const GlobalFilters = () => {
     const dispatch = useDispatch();
     const { currentFilter, filtersData, subjectFiltersData } =
         useSelector(globalState);
-    console.log("🚀 ~ GlobalFilters ~ currentFilter:", currentFilter);
+
+    useEffect(() => {
+        console.log("🚀 ~ GlobalFilters ~ currentFilter:", currentFilter);
+    }, [currentFilter]);
+    
     const handleFilterChange = (key, value) => {
         const newValue = value === "all" ? null : value;
         dispatch(

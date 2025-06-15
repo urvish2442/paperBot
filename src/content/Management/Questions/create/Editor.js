@@ -137,7 +137,7 @@ const Editor = ({
                         `#${holder} .codex-editor .codex-editor__redactor`,
                     );
                     if (editorRedactor) {
-                        editorRedactor.style.paddingBottom = "200px";
+                        editorRedactor.style.paddingBottom = "30px";
                     }
 
                     // to hide checklist tool of editorjs/list
