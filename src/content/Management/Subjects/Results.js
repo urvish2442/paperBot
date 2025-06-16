@@ -59,6 +59,7 @@ import {
 } from "src/constants/keywords";
 import AddQuestionTypesModal from "./AddQuestionTypesModal";
 import Loader from "src/components/Loader";
+import { PATH_DASHBOARD } from "src/routes/paths";
 
 const DialogWrapper = styled(Dialog)(
     () => `
@@ -401,7 +402,7 @@ const Results = () => {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        subjects.map((subject, index) => {
+                                        subjects?.map((subject, index) => {
                                             {
                                                 /* const isProductSelected =
                                             selectedItems.includes(subject.id); */
@@ -443,7 +444,7 @@ const Results = () => {
                                                             // }}
                                                             >
                                                                 <Link
-                                                                    href="#"
+                                                                    href={PATH_DASHBOARD.questions.view(subject?.model_name)}
                                                                     variant="h5"
                                                                 >
                                                                     {subject?.name ||

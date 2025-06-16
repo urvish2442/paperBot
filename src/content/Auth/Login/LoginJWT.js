@@ -35,8 +35,10 @@ export const LoginJWT = ({ setOtp, setEmail, ...rest }) => {
 
     const formik = useFormik({
         initialValues: {
-            email: "",
-            password: "",
+            // email: "",
+            // password: "",
+            email: "r.urvish@gmail.com",
+            password: "admin@123",
             terms: true,
             submit: null,
         },

@@ -10,6 +10,7 @@ import { useSelector } from "src/redux/store";
 import { globalState, setCurrentFilter } from "src/redux/slices/global";
 import { getSubjectsAction } from "src/redux/actions/action";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
 
 const STATE = {
     STARTLOADING: "STARTLOADING",
@@ -861,5 +862,242 @@ export const useQuestions = () => {
         handleFilterChange,
         handleSort,
         toggleQuestionStatus,
+    };
+};
+
+export const useSubjectQuestions = () => {
+    const { toaster } = useToaster();
+    const router = useRouter();
+    console.log("🚀 ~ useSubjectQuestions ~ router:", router);
+    const { user } = useAuth();
+    const { currentFilter, subjectFiltersData } = useSelector(globalState);
+    const storeDispatch = useDispatch();
+
+    const initialState = {
+        loading: false,
+        items: [],
+        count: 0,
+        page: 1,
+        limit: 10,
+        state: null,
+        hasMore: false,
+        payload: {
+            search: null,
+            subject: currentFilter?.subject || null,
+            type: currentFilter?.type || null,
+            unit: currentFilter?.unit || null,
+            isActive: user?.role === USER_ROLES.ADMIN ? null : true,
+            sortBy: null,
+        },
+    };
+
+    const subject = useMemo(() => {
+        return router?.query?.name;
+    }, [currentFilter]);
+
+    const reducer = (state, { type, payload }) => {
+        switch (type) {
+            case STATE.STARTLOADING:
+                return { ...state, loading: true, state: null };
+            case STATE.STOPLOADING:
+                return { ...state, loading: false, state: null };
+            case STATE.STOREDATA:
+                return {
+                    ...state,
+                    items:
+                        state?.page === 1
+                            ? payload.items
+                            : [...state.items, ...payload.items].filter(
+                                  (item, index, self) =>
+                                      self.findIndex(
+                                          (i) => i._id === item._id,
+                                      ) === index,
+                              ),
+                    count: payload.count,
+                    hasMore: payload.hasMore,
+                    loading: false,
+                };
+            case STATE.PAGECHANGE:
+                return {
+                    ...state,
+                    page: payload.page,
+                    state: STATE.PAGECHANGE,
+                };
+            case STATE.LIMITCHANGE:
+                return {
+                    ...state,
+                    limit: payload.limit,
+                    page: payload.page,
+                    state: STATE.LIMITCHANGE,
+                };
+            case STATE.SEARCH:
+                return {
+                    ...state,
+                    payload: { ...state.payload, search: payload.search },
+                    page: 1,
+                    state: STATE.SEARCH,
+                };
+            case STATE.FILTERCHANGE:
+                return {
+                    ...state,
+                    payload: {
+                        ...state.payload,
+                        ...payload,
+                    },
+                    page: 1,
+                    state: STATE.FILTERCHANGE,
+                };
+            case STATE.SORT:
+                return {
+                    ...state,
+                    payload: {
+                        ...state.payload,
+                        sortBy: payload.sortBy,
+                    },
+                    page: 1,
+                    state: STATE.SORT,
+                };
+
+            default:
+                return state;
+        }
+    };
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    // useEffect(() => {
+    //     if (subjectNames?.length > 0 && !state.payload.subject) {
+    //         dispatch({
+    //             type: STATE.FILTERCHANGE,
+    //             payload: { key: "subject", value: subjectNames[0] },
+    //         });
+    //     }
+    // }, [subjectNames]);
+
+    const getData = async () => {
+
+        if (!subject) {
+            dispatch({
+                type: STATE.STOREDATA,
+                payload: {
+                    items: [],
+                    count: 0,
+                    hasMore: false,
+                },
+            });
+            return;
+        }
+
+        try {
+            dispatch({ type: STATE.STARTLOADING });
+
+            const query = {
+                ...state.payload,
+                page: state.page,
+                limit: state.limit,
+            };
+
+            const { data, status, message } = await axiosGet(
+                API_ROUTER.GET_QUESTIONS_BY_SUBJECT(subject),
+                query,
+            );
+
+            if (status) {
+                dispatch({
+                    type: STATE.STOREDATA,
+                    payload: {
+                        items: data?.data || [],
+                        count: data?.count || 0,
+                        hasMore: data?.hasNextPage || false,
+                    },
+                });
+            } else {
+                dispatch({ type: STATE.STOPLOADING });
+                toaster(
+                    TOAST_TYPES.ERROR,
+                    message || TOAST_ALERTS.GENERAL_ERROR,
+                );
+            }
+        } catch (error) {
+            dispatch({
+                type: STATE.STOREDATA,
+                payload: { items: [], count: 0 },
+            });
+        }
+    };
+
+    useEffect(() => {
+        const { subject, type, unit } = currentFilter || {};
+
+        dispatch({
+            type: STATE.FILTERCHANGE,
+            payload: {
+                subject,
+                type,
+                unit,
+            },
+        });
+    }, [currentFilter]);
+
+    useEffect(() => {
+        if (!state.state) return;
+        let timer;
+        if (state.state === STATE.SEARCH) {
+            timer = setTimeout(() => {
+                getData();
+            }, 500);
+        } else {
+            getData();
+        }
+        return () => clearTimeout(timer);
+    }, [state]);
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const handlePageChange = (_event, newPage) => {
+        if (!state.hasMore) return;
+        dispatch({ type: STATE.PAGECHANGE, payload: { page: state.page + 1 } });
+    };
+
+    const handleFilterChange = (key, value) => {
+        const newValue = value === "all" ? null : value;
+        const filterPayload = {
+            [key]: newValue,
+            ...(key === "subject" && { type: null, unit: null }),
+        };
+
+        // dispatch({ type: STATE.FILTERCHANGE, payload: filterPayload });
+        storeDispatch(setCurrentFilter(filterPayload));
+    };
+
+    const handleSort = (column) => {
+        dispatch({
+            type: STATE.SORT,
+            payload: {
+                sortBy: state.payload.sortBy === column ? `-${column}` : column,
+            },
+        });
+    };
+
+    const [currentItem, setCurrentItem] = useState(null);
+    const handleOpenModal = (item) => {
+        if (!item) return;
+        setCurrentItem(item);
+    };
+
+    const handleCloseModal = () => {
+        setCurrentItem(null);
+    };
+
+    return {
+        ...state,
+        currentItem,
+        handleOpenModal,
+        handleCloseModal,
+        handlePageChange,
+        handleFilterChange,
+        handleSort,
     };
 };
