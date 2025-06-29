@@ -149,6 +149,7 @@ const Results = () => {
         handlePageChange,
         handleFilterChange,
         handleSort,
+        subject,
     } = useSubjectQuestions();
 
     const [selectedQuestions, setSelectedQuestions] = useState([]);
@@ -168,18 +169,18 @@ const Results = () => {
     }, [isLoading, page]);
 
     const currentUnits = useMemo(() => {
-        const matchedSubject = subjectFiltersData.find(
-            (subject) => subject.model_name === currentFilter.subject,
-        );
+        const matchedSubject = subjectFiltersData.find((sub) => {
+            return sub.model_name === subject;
+        });
         return matchedSubject ? matchedSubject.units : [];
-    }, [subjectFiltersData, currentFilter.subject]);
+    }, [subjectFiltersData, subject]);
 
     const currentQuestionTypes = useMemo(() => {
         const matchedSubject = subjectFiltersData.find(
-            (subject) => subject.model_name === currentFilter.subject,
+            (sub) => sub.model_name === subject,
         );
         return matchedSubject ? matchedSubject.questionTypes : [];
-    }, [subjectFiltersData, currentFilter.subject]);
+    }, [subjectFiltersData, subject]);
 
     const getUnitName = useCallback(
         (unitId) => {

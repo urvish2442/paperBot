@@ -1,5 +1,6 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import React, { useEffect } from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import {
@@ -8,16 +9,22 @@ import {
     LABEL_FOR_SUBJECTS,
 } from "src/constants/keywords";
 import { globalState, setCurrentFilter } from "src/redux/slices/global";
+import { DISABLED_GLOBAL_FILTER_PATH } from "src/routes/paths";
 
 const GlobalFilters = () => {
     const dispatch = useDispatch();
+    const { pathname } = useRouter();
     const { currentFilter, filtersData, subjectFiltersData } =
         useSelector(globalState);
 
     useEffect(() => {
         console.log("🚀 ~ GlobalFilters ~ currentFilter:", currentFilter);
     }, [currentFilter]);
-    
+
+    const isDisabled = useMemo(() => {
+        return DISABLED_GLOBAL_FILTER_PATH.includes(pathname);
+    }, [pathname]);
+
     const handleFilterChange = (key, value) => {
         const newValue = value === "all" ? null : value;
         dispatch(
@@ -55,7 +62,7 @@ const GlobalFilters = () => {
                             handleFilterChange("board", e.target.value)
                         }
                         label="Board"
-                        // disabled={isLoading}
+                        disabled={isDisabled}
                     >
                         <MenuItem value="all">All</MenuItem>
                         {filtersData?.boards?.map((item) => (
@@ -77,7 +84,7 @@ const GlobalFilters = () => {
                             handleFilterChange("standard", e.target.value)
                         }
                         label="Standard"
-                        // disabled={isLoading}
+                        disabled={isDisabled}
                     >
                         <MenuItem value="all">All</MenuItem>
                         {filtersData?.standards?.map((item) => (
@@ -107,7 +114,7 @@ const GlobalFilters = () => {
                             handleFilterChange("name", e.target.value)
                         }
                         label="Subject"
-                        // disabled={isLoading}
+                        disabled={isDisabled}
                     >
                         <MenuItem value="all">All</MenuItem>
                         {filtersData?.subjects?.map((item) => (

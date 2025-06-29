@@ -868,7 +868,6 @@ export const useQuestions = () => {
 export const useSubjectQuestions = () => {
     const { toaster } = useToaster();
     const router = useRouter();
-    console.log("🚀 ~ useSubjectQuestions ~ router:", router);
     const { user } = useAuth();
     const { currentFilter, subjectFiltersData } = useSelector(globalState);
     const storeDispatch = useDispatch();
@@ -893,7 +892,7 @@ export const useSubjectQuestions = () => {
 
     const subject = useMemo(() => {
         return router?.query?.name;
-    }, [currentFilter]);
+    }, [router?.query?.name]);
 
     const reducer = (state, { type, payload }) => {
         switch (type) {
@@ -975,7 +974,6 @@ export const useSubjectQuestions = () => {
     // }, [subjectNames]);
 
     const getData = async () => {
-
         if (!subject) {
             dispatch({
                 type: STATE.STOREDATA,
@@ -1026,18 +1024,18 @@ export const useSubjectQuestions = () => {
         }
     };
 
-    useEffect(() => {
-        const { subject, type, unit } = currentFilter || {};
+    // useEffect(() => {
+    //     const { subject, type, unit } = currentFilter || {};
 
-        dispatch({
-            type: STATE.FILTERCHANGE,
-            payload: {
-                subject,
-                type,
-                unit,
-            },
-        });
-    }, [currentFilter]);
+    //     dispatch({
+    //         type: STATE.FILTERCHANGE,
+    //         payload: {
+    //             subject,
+    //             type,
+    //             unit,
+    //         },
+    //     });
+    // }, [currentFilter]);
 
     useEffect(() => {
         if (!state.state) return;
@@ -1093,6 +1091,7 @@ export const useSubjectQuestions = () => {
 
     return {
         ...state,
+        subject,
         currentItem,
         handleOpenModal,
         handleCloseModal,
