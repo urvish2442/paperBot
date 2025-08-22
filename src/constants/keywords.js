@@ -23,6 +23,8 @@ export const TOAST_ALERTS = {
     QUESTION_CREATE_SUCCESS: "Question created successfully",
     QUESTION_UPDATE_SUCCESS: "Question updated successfully",
     QUESTION_DELETE_SUCCESS: "Question deleted successfully",
+
+    NO_QUESTIONS_SELECTED: "Please select at least one question",
 };
 
 export const TOAST_TYPES = {

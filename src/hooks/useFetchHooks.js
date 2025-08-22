@@ -7,10 +7,15 @@ import { useAuth } from "./useAuth";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useSelector } from "src/redux/store";
-import { globalState, setCurrentFilter } from "src/redux/slices/global";
+import {
+    globalState,
+    setCurrentFilter,
+    setSubjectQuestionIds,
+} from "src/redux/slices/global";
 import { getSubjectsAction } from "src/redux/actions/action";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
+import { PATH_DASHBOARD } from "src/routes/paths";
 
 const STATE = {
     STARTLOADING: "STARTLOADING",
@@ -871,6 +876,7 @@ export const useSubjectQuestions = () => {
     const { user } = useAuth();
     const { currentFilter, subjectFiltersData } = useSelector(globalState);
     const storeDispatch = useDispatch();
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
 
     const initialState = {
         loading: false,
@@ -1024,18 +1030,18 @@ export const useSubjectQuestions = () => {
         }
     };
 
-    // useEffect(() => {
-    //     const { subject, type, unit } = currentFilter || {};
+    useEffect(() => {
+        const { type, unit } = currentFilter || {};
 
-    //     dispatch({
-    //         type: STATE.FILTERCHANGE,
-    //         payload: {
-    //             subject,
-    //             type,
-    //             unit,
-    //         },
-    //     });
-    // }, [currentFilter]);
+        dispatch({
+            type: STATE.FILTERCHANGE,
+            payload: {
+                subject,
+                type,
+                unit,
+            },
+        });
+    }, [currentFilter]);
 
     useEffect(() => {
         if (!state.state) return;
@@ -1089,6 +1095,17 @@ export const useSubjectQuestions = () => {
         setCurrentItem(null);
     };
 
+    const handleAddQuestionIds = async () => {
+        if (selectedQuestions.length === 0) {
+            toaster(TOAST_TYPES.ERROR, TOAST_ALERTS.NO_QUESTIONS_SELECTED);
+            return;
+        }
+        storeDispatch(
+            setSubjectQuestionIds({ subject, ids: selectedQuestions }),
+        );
+        router.push(PATH_DASHBOARD.paper.root);
+    };
+
     return {
         ...state,
         subject,
@@ -1098,5 +1115,8 @@ export const useSubjectQuestions = () => {
         handlePageChange,
         handleFilterChange,
         handleSort,
+        handleAddQuestionIds,
+        selectedQuestions,
+        setSelectedQuestions,
     };
 };

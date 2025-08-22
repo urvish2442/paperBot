@@ -34,8 +34,9 @@ export const PATH_DASHBOARD = {
         edit: (sub, id) =>
             path(ROOT, `questions/edit?subject=${sub}&questionId=${id}`),
     },
+    paper: {
+        root: path(ROOT, "paper"),
+    },
 };
 
-export const DISABLED_GLOBAL_FILTER_PATH = [
-    '/questions/[name]'
-]
+export const DISABLED_GLOBAL_FILTER_PATH = ["/questions/[name]"];

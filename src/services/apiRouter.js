@@ -42,7 +42,8 @@ export const API_ROUTER = {
         getQuestionsRoute(`/${model_name}/${id}`), // ["GET", "PUT", "DELETE"]
     UPDATE_QUESTION_STATUS: (model_name, id) =>
         getQuestionsRoute(`/${model_name}/${id}/active`),
-
+    GET_QUESTION_BY_ID_AND_SUBJECT: (model_name, ids) =>
+            getQuestionsRoute(`/${model_name}/ids?questionIds=${ids}`), 
     //** Extra */
     VERIFY_CODE: getUserRoute("/verify-login-code"),
     REQUEST_PASSWORD_RESET: getUserRoute("/request-password-reset"),

@@ -1,32 +1,23 @@
-import { useState, forwardRef, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 
-import numeral from "numeral";
-
 import {
-    Avatar,
     Box,
     Card,
-    Checkbox,
-    Slide,
     Divider,
     Tooltip,
     IconButton,
-    InputAdornment,
     Table,
     TableBody,
     TableCell,
     TableHead,
-    TablePagination,
     TableContainer,
     TableRow,
-    TextField,
     Button,
     Typography,
     Dialog,
     useMediaQuery,
     useTheme,
-    Zoom,
     styled,
     FormControl,
     InputLabel,
@@ -36,83 +27,22 @@ import {
     DialogContent,
     Grid,
     DialogTitle,
-    Autocomplete,
     DialogActions,
     CircularProgress,
 } from "@mui/material";
-import Link from "src/components/Link";
 
 import { useTranslation } from "react-i18next";
-import Label from "src/components/Label";
-import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import Text from "src/components/Text";
-import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ListTwoToneIcon from "@mui/icons-material/ListTwoTone";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
 
 import { useQuestions } from "src/hooks/useFetchHooks";
-import {
-    LABEL_FOR_BOARDS,
-    LABEL_FOR_MEDIUM,
-    LABEL_FOR_QUESTION_TYPES,
-    LABEL_FOR_STANDARDS,
-    LABEL_FOR_SUBJECTS,
-} from "src/constants/keywords";
-import Preview from "../Subjects/create/Preview";
 import QuestionFormatter from "./QuestionFormatter";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
 import { useInView } from "react-intersection-observer";
-import Loader from "src/components/Loader";
 import { useRouter } from "next/router";
 import { PATH_DASHBOARD } from "src/routes/paths";
-
-const DialogWrapper = styled(Dialog)(
-    () => `
-      .MuiDialog-paper {
-        overflow: visible;
-      }
-`,
-);
-
-const ImgWrapper = styled("img")(
-    ({ theme }) => `
-      width: ${theme.spacing(8)};
-      height: auto;
-`,
-);
-
-const AvatarError = styled(Avatar)(
-    ({ theme }) => `
-      background-color: ${theme.colors.error.lighter};
-      color: ${theme.colors.error.main};
-      width: ${theme.spacing(12)};
-      height: ${theme.spacing(12)};
-
-      .MuiSvgIcon-root {
-        font-size: ${theme.typography.pxToRem(45)};
-      }
-`,
-);
-
-const ButtonError = styled(Button)(
-    ({ theme }) => `
-     background: ${theme.colors.error.main};
-     color: ${theme.palette.error.contrastText};
-
-     &:hover {
-        background: ${theme.colors.error.dark};
-     }
-    `,
-);
-
-const Transition = forwardRef(function Transition(props, ref) {
-    return <Slide direction="down" ref={ref} {...props} />;
-});
-
-const applyPagination = (products, page, limit) => {
-    return products.slice(page * limit, page * limit + limit);
-};
 
 const Results = () => {
     const { t } = useTranslation();

@@ -36,7 +36,7 @@ const AddQuestionTypesModal = ({
             <form onSubmit={formik.handleSubmit}>
                 <DialogContent dividers>
                     <Typography variant="h6">Add Question Types</Typography>
-                    {formik.values.questionTypes.map((qt, index) => (
+                    {formik?.values?.questionTypes?.map((qt, index) => (
                         <Grid
                             container
                             spacing={2}
@@ -72,6 +72,11 @@ const AddQuestionTypesModal = ({
                                     FormHelperTextProps={{
                                         style: { minHeight: "24px" },
                                     }}
+                                    disabled={
+                                        index <
+                                            currentQuestion?.questionTypes
+                                                ?.length
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={5}>

@@ -39,7 +39,7 @@ import { LABEL_FOR_QUESTION_TYPES } from "src/constants/keywords";
 import { useDispatch } from "react-redux";
 import AbcTwoToneIcon from "@mui/icons-material/AbcTwoTone";
 import { useRefMounted } from "src/hooks/useRefMounted";
-import QuillEditor from "./QuillEditor";
+// import QuillEditor from "./QuillEditor";
 import Preview from "./Preview";
 // import Editor from "./Editor";
 const Editor = dynamic(() => import("./Editor"), { ssr: false });

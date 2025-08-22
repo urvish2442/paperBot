@@ -21,6 +21,7 @@ import BaseLayout from "src/layouts/BaseLayout";
 import { Authenticated } from "src/components/Authenticated";
 import AccentSidebarLayout from "src/layouts/AccentSidebarLayout";
 import { PersistGate } from "redux-persist/integration/react";
+import "./globals.css";
 
 const clientSideEmotionCache = createEmotionCache();
 
