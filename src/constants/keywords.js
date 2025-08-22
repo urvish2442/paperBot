@@ -80,6 +80,14 @@ export const LABEL_FOR_STANDARDS = {
     STD12: "Std 12",
 };
 
+export const NUMBERED_STANDARDS = {
+    STD8: 8,
+    STD9: 9,
+    STD10: 10,
+    STD11: 11,
+    STD12: 12,
+};
+
 export const LABEL_FOR_QUESTION_TYPES = {
     MCQ: "MCQ",
     SHORT_ANSWER: "Short Answer",
