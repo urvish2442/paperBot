@@ -23,18 +23,19 @@ import PrintIcon from "@mui/icons-material/Print";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { globalState } from "src/redux/slices/global";
+import { globalState, setPaperId } from "src/redux/slices/global";
 import { API_ROUTER } from "src/services/apiRouter";
 import { axiosGet } from "src/services/axiosHelper";
 import { useEffect, useState, useMemo } from "react";
 import QuestionFormatter from "../Questions/QuestionFormatter";
-// import { toaster } from "src/utils/toaster";
 // import { TOAST_TYPES, TOAST_ALERTS } from "src/constants/toast";
 import {
     LABEL_FOR_STANDARDS,
     NUMBERED_STANDARDS,
 } from "src/constants/keywords";
 import { GeneratePrintCSS } from "./cssHelper";
+import { useDispatch } from "react-redux";
+import useToaster from "src/hooks/useToaster";
 
 //** Helper Functions */
 const padWithZero = (number) => {
@@ -53,10 +54,11 @@ const PaperMain = () => {
     const { t } = useTranslation();
     const theme = useTheme();
     const mobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { subjectQuestionIds } = useSelector(globalState);
+    const { subjectQuestionIds, paperId } = useSelector(globalState);
+    const dispatch = useDispatch();
     const [paperData, setPaperData] = useState({});
     const [isEditable, setIsEditable] = useState(false);
-    console.log("🚀 ~ PaperMain ~ paperData:", paperData);
+    const { toaster } = useToaster();
 
     const SubjectName = useMemo(() => {
         const subjectName =
@@ -101,8 +103,6 @@ const PaperMain = () => {
 
         return sorted;
     }, [paperData?.questions, paperData?.subject?.questionTypes]);
-
-    // console.log("🚀 ~ PaperMain ~ sortedQuestion:", sortedQuestion);
 
     const handlePrint = () => {
         const printContent = document.getElementById("question-paper-preview");
@@ -169,19 +169,26 @@ const PaperMain = () => {
     const getData = async () => {
         setLoading(true);
         try {
+            // questionIds=${ids}
+            const queryString = !paperId
+                ? `questionIds=${JSON.stringify(subjectQuestionIds?.ids)}`
+                : `paperId=${paperId}`;
             const { data, status, message } = await axiosGet(
                 API_ROUTER.GET_QUESTION_BY_ID_AND_SUBJECT(
                     subjectQuestionIds?.subject,
-                    JSON.stringify(subjectQuestionIds?.ids),
+                    queryString,
                 ),
             );
             if (status) {
                 setPaperData(data || {});
+                if (!paperId) {
+                    dispatch(setPaperId(data?.paperId));
+                }
             } else {
-                // toaster(
-                //     TOAST_TYPES.ERROR,
-                //     message || TOAST_ALERTS.GENERAL_ERROR,
-                // );
+                toaster(
+                    TOAST_TYPES.ERROR,
+                    message || TOAST_ALERTS.GENERAL_ERROR,
+                );
             }
         } catch (error) {
             console.error(error);
@@ -202,6 +209,11 @@ const PaperMain = () => {
             return;
         getData();
     }, [subjectQuestionIds]);
+
+    useEffect(() => {
+        if (paperData?.paperId || !paperId) return;
+        getData();
+    }, [paperId, paperData?.paperId]);
 
     return (
         <>

@@ -17,6 +17,7 @@ const initialState = {
         isFormatted: true,
     },
     subjectQuestionIds: { subject: null, ids: [] },
+    paperId: null,
 };
 
 const slice = createSlice({
@@ -34,6 +35,11 @@ const slice = createSlice({
                 subject: payload.subject,
                 ids: payload.ids,
             };
+            state.paperId = null;
+        },
+        setPaperId(state, { payload }) {
+            state.paperId = payload;
+            state.subjectQuestionIds.ids = [];
         },
     },
 
@@ -146,5 +152,9 @@ const slice = createSlice({
 
 export const { reducer } = slice;
 export const globalState = (state) => state.global;
-export const { resetToInitialState, setCurrentFilter, setSubjectQuestionIds } =
-    slice.actions;
+export const {
+    resetToInitialState,
+    setCurrentFilter,
+    setSubjectQuestionIds,
+    setPaperId,
+} = slice.actions;
