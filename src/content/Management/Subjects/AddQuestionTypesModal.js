@@ -9,6 +9,7 @@ import {
     Button,
     IconButton,
     CircularProgress,
+    MenuItem,
 } from "@mui/material";
 import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 
@@ -44,7 +45,48 @@ const AddQuestionTypesModal = ({
                             alignItems="flex-start"
                             sx={{ mt: 1 }}
                         >
-                            <Grid item xs={5}>
+                            {/*  Add Mui Select dropdown here for questiontypes.section and options will be A to F */}
+                            <Grid item xs={1}>
+                                <TextField
+                                    select
+                                    fullWidth
+                                    label="Section"
+                                    name={`questionTypes[${index}].section`}
+                                    value={
+                                        formik.values.questionTypes[index]
+                                            .section
+                                    }
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    variant="outlined"
+                                    error={
+                                        formik.touched.questionTypes?.[index]
+                                            ?.section &&
+                                        Boolean(
+                                            formik.errors.questionTypes?.[index]
+                                                ?.section,
+                                        )
+                                    }
+                                    helperText={
+                                        formik.touched.questionTypes?.[index]
+                                            ?.section &&
+                                        formik.errors.questionTypes?.[index]
+                                            ?.section
+                                    }
+                                >
+                                    {["A", "B", "C", "D", "E", "F"].map(
+                                        (section) => (
+                                            <MenuItem
+                                                key={section}
+                                                value={section}
+                                            >
+                                                {section}
+                                            </MenuItem>
+                                        ),
+                                    )}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={4}>
                                 <TextField
                                     fullWidth
                                     label="Question Type Name"
@@ -74,8 +116,7 @@ const AddQuestionTypesModal = ({
                                     }}
                                     disabled={
                                         index <
-                                            currentQuestion?.questionTypes
-                                                ?.length
+                                        currentQuestion?.questionTypes?.length
                                     }
                                 />
                             </Grid>
@@ -155,7 +196,7 @@ const AddQuestionTypesModal = ({
                         onClick={() => {
                             formik.setFieldValue("questionTypes", [
                                 ...formik.values.questionTypes,
-                                { name: "", description: "" },
+                                { name: "", description: "", section: "" },
                             ]);
                         }}
                     >

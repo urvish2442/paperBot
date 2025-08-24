@@ -76,6 +76,9 @@ export const GeneratePrintCSS = () => {
             .main-section {
                 margin-bottom: 4px !important;
             }
+            .type-block {
+                margin-bottom: 9px !important;
+            }
             /* Stable classes for question rows (works in print window) */
             .qp-question-row {
                 display: flex !important;

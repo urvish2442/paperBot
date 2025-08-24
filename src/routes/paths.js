@@ -39,4 +39,4 @@ export const PATH_DASHBOARD = {
     },
 };
 
-export const DISABLED_GLOBAL_FILTER_PATH = ["/questions/[name]"];
+export const DISABLED_GLOBAL_FILTER_PATH = ["/questions/[name]", "/paper"];

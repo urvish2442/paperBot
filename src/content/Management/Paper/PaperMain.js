@@ -104,6 +104,54 @@ const PaperMain = () => {
         return sorted;
     }, [paperData?.questions, paperData?.subject?.questionTypes]);
 
+    const sortedQuestions = useMemo(() => {
+        if (!paperData?.questions || !paperData?.subject?.questionTypes) {
+            return {};
+        }
+
+        const questionTypes = paperData.subject.questionTypes || [];
+
+        // group types by section
+        const sectionMap = {};
+
+        questionTypes.forEach((qt) => {
+            const section = qt.section || "Other";
+            if (!sectionMap[section]) {
+                sectionMap[section] = [];
+            }
+            sectionMap[section].push(qt);
+        });
+
+        // sort sections alphabetically (A, B, C...)
+        const sortedSections = Object.keys(sectionMap).sort();
+
+        const result = {};
+        sortedSections.forEach((section) => {
+            // sort types inside section by "number"
+            const orderedTypes = sectionMap[section].sort((a, b) => {
+                const aNum =
+                    typeof a?.number === "number"
+                        ? a.number
+                        : Number.MAX_SAFE_INTEGER;
+                const bNum =
+                    typeof b?.number === "number"
+                        ? b.number
+                        : Number.MAX_SAFE_INTEGER;
+                return aNum - bNum;
+            });
+
+            result[section] = {};
+            orderedTypes.forEach((qt) => {
+                result[section][qt._id] =
+                    paperData.questions.filter((q) => q.type === qt._id) || [];
+            });
+        });
+
+        return result;
+    }, [paperData?.questions, paperData?.subject?.questionTypes]);
+
+    console.log("sortedQuestions", sortedQuestions);
+
     const handlePrint = () => {
         const printContent = document.getElementById("question-paper-preview");
         if (!printContent) return;
@@ -214,6 +262,8 @@ const PaperMain = () => {
         if (paperData?.paperId || !paperId) return;
         getData();
     }, [paperId, paperData?.paperId]);
+
+    let questionCounter = 1;
 
     return (
         <>
@@ -594,27 +644,17 @@ const PaperMain = () => {
                         </Box> */}
 
                                     {/* Questions by Type */}
-                                    {Object.entries(sortedQuestion).map(
-                                        (
-                                            [questionTypeId, questions],
-                                            typeIndex,
-                                        ) => {
-                                            const questionType =
-                                                paperData?.subject?.questionTypes?.find(
-                                                    (type) =>
-                                                        type._id ===
-                                                        questionTypeId,
-                                                );
 
-                                            if (
-                                                !questions ||
-                                                questions.length === 0
-                                            )
+                                    {Object.entries(sortedQuestions).map(
+                                        ([section, types], sectionIndex) => {
+                                            // skip empty sections
+                                            const typeIds = Object.keys(types);
+                                            if (typeIds.length === 0)
                                                 return null;
 
                                             return (
                                                 <Box
-                                                    key={questionTypeId}
+                                                    key={section}
                                                     sx={{
                                                         mb: 0.5,
                                                         pageBreakBefore:
@@ -622,7 +662,7 @@ const PaperMain = () => {
                                                     }}
                                                     className="main-section"
                                                 >
-                                                    {/* Section label only with underline */}
+                                                    {/* Section label */}
                                                     <div
                                                         style={{
                                                             textAlign: "center",
@@ -638,145 +678,188 @@ const PaperMain = () => {
                                                                     "underline",
                                                             }}
                                                         >
-                                                            Section:{" "}
-                                                            {String.fromCharCode(
-                                                                65 + typeIndex,
-                                                            )}
+                                                            Section: {section}
                                                         </span>
                                                     </div>
 
-                                                    {/* Description row: plain HTML */}
-                                                    <div
-                                                        style={{
-                                                            display: "flex",
-                                                            justifyContent:
-                                                                "space-between",
-                                                            alignItems:
-                                                                "center",
-                                                            marginBottom: 4,
-                                                        }}
-                                                    >
-                                                        <div
-                                                            style={{
-                                                                display: "flex",
-                                                                alignItems:
-                                                                    "center",
-                                                            }}
-                                                        >
-                                                            <span
-                                                                style={{
-                                                                    width: 6,
-                                                                    height: 6,
-                                                                    background:
-                                                                        "#000",
-                                                                    borderRadius:
-                                                                        "50%",
-                                                                    display:
-                                                                        "inline-block",
-                                                                    marginRight: 12,
-                                                                }}
-                                                            ></span>
-                                                            <strong>
-                                                                {questionType?.description ||
-                                                                    "Questions"}
-                                                            </strong>
-                                                        </div>
-                                                        <strong>
-                                                            (
-                                                            {padWithZero(
-                                                                questions?.reduce(
-                                                                    (sum, q) =>
-                                                                        sum +
-                                                                        (q.marks ||
-                                                                            0),
-                                                                    0,
-                                                                ) || 0,
-                                                            )}
-                                                            )
-                                                        </strong>
-                                                    </div>
+                                                    {Object.entries(types).map(
+                                                        ([
+                                                            questionTypeId,
+                                                            questions,
+                                                        ]) => {
+                                                            const questionType =
+                                                                paperData?.subject?.questionTypes?.find(
+                                                                    (type) =>
+                                                                        type._id ===
+                                                                        questionTypeId,
+                                                                );
 
-                                                    <Box sx={{ pl: 2 }}>
-                                                        {questions.map(
-                                                            (
-                                                                question,
-                                                                index,
-                                                            ) => (
+                                                            if (
+                                                                !questions ||
+                                                                questions.length ===
+                                                                    0
+                                                            )
+                                                                return null;
+
+                                                            return (
                                                                 <Box
                                                                     key={
-                                                                        question._id
+                                                                        questionTypeId
                                                                     }
                                                                     sx={{
-                                                                        mb: 0.5,
-                                                                        p: 0,
-                                                                        border: "none",
-                                                                        backgroundColor:
-                                                                            "transparent",
+                                                                        mb: 1,
                                                                     }}
+                                                                    className="type-block"
                                                                 >
+                                                                    {/* Description row */}
                                                                     <div
-                                                                        className="qp-question-row"
                                                                         style={{
                                                                             display:
                                                                                 "flex",
                                                                             justifyContent:
                                                                                 "space-between",
                                                                             alignItems:
-                                                                                "flex-start",
+                                                                                "center",
                                                                             marginBottom: 0,
                                                                         }}
                                                                     >
-                                                                        <span
-                                                                            className="qp-qno"
-                                                                            style={{
-                                                                                fontWeight:
-                                                                                    "bold",
-                                                                                fontSize:
-                                                                                    "16px",
-                                                                                color: "#1a1a1a",
-                                                                                minWidth:
-                                                                                    "25px",
-                                                                                marginRight: 8,
-                                                                            }}
-                                                                        >
-                                                                            {index +
-                                                                                1}
-                                                                            .
-                                                                        </span>
                                                                         <div
-                                                                            className={`qp-qtext ${
-                                                                                question.isFormatted
-                                                                                    ? "formatted-question"
-                                                                                    : ""
-                                                                            }`}
                                                                             style={{
-                                                                                flex: 1,
-                                                                                fontSize:
-                                                                                    "15px",
-                                                                                lineHeight: 1.6,
-                                                                                color: "#333",
+                                                                                display:
+                                                                                    "flex",
+                                                                                alignItems:
+                                                                                    "center",
                                                                             }}
                                                                         >
-                                                                            {question.isFormatted ? (
-                                                                                <QuestionFormatter
-                                                                                    data={
-                                                                                        question.question
-                                                                                    }
-                                                                                />
-                                                                            ) : (
-                                                                                question.question
-                                                                            )}
+                                                                            <span
+                                                                                style={{
+                                                                                    width: 6,
+                                                                                    height: 6,
+                                                                                    background:
+                                                                                        "#000",
+                                                                                    borderRadius:
+                                                                                        "50%",
+                                                                                    display:
+                                                                                        "inline-block",
+                                                                                    marginRight: 12,
+                                                                                }}
+                                                                            ></span>
+                                                                            <strong>
+                                                                                {questionType?.description ||
+                                                                                    "Questions"}
+                                                                            </strong>
                                                                         </div>
-                                                                        {/* <span className="qp-qmarks">[{question.marks || 0} marks]</span> */}
+                                                                        <strong>
+                                                                            (
+                                                                            {padWithZero(
+                                                                                questions?.reduce(
+                                                                                    (
+                                                                                        sum,
+                                                                                        q,
+                                                                                    ) =>
+                                                                                        sum +
+                                                                                        (q.marks ||
+                                                                                            0),
+                                                                                    0,
+                                                                                ) ||
+                                                                                    0,
+                                                                            )}
+                                                                            )
+                                                                        </strong>
                                                                     </div>
+
+                                                                    <Box
+                                                                        sx={{
+                                                                            pl: 2,
+                                                                        }}
+                                                                    >
+                                                                        {questions.map(
+                                                                            (
+                                                                                question,
+                                                                            ) => (
+                                                                                <Box
+                                                                                    key={
+                                                                                        question._id
+                                                                                    }
+                                                                                    sx={{
+                                                                                        mb: 0.5,
+                                                                                        p: 0,
+                                                                                        border: "none",
+                                                                                        backgroundColor:
+                                                                                            "transparent",
+                                                                                    }}
+                                                                                >
+                                                                                    <div
+                                                                                        className="qp-question-row"
+                                                                                        style={{
+                                                                                            display:
+                                                                                                "flex",
+                                                                                            justifyContent:
+                                                                                                "space-between",
+                                                                                            alignItems:
+                                                                                                "flex-start",
+                                                                                            marginBottom: 0,
+                                                                                        }}
+                                                                                    >
+                                                                                        <span
+                                                                                            className="qp-qno"
+                                                                                            style={{
+                                                                                                // fontWeight:
+                                                                                                //     "bold",
+                                                                                                // fontSize:
+                                                                                                //     "15px",
+                                                                                                // color: "#1a1a1a",
+                                                                                                minWidth:
+                                                                                                    "25px",
+                                                                                                marginRight: 4,
+                                                                                            }}
+                                                                                        >
+                                                                                            <strong>
+                                                                                                {
+                                                                                                    questionCounter++
+                                                                                                }
+
+                                                                                                .
+                                                                                            </strong>
+                                                                                        </span>
+                                                                                        <div
+                                                                                            className={`qp-qtext ${
+                                                                                                question.isFormatted
+                                                                                                    ? "formatted-question"
+                                                                                                    : ""
+                                                                                            }`}
+                                                                                            style={{
+                                                                                                flex: 1,
+                                                                                                fontSize:
+                                                                                                    "15px",
+                                                                                                lineHeight: 1.6,
+                                                                                                color: "#333",
+                                                                                            }}
+                                                                                        >
+                                                                                            {question.isFormatted ? (
+                                                                                                <QuestionFormatter
+                                                                                                    data={
+                                                                                                        question.question
+                                                                                                    }
+                                                                                                />
+                                                                                            ) : (
+                                                                                                question.question
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </Box>
+                                                                            ),
+                                                                        )}
+                                                                    </Box>
                                                                 </Box>
-                                                            ),
-                                                        )}
-                                                    </Box>
+                                                            );
+                                                        },
+                                                    )}
                                                 </Box>
                                             );
                                         },
                                     )}
+
                                     {Object.keys(sortedQuestion).length ===
                                         0 && (
                                         <Box

@@ -485,7 +485,7 @@ export const useSubjects = () => {
             questionTypes:
                 currentQuestion?.questionTypes?.length > 0
                     ? currentQuestion.questionTypes
-                    : [{ name: "", description: "" }],
+                    : [{ name: "", description: "", section: "A" }],
         },
         enableReinitialize: true,
         validationSchema: Yup.object().shape({
@@ -497,6 +497,12 @@ export const useSubjects = () => {
                     description: Yup.string()
                         .max(500, "Description must be at most 500 characters")
                         .required("Description is required"),
+                    section: Yup.string()
+                        .oneOf(
+                            ["A", "B", "C", "D", "E", "F", "G"],
+                            "Invalid section",
+                        )
+                        .required("Section is required"),
                 }),
             ),
         }),
