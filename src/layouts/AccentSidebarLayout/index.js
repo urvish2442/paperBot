@@ -66,7 +66,7 @@ const AccentSidebarLayout = ({ children }) => {
                 >
                     <Box flexGrow={1}>{children}</Box>
                 </Box>
-                <ThemeSettings />
+                {/* <ThemeSettings /> */}
             </Box>
         </>
     );

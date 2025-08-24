@@ -149,12 +149,12 @@ const Results = () => {
 
     return (
         <>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
                 <Card>
-                    {/* <CardHeader title={t("Subject Information")} />
-                    <Divider /> */}
+                    <CardHeader title={t("Subject Information")} />
+                    <Divider />
                 </Card>
-            </Grid>
+            </Grid> */}
             <Card>
                 <Box p={3}>
                     <Grid container spacing={3}>

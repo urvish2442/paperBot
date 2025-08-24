@@ -20,6 +20,7 @@ import ExpandMoreTwoToneIcon from "@mui/icons-material/ExpandMoreTwoTone";
 import AccountBoxTwoToneIcon from "@mui/icons-material/AccountBoxTwoTone";
 import LockOpenTwoToneIcon from "@mui/icons-material/LockOpenTwoTone";
 import AccountTreeTwoToneIcon from "@mui/icons-material/AccountTreeTwoTone";
+import DarkModeTwoToneIcon from "@mui/icons-material/DarkModeTwoTone";
 import { PATH_AUTH } from "src/routes/paths";
 import {
     TOAST_ALERTS,
@@ -29,6 +30,7 @@ import {
 } from "src/constants/keywords";
 import useToaster from "src/hooks/useToaster";
 import { removeAll } from "src/utils/custom/storage";
+import ThemeSettings from "src/components/ThemeSettings";
 
 const UserBoxButton = styled(Button)(
     ({ theme }) => `
@@ -80,12 +82,14 @@ function HeaderUserbox() {
 
     const ref = useRef(null);
     const [isOpen, setOpen] = useState(false);
+    const [showThemeList, setShowThemeList] = useState(false);
 
     const handleOpen = () => {
         setOpen(true);
     };
 
     const handleClose = () => {
+        setShowThemeList((prev) => !prev);
         setOpen(false);
     };
 
@@ -102,6 +106,10 @@ function HeaderUserbox() {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const handleToggleThemeList = () => {
+        setShowThemeList((prev) => !prev);
     };
 
     return (
@@ -177,7 +185,7 @@ function HeaderUserbox() {
                     }}
                     component="nav"
                 >
-                    <ListItem
+                    {/* <ListItem
                         onClick={() => {
                             handleClose();
                         }}
@@ -203,7 +211,26 @@ function HeaderUserbox() {
                     >
                         <AccountTreeTwoToneIcon fontSize="small" />
                         <ListItemText primary={t("Projects")} />
+                    </ListItem> */}
+                    {/* <ListItem
+                        button
+                        onClick={() => {
+                            handleClose();
+                        }}
+                    >
+                        <DarkModeTwoToneIcon fontSize="small" />
+                        <ListItemText primary={t("Change Theme")} />
+                    </ListItem> */}
+                    <ListItem button onClick={handleToggleThemeList}>
+                        <DarkModeTwoToneIcon fontSize="small" />
+                        <ListItemText primary={t("Change Theme")} />
                     </ListItem>
+                    {/* <Divider /> */}
+                    {showThemeList && (
+                        <Box p={2}>
+                            <ThemeSettings closeMenu={handleClose} />
+                        </Box>
+                    )}
                 </List>
                 <Divider />
                 <Box m={1}>
