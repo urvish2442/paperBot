@@ -322,7 +322,7 @@ const PaperMain = () => {
                             sx={{
                                 width: "210mm", // A4 width
                                 minHeight: "297mm", // A4 height
-                                p: "20mm", // A4 margins
+                                p: "10mm", // A4 margins
                                 backgroundColor: "#ffffff",
                                 boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                                 borderRadius: "8px",

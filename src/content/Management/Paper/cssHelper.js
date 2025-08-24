@@ -15,7 +15,7 @@ export const GeneratePrintCSS = () => {
                 width: 210mm !important;
                 min-height: 297mm !important;
                 margin: 0 auto !important;
-                padding: 20mm !important;
+                padding: 10mm !important;
                 background-color: #ffffff !important;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
                 border-radius: 8px !important;
@@ -26,7 +26,7 @@ export const GeneratePrintCSS = () => {
                 .question-paper-preview {
                     width: 100% !important;
                     min-height: auto !important;
-                    padding: 20mm !important;
+                    padding: 10mm !important;
                     box-shadow: none !important;
                     border: none !important;
                 }
@@ -95,8 +95,13 @@ export const GeneratePrintCSS = () => {
                 font-size: 15px !important;
                 line-height: 1.6 !important;
                 color: #333 !important;
+                text-align: justify !important;
             }
-            .qp-qtext p { margin: 0 !important; padding: 0 !important; }
+            .qp-qtext p { 
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: justify !important;
+            }
             .qp-qmarks {
                 font-weight: bold !important;
                 font-size: 14px !important;
