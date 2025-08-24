@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useMemo, useCallback } from "react";
 
 import {
@@ -27,7 +28,10 @@ import {
     DialogTitle,
     DialogActions,
     CircularProgress,
+    Fab,
 } from "@mui/material";
+import PreviewIcon from "@mui/icons-material/Visibility"; // Add this import for a preview icon
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useTranslation } from "react-i18next";
 import Text from "src/components/Text";
@@ -38,6 +42,29 @@ import QuestionFormatter from "../QuestionFormatter";
 import { useSelector } from "react-redux";
 import { globalState } from "src/redux/slices/global";
 import { useInView } from "react-intersection-observer";
+import { styled } from "@mui/material/styles";
+
+const DialogWrapper = styled(Dialog)(
+    () => `
+      .MuiDialog-paper {
+        overflow: visible;
+      }
+`,
+);
+
+// Styled Avatar for info icon (use primary color for generate)
+const AvatarInfo = styled("div")(({ theme }) => ({
+    background: theme.palette.primary.lighter || "#e3f2fd",
+    color: theme.palette.primary.main,
+    width: theme.spacing(8),
+    height: theme.spacing(8),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50%",
+    marginBottom: theme.spacing(2),
+    fontSize: 32,
+}));
 
 const Results = () => {
     const { t } = useTranslation();
@@ -145,6 +172,16 @@ const Results = () => {
                 return [...preVal, id];
             }
         });
+    };
+
+    const [openConfirmGenerate, setOpenConfirmGenerate] = useState(false);
+
+    const handleOpenConfirmGenerate = () => setOpenConfirmGenerate(true);
+    const handleCloseConfirmGenerate = () => setOpenConfirmGenerate(false);
+
+    const handleGeneratePaper = () => {
+        setOpenConfirmGenerate(false);
+        handleAddQuestionIds();
     };
 
     return (
@@ -491,9 +528,75 @@ const Results = () => {
                     </>
                 )}
             </Card>
-            <Button variant="contained" onClick={handleAddQuestionIds}>
-                Preview Question Paper
-            </Button>
+            <Fab
+                color="primary"
+                aria-label="preview"
+                onClick={handleOpenConfirmGenerate}
+                sx={{
+                    position: "fixed",
+                    bottom: (theme) => theme.spacing(4),
+                    right: (theme) => theme.spacing(4),
+                    zIndex: 1300,
+                    boxShadow: 6,
+                }}
+            >
+                <PreviewIcon />
+            </Fab>
+
+            <DialogWrapper
+                open={openConfirmGenerate}
+                maxWidth="sm"
+                fullWidth
+                keepMounted
+                onClose={handleCloseConfirmGenerate}
+            >
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    flexDirection="column"
+                    p={5}
+                >
+                    {/* <AvatarInfo>
+                        <PreviewIcon fontSize="inherit" />
+                    </AvatarInfo> */}
+                    <Typography
+                        align="center"
+                        sx={{
+                            py: 4,
+                            px: 2,
+                        }}
+                        variant="h3"
+                    >
+                        {t("Are you sure you want to generate the paper?")}
+                    </Typography>
+                    <Box>
+                        <Button
+                            variant="text"
+                            size="large"
+                            sx={{
+                                mx: 1,
+                            }}
+                            onClick={handleCloseConfirmGenerate}
+                        >
+                            {t("Cancel")}
+                        </Button>
+                        <Button
+                            onClick={handleGeneratePaper}
+                            size="large"
+                            sx={{
+                                px: 3,
+                                mr: 1,
+                            }}
+                            variant="contained"
+                            color="primary"
+                        >
+                            {t("Generate")}
+                        </Button>
+                    </Box>
+                </Box>
+            </DialogWrapper>
+
             <Dialog
                 fullWidth
                 maxWidth="md"
