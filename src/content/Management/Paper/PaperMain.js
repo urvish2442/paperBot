@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 import { globalState, setPaperId } from "src/redux/slices/global";
 import { API_ROUTER } from "src/services/apiRouter";
 import { axiosGet } from "src/services/axiosHelper";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import QuestionFormatter from "../Questions/QuestionFormatter";
 // import { TOAST_TYPES, TOAST_ALERTS } from "src/constants/toast";
 import {
@@ -36,6 +36,8 @@ import {
 import { GeneratePrintCSS } from "./cssHelper";
 import { useDispatch } from "react-redux";
 import useToaster from "src/hooks/useToaster";
+import EditHeaderModal from "./EditHeaderModal";
+import { use } from "react";
 
 //** Helper Functions */
 const padWithZero = (number) => {
@@ -57,8 +59,15 @@ const PaperMain = () => {
     const { subjectQuestionIds, paperId } = useSelector(globalState);
     const dispatch = useDispatch();
     const [paperData, setPaperData] = useState({});
-    const [isEditable, setIsEditable] = useState(false);
     const { toaster } = useToaster();
+    const [openHeaderModal, setOpenHeaderModal] = useState(false);
+    const [isHeaderSubmitting, setIsHeaderSubmitting] = useState(false);
+    const [headerData, setHeaderData] = useState({
+        trustName: "Shri Sardar Patel Girls Education Trust - Managed",
+        schoolName: "Shri Kanya Vidyalaya - Rajkot",
+        hours: "3 Hours",
+        marks: 0,
+    });
 
     const SubjectName = useMemo(() => {
         const subjectName =
@@ -70,40 +79,6 @@ const PaperMain = () => {
         return toProperCase(finalName);
     }, [paperData?.subject?.name, paperData?.subject?.model_name]);
 
-    const sortedQuestion = useMemo(() => {
-        if (!paperData?.questions || !paperData?.subject?.questionTypes) {
-            return {};
-        }
-
-        const questionTypes = paperData.subject.questionTypes || [];
-
-        const hasNumber = questionTypes.some(
-            (qt) => typeof qt?.number === "number",
-        );
-        const orderedTypes = hasNumber
-            ? [...questionTypes].sort((a, b) => {
-                  const aNum =
-                      typeof a?.number === "number"
-                          ? a.number
-                          : Number.MAX_SAFE_INTEGER;
-                  const bNum =
-                      typeof b?.number === "number"
-                          ? b.number
-                          : Number.MAX_SAFE_INTEGER;
-                  return aNum - bNum;
-              })
-            : questionTypes;
-
-        const sorted = {};
-        orderedTypes.forEach((questionType) => {
-            sorted[questionType._id] = paperData.questions.filter(
-                (question) => question.type === questionType._id,
-            );
-        });
-
-        return sorted;
-    }, [paperData?.questions, paperData?.subject?.questionTypes]);
-
     const sortedQuestions = useMemo(() => {
         if (!paperData?.questions || !paperData?.subject?.questionTypes) {
             return {};
@@ -113,7 +88,6 @@ const PaperMain = () => {
 
         // group types by section
         const sectionMap = {};
-
         questionTypes.forEach((qt) => {
             const section = qt.section || "Other";
             if (!sectionMap[section]) {
@@ -122,7 +96,7 @@ const PaperMain = () => {
             sectionMap[section].push(qt);
         });
 
-        // sort sections alphabetically (A, B, C...)
+        // sort sections alphabetically
         const sortedSections = Object.keys(sectionMap).sort();
 
         const result = {};
@@ -140,11 +114,17 @@ const PaperMain = () => {
                 return aNum - bNum;
             });
 
-            result[section] = {};
+            const typeMap = {};
             orderedTypes.forEach((qt) => {
-                result[section][qt._id] =
-                    paperData.questions.filter((q) => q.type === qt._id) || [];
+                const qs = paperData.questions.filter((q) => q.type === qt._id);
+                if (qs.length > 0) {
+                    typeMap[qt._id] = qs;
+                }
             });
+
+            if (Object.keys(typeMap).length > 0) {
+                result[section] = typeMap; // add section only if it has at least one qt
+            }
         });
 
         return result;
@@ -245,10 +225,6 @@ const PaperMain = () => {
         }
     };
 
-    const handleEditable = () => {
-        setIsEditable(!isEditable);
-    };
-
     useEffect(() => {
         if (
             !subjectQuestionIds?.subject ||
@@ -257,6 +233,38 @@ const PaperMain = () => {
             return;
         getData();
     }, [subjectQuestionIds]);
+
+    const totalMarks = useMemo(() => {
+        if (!paperData?.questions || paperData.questions.length === 0) return 0;
+
+        return (
+            paperData?.questions?.reduce((sum, q) => sum + (q.marks || 0), 0) ||
+            0
+        );
+    }, [paperData?.questions]);
+
+    useEffect(() => {
+        setHeaderData((prev) => ({
+            ...prev,
+            marks: totalMarks,
+        }));
+    }, [totalMarks]);
+
+    const handleOpenHeaderModal = useCallback(
+        () => setOpenHeaderModal(true),
+        [],
+    );
+    const handleCloseHeaderModal = useCallback(
+        () => setOpenHeaderModal(false),
+        [],
+    );
+
+    const handleHeaderSave = (newHeader) => {
+        setIsHeaderSubmitting(true);
+        setHeaderData(newHeader);
+        setIsHeaderSubmitting(false);
+        setOpenHeaderModal(false);
+    };
 
     useEffect(() => {
         if (paperData?.paperId || !paperId) return;
@@ -296,7 +304,7 @@ const PaperMain = () => {
                                 variant="outlined"
                                 startIcon={<PrintIcon />}
                                 onClick={handlePrint}
-                                disabled={isEditable}
+                                disabled={openHeaderModal}
                             >
                                 {t("Print")}
                             </Button>
@@ -315,9 +323,9 @@ const PaperMain = () => {
                                     mt: { xs: 2, sm: 0 },
                                 }}
                                 variant="contained"
-                                onClick={handleEditable}
+                                onClick={handleOpenHeaderModal}
                             >
-                                {isEditable ? t("Save") : t("Edit")}
+                                {t("Edit")}
                             </Button>
                         </Box>
                     </Grid>
@@ -427,10 +435,8 @@ const PaperMain = () => {
                                                 color: "#1a1a1a",
                                                 mb: 0.5,
                                             }}
-                                            contentEditable={isEditable}
                                         >
-                                            Shri Sardar Patel Girls Education
-                                            Trust - Managed
+                                            {headerData?.trustName || ""}
                                         </Typography>
 
                                         {/* School Name */}
@@ -444,9 +450,8 @@ const PaperMain = () => {
                                                 fontSize: 28,
                                                 color: "#1a1a1a",
                                             }}
-                                            contentEditable={isEditable}
                                         >
-                                            Shri Kanya Vidyalaya - Rajkot
+                                            {headerData?.schoolName || ""}
                                         </Typography>
 
                                         {/* Separator line */}
@@ -477,7 +482,6 @@ const PaperMain = () => {
                                                     color: "#333",
                                                     fontSize: 16,
                                                 }}
-                                                contentEditable={isEditable}
                                             >
                                                 Standard:{" "}
                                                 <span>
@@ -498,14 +502,9 @@ const PaperMain = () => {
                                                     color: "#333",
                                                     fontSize: 16,
                                                 }}
-                                                contentEditable={isEditable}
                                             >
                                                 Total Marks:{" "}
-                                                {paperData?.questions?.reduce(
-                                                    (sum, q) =>
-                                                        sum + (q.marks || 0),
-                                                    0,
-                                                ) || 0}
+                                                {headerData?.marks || 0}
                                             </Typography>
                                         </Box>
 
@@ -527,7 +526,6 @@ const PaperMain = () => {
                                                     color: "#333",
                                                     fontSize: 16,
                                                 }}
-                                                contentEditable={isEditable}
                                             >
                                                 Subject: {SubjectName || ""}
                                             </Typography>
@@ -539,12 +537,8 @@ const PaperMain = () => {
                                                     color: "#333",
                                                     fontSize: 16,
                                                 }}
-                                                contentEditable={isEditable}
                                             >
-                                                Time:{" "}
-                                                {paperData?.subject?.duration ||
-                                                    "3"}{" "}
-                                                Hours
+                                                Time: {headerData?.hours}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -860,7 +854,7 @@ const PaperMain = () => {
                                         },
                                     )}
 
-                                    {Object.keys(sortedQuestion).length ===
+                                    {Object.keys(sortedQuestions).length ===
                                         0 && (
                                         <Box
                                             sx={{ textAlign: "center", py: 8 }}
@@ -882,6 +876,15 @@ const PaperMain = () => {
                                             </Typography>
                                         </Box>
                                     )}
+
+                                    <EditHeaderModal
+                                        open={openHeaderModal}
+                                        handleClose={handleCloseHeaderModal}
+                                        headerData={headerData}
+                                        setHeaderData={setHeaderData}
+                                        onSave={handleHeaderSave}
+                                        isSubmitting={isHeaderSubmitting}
+                                    />
                                 </>
                             ) : (
                                 <Box sx={{ textAlign: "center", py: 8 }}>

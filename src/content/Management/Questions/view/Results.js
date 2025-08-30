@@ -145,9 +145,9 @@ const Results = () => {
             const textColor = matchedUnit?.isActive ? "primary" : "error";
 
             return (
-                <Text color={textColor}>
-                    {`${matchedUnit.number}: ${matchedUnit.name}`}
-                </Text>
+                <Text
+                    color={textColor}
+                >{`${matchedUnit.number}: ${matchedUnit.name}`}</Text>
             );
         },
         [currentUnits],
@@ -176,13 +176,20 @@ const Results = () => {
 
     const [openConfirmGenerate, setOpenConfirmGenerate] = useState(false);
 
-    const handleOpenConfirmGenerate = () => setOpenConfirmGenerate(true);
-    const handleCloseConfirmGenerate = () => setOpenConfirmGenerate(false);
+    const toggleOpenConfirmGenerate = () =>
+        setOpenConfirmGenerate(!openConfirmGenerate);
 
     const handleGeneratePaper = () => {
+        if (selectedQuestions.length === 0) return;
         setOpenConfirmGenerate(false);
         handleAddQuestionIds();
     };
+
+    const totalSelectedMarks = useMemo(() => {
+        return questions
+            .filter((q) => selectedQuestions.includes(q._id))
+            .reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+    }, [selectedQuestions, questions]);
 
     return (
         <>
@@ -531,16 +538,36 @@ const Results = () => {
             <Fab
                 color="primary"
                 aria-label="preview"
-                onClick={handleOpenConfirmGenerate}
+                onClick={toggleOpenConfirmGenerate}
                 sx={{
                     position: "fixed",
                     bottom: (theme) => theme.spacing(4),
                     right: (theme) => theme.spacing(4),
                     zIndex: 1300,
                     boxShadow: 6,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    py: 1,
+                    px: 1,
+                    borderRadius: 1,
+                    width: totalSelectedMarks > 0 ? "auto" : undefined,
                 }}
             >
                 <PreviewIcon />
+                {totalSelectedMarks > 0 && (
+                    <Typography
+                        variant="subtitle2"
+                        sx={{
+                            color: "white",
+                            fontWeight: 600,
+                            ml: 1,
+                            mr: 1,
+                        }}
+                    >
+                        ({totalSelectedMarks})
+                    </Typography>
+                )}
             </Fab>
 
             <DialogWrapper
@@ -548,7 +575,7 @@ const Results = () => {
                 maxWidth="sm"
                 fullWidth
                 keepMounted
-                onClose={handleCloseConfirmGenerate}
+                onClose={toggleOpenConfirmGenerate}
             >
                 <Box
                     display="flex"
@@ -577,12 +604,13 @@ const Results = () => {
                             sx={{
                                 mx: 1,
                             }}
-                            onClick={handleCloseConfirmGenerate}
+                            onClick={toggleOpenConfirmGenerate}
                         >
                             {t("Cancel")}
                         </Button>
                         <Button
                             onClick={handleGeneratePaper}
+                            disabled={selectedQuestions.length === 0}
                             size="large"
                             sx={{
                                 px: 3,
