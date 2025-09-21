@@ -37,8 +37,6 @@ import { GeneratePrintCSS } from "./cssHelper";
 import { useDispatch } from "react-redux";
 import useToaster from "src/hooks/useToaster";
 import EditHeaderModal from "./EditHeaderModal";
-const html2pdfPromise = import("html2pdf.js").then((m) => m.default);
-
 //** Helper Functions */
 const padWithZero = (number) => {
     return String(number).padStart(2, "0");
