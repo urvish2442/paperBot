@@ -72,6 +72,7 @@ const Results = () => {
     const mobile = useMediaQuery(theme.breakpoints.down("md"));
     const { filtersData, subjectFiltersData, currentFilter } =
         useSelector(globalState);
+    const [totalSelectedMarks, setTotalSelectedMarks] = useState(0);
 
     const SUBJECTS_TABLE_HEADERS = [
         { value: "id", label: "Select", isSortable: false },
@@ -167,8 +168,16 @@ const Results = () => {
     const handleSelectQuestions = (id) => {
         setSelectedQuestions((preVal) => {
             if (preVal?.includes(id)) {
+                setTotalSelectedMarks(
+                    totalSelectedMarks -
+                        Number(questions.find((q) => q._id === id)?.marks),
+                );
                 return preVal?.filter((item) => item !== id);
             } else {
+                setTotalSelectedMarks(
+                    totalSelectedMarks +
+                        Number(questions.find((q) => q._id === id)?.marks),
+                );
                 return [...preVal, id];
             }
         });
@@ -184,12 +193,6 @@ const Results = () => {
         setOpenConfirmGenerate(false);
         handleAddQuestionIds();
     };
-
-    const totalSelectedMarks = useMemo(() => {
-        return questions
-            .filter((q) => selectedQuestions.includes(q._id))
-            .reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
-    }, [selectedQuestions, questions]);
 
     return (
         <>

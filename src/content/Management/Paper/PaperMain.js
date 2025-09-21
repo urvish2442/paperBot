@@ -37,7 +37,7 @@ import { GeneratePrintCSS } from "./cssHelper";
 import { useDispatch } from "react-redux";
 import useToaster from "src/hooks/useToaster";
 import EditHeaderModal from "./EditHeaderModal";
-import { use } from "react";
+const html2pdfPromise = import("html2pdf.js").then((m) => m.default);
 
 //** Helper Functions */
 const padWithZero = (number) => {
@@ -132,66 +132,50 @@ const PaperMain = () => {
 
     console.log("sortedQuestions", sortedQuestions);
 
-    const handlePrint = () => {
-        const printContent = document.getElementById("question-paper-preview");
-        if (!printContent) return;
+const handlePrint = () => {
+    const printContent = document.getElementById("question-paper-preview");
+    if (!printContent) return;
 
-        const printWindow = window.open("", "_blank");
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title>Question Paper - ${
-                        paperData?.subject?.model_name || "Subject"
-                    }</title>
-                    <style>
-                        ${GeneratePrintCSS()}
-                    </style>
-                </head>
-                <body>
-                    <div class="question-paper-preview">
-                        ${printContent.innerHTML}
-                    </div>
-                </body>
-            </html>
-        `);
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Question Paper - ${
+                    paperData?.subject?.model_name || "Subject"
+                }</title>
+                <style>
+                    ${GeneratePrintCSS()}
 
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-            printWindow.print();
-        }, 500);
-    };
+                    @page {
+                        margin: 0; /* Removes browser default margins */
+                    }
 
-    const handleDownload = () => {
-        const printContent = document.getElementById("question-paper-preview");
-        if (!printContent) return;
+                    @media print {
+                        // body, .question-paper-preview {
+                        //     margin: 0 !important;
+                        //     padding: 0 !important;
+                        // }
+                        /* Force Chrome to not print headers/footers */
+                        @page {
+                            size: A4;  /* You can change to letter if needed */
+                            margin: 0; /* Ensures no extra margins */
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="question-paper-preview">
+                    ${printContent.innerHTML}
+                </div>
+            </body>
+        </html>
+    `);
 
-        const printWindow = window.open("", "_blank");
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title>Question Paper - ${
-                        paperData?.subject?.model_name || "Subject"
-                    }</title>
-                    <style>
-                        ${GeneratePrintCSS()}
-                    </style>
-                </head>
-                <body>
-                    <div class="question-paper-preview">
-                        ${printContent.innerHTML}
-                    </div>
-                </body>
-            </html>
-        `);
-
-        printWindow.document.close();
-        printWindow.focus();
-        // For download, we'll just open the window and let user save as PDF
-        // The user can use browser's "Save as PDF" option
-    };
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+};
 
     const [loading, setLoading] = useState(true);
     const getData = async () => {
